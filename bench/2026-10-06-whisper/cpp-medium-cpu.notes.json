@@ -1,0 +1,12 @@
+{
+ "engine": "cpp",
+ "model": "medium",
+ "device": "cpu",
+ "audio_s": 37.04,
+ "error": null,
+ "load_s": 1.25,
+ "transcribe_s": 30.36,
+ "rtf": 0.82,
+ "words": 68,
+ "vram_peak_mb": null
+}

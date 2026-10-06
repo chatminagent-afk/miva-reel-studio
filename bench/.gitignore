@@ -1,0 +1,6 @@
+_work/
+*.wav
+*.mp4
+*.bin
+*.gguf
+whispercpp/
