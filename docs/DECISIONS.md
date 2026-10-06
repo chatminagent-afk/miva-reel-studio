@@ -22,6 +22,8 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-06 | App dikirim hanya setelah **UAT otomatis end-to-end lulus 100%** (`docs/2026-10-06-uat-plan.md`), lalu UAT manual Steven | Permintaan Steven 06/10 |
 | 2026-10-06 | Font dan GSAP dibundel lokal; telemetry HyperFrames dimatikan; Chrome headless dibundel | Syarat offline (spike 06/10) |
 | 2026-10-06 | **Motion graphic masuk fase 1**: pustaka komponen (chip, kartu logo, angka/counter, poll, CTA, lower third) lewat drag & drop + saran penempatan otomatis (Rules / Local LLM / Claude, lalu approve) | Feedback render spike 06/10: end goal butuh motion; di skill grafik dibuat manual per video |
+| 2026-10-06 | **Semua fitur `/reel-edit` masuk fase 1** (gap analysis 06/10): koreksi transkrip + kamus nama, editor cover JPG, detail kamera (titik zoom wajah, kekuatan, punch-in, whip, deteksi awal goyang), detail subtitle (posisi/warna kata kunci, safe zone), jeda untuk grafik + scrim, kelola pustaka SFX, laporan export, kirim WA via Kirimi (online, opsional), musik latar opsional + ducking (default mati) | Pilihan Steven 06/10: hasil app harus setara skill |
+| 2026-10-06 | **`/miva-motion` (naskah → motion + VO) di fase 2**, setelah editor footage lolos UAT | Pilihan Steven 06/10 |
 
 ## Lingkup fitur versi 1
 
@@ -30,6 +32,9 @@ ripple delete, magnet main track, snapping, copy/paste, undo/redo, thumbnail + w
 hapus hening & salah ucap, subtitle dua lapis + SFX otomatis (aturan skill), checkpoint versi, export 1080p/2K/4K.
 
 Motion graphic: pustaka komponen + saran penempatan otomatis (lihat keputusan 06/10).
+
+Dari skill `/reel-edit` (gap analysis 06/10): koreksi transkrip + kamus nama, editor cover JPG, detail kamera & subtitle,
+jeda untuk grafik + scrim, kelola pustaka SFX (tambah/potong/audisi/label), laporan export, kirim WA (opsional, online), musik opsional.
 
 Pro yang dipilih Steven: **Transform + keyframe** (scale, posisi, rotate, crop, mirror, keyframe, transisi & filter dasar),
 **Audio pro** (noise reduction, voice enhance, volume/fade per klip, ducking), **Remove BG + stabilize** (model lokal di GPU).
@@ -40,7 +45,6 @@ AMD Ryzen 7 7735HS, NVIDIA RTX 4060 (laptop, 8 GB VRAM), RAM 32 GB, Windows 11.
 Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whisper dan LLM lokal tidak dijalankan bersamaan (VRAM 8 GB).
 
 ## Pertanyaan terbuka
-
 
 - "Fitur yang paling sering digunakan user" (jawaban Steven 06/10): interpretasi sementara = speed (0,5–2×), teks bebas/judul,
   freeze frame, reverse, adjust warna (exposure/contrast/saturation/temperature), aspect ratio. Menunggu konfirmasi.
@@ -60,7 +64,7 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 |---|---|---|
 | Mobile (iOS/Android) | Biaya $99/tahun (iOS), render berat di HP, risiko crash | Edit hanya di PC |
 | Code signing `.exe` | ±$200+/tahun | Peringatan SmartScreen saat install ("Run anyway") |
-| Mode naskah/VO (`/miva-motion`) | TTS bagus (ElevenLabs/edge-tts) butuh internet, bentrok dengan offline | Mode motion tetap lewat Claude Code |
+| Mode naskah/VO (`/miva-motion`) → **fase 2** | TTS ElevenLabs/edge-tts butuh internet; kandidat offline: Kokoro (HyperFrames `tts`, Inggris) untuk VO default Ava, kualitas harus dibandingkan | Selama fase 1, mode motion tetap lewat Claude Code |
 | Teks & stiker manual + preset gaya subtitle lain | Menambah tools, UI lebih ramai | Hanya gaya subtitle MIVA |
 
 ## Risiko teknis yang sudah diketahui
