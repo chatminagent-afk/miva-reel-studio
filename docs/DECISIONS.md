@@ -21,12 +21,15 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-06 | Export punya **pilihan folder** (Browse), opsi jadikan default, dan buka folder setelah selesai | Feedback Steven 06/10 |
 | 2026-10-06 | App dikirim hanya setelah **UAT otomatis end-to-end lulus 100%** (`docs/2026-10-06-uat-plan.md`), lalu UAT manual Steven | Permintaan Steven 06/10 |
 | 2026-10-06 | Font dan GSAP dibundel lokal; telemetry HyperFrames dimatikan; Chrome headless dibundel | Syarat offline (spike 06/10) |
+| 2026-10-06 | **Motion graphic masuk fase 1**: pustaka komponen (chip, kartu logo, angka/counter, poll, CTA, lower third) lewat drag & drop + saran penempatan otomatis (Rules / Local LLM / Claude, lalu approve) | Feedback render spike 06/10: end goal butuh motion; di skill grafik dibuat manual per video |
 
 ## Lingkup fitur versi 1
 
 Dasar (selalu masuk): timeline multi-track, drag & drop (dari panel dan dari Windows Explorer), split (Ctrl+B), trim tarik tepi klip,
 ripple delete, magnet main track, snapping, copy/paste, undo/redo, thumbnail + waveform, auto captions (Whisper lokal),
 hapus hening & salah ucap, subtitle dua lapis + SFX otomatis (aturan skill), checkpoint versi, export 1080p/2K/4K.
+
+Motion graphic: pustaka komponen + saran penempatan otomatis (lihat keputusan 06/10).
 
 Pro yang dipilih Steven: **Transform + keyframe** (scale, posisi, rotate, crop, mirror, keyframe, transisi & filter dasar),
 **Audio pro** (noise reduction, voice enhance, volume/fade per klip, ducking), **Remove BG + stabilize** (model lokal di GPU).
@@ -38,11 +41,6 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 
 ## Pertanyaan terbuka
 
-- **Motion graphic otomatis (gap, dicatat 06/10 setelah feedback render spike).** Di skill, grafik overlay (chip, kartu logo,
-  poll, CTA) dibuat Claude manual per video; di rencana app baru ada di fase 2. Usulan: masukkan ke fase 1 sebagai
-  (a) pustaka komponen grafik yang ditaruh lewat drag & drop dengan teks bisa diedit, dan (b) saran penempatan otomatis
-  saat nama/angka/produk disebut, memakai 3 mode yang sama dengan saran kata kunci. Kalau dikerjakan: fase 1 lebih lama.
-  Kalau ditunda: hasil v1 tanpa grafik, tidak sesuai end goal Steven. Menunggu keputusan Steven.
 
 - "Fitur yang paling sering digunakan user" (jawaban Steven 06/10): interpretasi sementara = speed (0,5–2×), teks bebas/judul,
   freeze frame, reverse, adjust warna (exposure/contrast/saturation/temperature), aspect ratio. Menunggu konfirmasi.
