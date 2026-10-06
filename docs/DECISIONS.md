@@ -38,6 +38,12 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 
 ## Pertanyaan terbuka
 
+- **Motion graphic otomatis (gap, dicatat 06/10 setelah feedback render spike).** Di skill, grafik overlay (chip, kartu logo,
+  poll, CTA) dibuat Claude manual per video; di rencana app baru ada di fase 2. Usulan: masukkan ke fase 1 sebagai
+  (a) pustaka komponen grafik yang ditaruh lewat drag & drop dengan teks bisa diedit, dan (b) saran penempatan otomatis
+  saat nama/angka/produk disebut, memakai 3 mode yang sama dengan saran kata kunci. Kalau dikerjakan: fase 1 lebih lama.
+  Kalau ditunda: hasil v1 tanpa grafik, tidak sesuai end goal Steven. Menunggu keputusan Steven.
+
 - "Fitur yang paling sering digunakan user" (jawaban Steven 06/10): interpretasi sementara = speed (0,5–2×), teks bebas/judul,
   freeze frame, reverse, adjust warna (exposure/contrast/saturation/temperature), aspect ratio. Menunggu konfirmasi.
 - Footage sampel: `tes2.mp4` diterima 06/10 (37 dtk, 1080×1920 HEVC 30 fps, AAC 44,1 kHz, rekaman di mobil). Belum di-commit
