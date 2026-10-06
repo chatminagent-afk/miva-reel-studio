@@ -1,0 +1,31 @@
+{
+ "src": "/home/user/miva-reel-studio/tests/fixtures/cases/speed1_warm/audio.wav",
+ "fix": {},
+ "grade": "warm",
+ "music": {
+  "style": "none"
+ },
+ "camera": "auto",
+ "sfx": [],
+ "inserts": [],
+ "segs": [
+  [
+   0.34,
+   2.66
+  ],
+  [
+   3.12,
+   5.08
+  ],
+  [
+   5.95,
+   8.27
+  ],
+  [
+   8.48,
+   10.85
+  ]
+ ],
+ "speed": 1,
+ "riser": false
+}

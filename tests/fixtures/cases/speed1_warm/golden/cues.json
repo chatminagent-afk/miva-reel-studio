@@ -1,0 +1,80 @@
+{
+ "duration": 8.97,
+ "music": {
+  "style": "none"
+ },
+ "sfx": [
+  {
+   "t": 0.04,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.407,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 0.955,
+   "id": "lib-klik-1",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 2.365,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.407,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 3.3,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.407,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 4.315,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.55,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 5.4,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.621,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 6.645,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.586,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 7.52,
+   "id": "lib-whoosh-1",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 7.795,
+   "id": "lib-impact-1",
+   "kat": "impact",
+   "dur": null,
+   "prio": 3,
+   "gain_db": 0.0
+  }
+ ]
+}

@@ -1,0 +1,69 @@
+{
+ "chunks": [
+  {
+   "w": [
+    0,
+    1
+   ],
+   "anim": "type",
+   "_teks": "Halo semua,"
+  },
+  {
+   "w": [
+    2,
+    3,
+    4
+   ],
+   "anim": "pop",
+   "_teks": "hari ini gue"
+  },
+  {
+   "w": [
+    5,
+    6
+   ],
+   "anim": "type",
+   "_teks": "mau cerita."
+  },
+  {
+   "w": [
+    7,
+    8
+   ],
+   "anim": "type",
+   "_teks": "Kenapa gue"
+  },
+  {
+   "w": [
+    9,
+    10
+   ],
+   "anim": "type",
+   "_teks": "berhenti pakai"
+  },
+  {
+   "w": [
+    11,
+    12
+   ],
+   "anim": "pop",
+   "_teks": "editor berbayar?"
+  },
+  {
+   "w": [
+    13,
+    14
+   ],
+   "anim": "type",
+   "_teks": "Karena sekarang"
+  },
+  {
+   "w": [
+    15,
+    16
+   ],
+   "anim": "pop",
+   "_teks": "semuanya otomatis."
+  }
+ ]
+}

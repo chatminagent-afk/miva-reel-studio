@@ -1,0 +1,25 @@
+{
+ "src": "/home/user/miva-reel-studio/tests/fixtures/cases/nokeys/audio.wav",
+ "fix": {},
+ "grade": "natural",
+ "music": {
+  "style": "none"
+ },
+ "camera": "auto",
+ "sfx": [],
+ "inserts": [],
+ "segs": [
+  [
+   1.54,
+   3.46
+  ],
+  [
+   4.03,
+   7.13
+  ],
+  [
+   7.4,
+   9.28
+  ]
+ ]
+}

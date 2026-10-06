@@ -1,0 +1,71 @@
+{
+ "src": "/home/user/miva-reel-studio/tests/fixtures/cases/basic/audio.wav",
+ "fix": {
+  "Gepkart": "CapCut"
+ },
+ "grade": "natural",
+ "music": {
+  "style": "none"
+ },
+ "camera": "auto",
+ "sfx": [
+  {
+   "t": 5.0,
+   "kat": "pop",
+   "gain_db": -4
+  },
+  {
+   "t": 6.2,
+   "id": "lib-ding-1",
+   "align": true
+  },
+  {
+   "t": 7.1,
+   "kat": "klik",
+   "dur": 0.2
+  }
+ ],
+ "inserts": [
+  {
+   "t": 3.0,
+   "dur": 1.2,
+   "src": "assets/broll-1.png"
+  },
+  {
+   "t": 6.5,
+   "dur": 1.0,
+   "src": "assets/screen.mp4"
+  }
+ ],
+ "segs": [
+  [
+   0.84,
+   2.66
+  ],
+  [
+   2.82,
+   6.4
+  ],
+  [
+   7.17,
+   7.61
+  ],
+  [
+   7.98,
+   11.09
+  ],
+  [
+   11.21,
+   15.59
+  ],
+  [
+   16.65,
+   20.05
+  ]
+ ],
+ "whip": [
+  2
+ ],
+ "camera_kuat": 0.8,
+ "origin": "50% 42%"
+}

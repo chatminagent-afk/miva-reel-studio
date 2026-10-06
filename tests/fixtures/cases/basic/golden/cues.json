@@ -1,0 +1,176 @@
+{
+ "duration": 13.384,
+ "music": {
+  "style": "none"
+ },
+ "sfx": [
+  {
+   "t": 0.028,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.479,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 0.372,
+   "id": "lib-riser-1",
+   "kat": "riser",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 1.056,
+   "id": "lib-klik-1",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 1.957,
+   "id": "lib-whoosh-1",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 2.725,
+   "id": "lib-whoosh-1",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 3.242,
+   "id": "lib-whoosh-2",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 3.54,
+   "id": "lib-boom-1",
+   "kat": "boom",
+   "dur": null,
+   "prio": 3,
+   "gain_db": 0.0
+  },
+  {
+   "t": 4.072,
+   "id": "lib-whoosh-2",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 4.696,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.586,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 5.0,
+   "id": "lib-pop-1",
+   "kat": "pop",
+   "dur": null,
+   "prio": 3,
+   "gain_db": -4
+  },
+  {
+   "t": 5.588,
+   "id": "lib-klik-3",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 6.165,
+   "id": "lib-ding-1",
+   "kat": "",
+   "dur": null,
+   "prio": 3,
+   "gain_db": 0
+  },
+  {
+   "t": 6.202,
+   "id": "lib-whoosh-2",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 6.712,
+   "id": "lib-klik-1",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 7.1,
+   "id": "lib-klik-3",
+   "kat": "klik",
+   "dur": 0.2,
+   "prio": 3,
+   "gain_db": 0
+  },
+  {
+   "t": 8.129,
+   "id": "lib-whoosh-1",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 9.368,
+   "id": "lib-klik-3",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 10.056,
+   "id": "lib-swish-1",
+   "kat": "swish",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 10.692,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.479,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 11.768,
+   "id": "lib-impact-1",
+   "kat": "impact",
+   "dur": null,
+   "prio": 3,
+   "gain_db": 0.0
+  },
+  {
+   "t": 12.932,
+   "id": "lib-klik-1",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  }
+ ]
+}

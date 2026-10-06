@@ -1,0 +1,72 @@
+{
+ "duration": 5.52,
+ "music": {
+  "style": "none"
+ },
+ "sfx": [
+  {
+   "t": -0.324,
+   "id": "lib-riser-1",
+   "kat": "riser",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 0.028,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.55,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 1.112,
+   "id": "lib-klik-1",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 1.56,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.657,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 2.72,
+   "id": "lib-klik-3",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 3.52,
+   "id": "lib-klik-1",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 4.04,
+   "id": "lib-ketik-1",
+   "kat": "ketik",
+   "dur": 0.514,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 5.096,
+   "id": "lib-klik-3",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  }
+ ]
+}

@@ -1,0 +1,84 @@
+{
+ "bunyi": {
+  "lib-riser-1": {
+   "kategori": "riser",
+   "label": "riser 1"
+  },
+  "lib-ketik-1": {
+   "kategori": "ketik",
+   "label": "ketik 1"
+  },
+  "lib-klik-1": {
+   "kategori": "klik",
+   "label": "klik 1"
+  },
+  "lib-klik-2": {
+   "kategori": "buang",
+   "label": "klik 2"
+  },
+  "lib-klik-3": {
+   "kategori": "klik",
+   "label": "klik 3"
+  },
+  "lib-whoosh-1": {
+   "kategori": "whoosh",
+   "label": "whoosh 1"
+  },
+  "lib-whoosh-2": {
+   "kategori": "whoosh",
+   "label": "whoosh 2"
+  },
+  "lib-swish-1": {
+   "kategori": "swish",
+   "label": "swish 1"
+  },
+  "lib-impact-1": {
+   "kategori": "impact",
+   "label": "impact 1"
+  },
+  "lib-boom-1": {
+   "kategori": "boom",
+   "label": "boom 1"
+  },
+  "lib-ding-1": {
+   "kategori": "ding",
+   "label": "ding 1"
+  },
+  "lib-pop-1": {
+   "kategori": "pop",
+   "label": "pop 1"
+  }
+ },
+ "pilihan": {
+  "riser": [
+   "lib-riser-1"
+  ],
+  "ketik": [
+   "lib-ketik-1"
+  ],
+  "klik": [
+   "lib-klik-1",
+   "lib-klik-2",
+   "lib-klik-3"
+  ],
+  "whoosh": [
+   "lib-whoosh-1",
+   "lib-whoosh-2"
+  ],
+  "swish": [
+   "lib-swish-1"
+  ],
+  "impact": [
+   "lib-impact-1"
+  ],
+  "boom": [
+   "lib-boom-1"
+  ],
+  "ding": [
+   "lib-ding-1"
+  ],
+  "pop": [
+   "lib-pop-1"
+  ]
+ }
+}
