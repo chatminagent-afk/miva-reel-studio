@@ -1,0 +1,256 @@
+{
+ "duration": 20.856,
+ "music": {
+  "style": "none"
+ },
+ "sfx": [
+  {
+   "t": 0.028,
+   "id": "syn-ketik",
+   "kat": "ketik",
+   "dur": 0.371,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 0.209,
+   "id": "syn-riser",
+   "kat": "riser",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 0.744,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 1.432,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 2.004,
+   "id": "syn-whoosh",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 2.648,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 3.3,
+   "id": "syn-pop",
+   "kat": "pop",
+   "dur": null,
+   "prio": 3,
+   "gain_db": -6
+  },
+  {
+   "t": 4.1,
+   "id": "syn-pop",
+   "kat": "pop",
+   "dur": null,
+   "prio": 3,
+   "gain_db": -6
+  },
+  {
+   "t": 4.984,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 5.62,
+   "id": "syn-pop",
+   "kat": "pop",
+   "dur": null,
+   "prio": 3,
+   "gain_db": -6
+  },
+  {
+   "t": 6.168,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 6.546,
+   "id": "syn-whoosh",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 3,
+   "gain_db": -6
+  },
+  {
+   "t": 7.796,
+   "id": "syn-whoosh",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 8.0,
+   "id": "syn-boom",
+   "kat": "boom",
+   "dur": null,
+   "prio": 3,
+   "gain_db": 0.0
+  },
+  {
+   "t": 8.44,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 9.92,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 3,
+   "gain_db": 0
+  },
+  {
+   "t": 10.44,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 10.952,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 11.608,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 12.396,
+   "id": "syn-swish",
+   "kat": "swish",
+   "dur": null,
+   "prio": 2,
+   "gain_db": 0.0
+  },
+  {
+   "t": 13.112,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 14.228,
+   "id": "syn-whoosh",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 15.208,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 16.2,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 16.984,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 17.62,
+   "id": "syn-pop",
+   "kat": "pop",
+   "dur": null,
+   "prio": 3,
+   "gain_db": -4
+  },
+  {
+   "t": 18.472,
+   "id": "syn-klik",
+   "kat": "klik",
+   "dur": null,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 19.204,
+   "id": "syn-ketik",
+   "kat": "ketik",
+   "dur": 0.55,
+   "prio": 1,
+   "gain_db": 0.0
+  },
+  {
+   "t": 19.75,
+   "id": "syn-pop",
+   "kat": "pop",
+   "dur": null,
+   "prio": 3,
+   "gain_db": -4
+  },
+  {
+   "t": 20.188,
+   "id": "syn-whoosh",
+   "kat": "whoosh",
+   "dur": null,
+   "prio": 2,
+   "gain_db": -2
+  },
+  {
+   "t": 20.392,
+   "id": "syn-impact",
+   "kat": "impact",
+   "dur": null,
+   "prio": 3,
+   "gain_db": 0.0
+  }
+ ]
+}

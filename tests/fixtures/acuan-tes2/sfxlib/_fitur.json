@@ -1,0 +1,42 @@
+{
+ "syn-riser": {
+  "dur": 2.0,
+  "peak_at": 0.9992517006802721
+ },
+ "syn-whoosh": {
+  "dur": 0.5,
+  "peak_at": 0.4071201814058957
+ },
+ "syn-swish": {
+  "dur": 0.4,
+  "peak_at": 0.5307823129251701
+ },
+ "syn-klik": {
+  "dur": 0.08,
+  "peak_at": 0.023242630385487528
+ },
+ "syn-ketik": {
+  "dur": 0.6,
+  "peak_at": 0.0009070294784580499
+ },
+ "syn-boom": {
+  "dur": 1.2,
+  "peak_at": 0.0034580498866213154
+ },
+ "syn-impact": {
+  "dur": 0.6,
+  "peak_at": 0.010279667422524565
+ },
+ "syn-pop": {
+  "dur": 0.15,
+  "peak_at": 0.0
+ },
+ "syn-ding": {
+  "dur": 0.7,
+  "peak_at": 0.0
+ },
+ "syn-tick": {
+  "dur": 0.05,
+  "peak_at": 0.0
+ }
+}

@@ -1,0 +1,87 @@
+{
+ "src": "samples/tes2.mp4",
+ "fix": {
+  "cloud": "Claude",
+  "donton": "nonton",
+  "Grafik": "grafik",
+  "Edit": "edit"
+ },
+ "grade": "natural",
+ "music": {
+  "style": "none"
+ },
+ "camera": "auto",
+ "sfx": [
+  {
+   "t": 3.3,
+   "kat": "pop",
+   "gain_db": -6
+  },
+  {
+   "t": 4.1,
+   "kat": "pop",
+   "gain_db": -6
+  },
+  {
+   "t": 5.62,
+   "kat": "pop",
+   "gain_db": -6
+  },
+  {
+   "t": 6.75,
+   "kat": "whoosh",
+   "align": true,
+   "gain_db": -6
+  },
+  {
+   "t": 9.92,
+   "kat": "klik"
+  },
+  {
+   "t": 17.62,
+   "kat": "pop",
+   "gain_db": -4
+  },
+  {
+   "t": 19.75,
+   "kat": "pop",
+   "gain_db": -4
+  }
+ ],
+ "inserts": [],
+ "segs": [
+  [
+   4.66,
+   5.58
+  ],
+  [
+   6.66,
+   8.44
+  ],
+  [
+   9.06,
+   12.58
+  ],
+  [
+   13.5,
+   20.96
+  ],
+  [
+   21.36,
+   26.16
+  ],
+  [
+   26.72,
+   28.48
+  ],
+  [
+   29.68,
+   33.41
+  ],
+  [
+   34.1,
+   36.2
+  ]
+ ],
+ "origin": "50% 38%"
+}

@@ -1,0 +1,73 @@
+{
+ "bunyi": {
+  "syn-riser": {
+   "kategori": "riser",
+   "label": "sintetis riser"
+  },
+  "syn-whoosh": {
+   "kategori": "whoosh",
+   "label": "sintetis whoosh"
+  },
+  "syn-swish": {
+   "kategori": "swish",
+   "label": "sintetis swish"
+  },
+  "syn-klik": {
+   "kategori": "klik",
+   "label": "sintetis klik"
+  },
+  "syn-ketik": {
+   "kategori": "ketik",
+   "label": "sintetis ketik"
+  },
+  "syn-boom": {
+   "kategori": "boom",
+   "label": "sintetis boom"
+  },
+  "syn-impact": {
+   "kategori": "impact",
+   "label": "sintetis impact"
+  },
+  "syn-pop": {
+   "kategori": "pop"
+  },
+  "syn-ding": {
+   "kategori": "ding"
+  },
+  "syn-tick": {
+   "kategori": "tick"
+  }
+ },
+ "pilihan": {
+  "riser": [
+   "syn-riser"
+  ],
+  "whoosh": [
+   "syn-whoosh"
+  ],
+  "swish": [
+   "syn-swish"
+  ],
+  "klik": [
+   "syn-klik"
+  ],
+  "ketik": [
+   "syn-ketik"
+  ],
+  "boom": [
+   "syn-boom"
+  ],
+  "impact": [
+   "syn-impact"
+  ],
+  "pop": [
+   "syn-pop"
+  ],
+  "ding": [
+   "syn-ding"
+  ],
+  "tick": [
+   "syn-tick"
+  ]
+ }
+}
