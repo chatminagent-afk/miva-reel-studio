@@ -19,6 +19,8 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-06 | UAT di PC Steven **lulus 100%** sebelum app disebut ready | Standar QA Steven |
 | 2026-10-06 | **UI di-approve**: mockup v2 struktur CapCut (`docs/mockup/`, artifact "MIVA Reel Studio UI") | Approve Steven 06/10 |
 | 2026-10-06 | Export punya **pilihan folder** (Browse), opsi jadikan default, dan buka folder setelah selesai | Feedback Steven 06/10 |
+| 2026-10-06 | App dikirim hanya setelah **UAT otomatis end-to-end lulus 100%** (`docs/2026-10-06-uat-plan.md`), lalu UAT manual Steven | Permintaan Steven 06/10 |
+| 2026-10-06 | Font dan GSAP dibundel lokal; telemetry HyperFrames dimatikan; Chrome headless dibundel | Syarat offline (spike 06/10) |
 
 ## Lingkup fitur versi 1
 

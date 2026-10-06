@@ -1,0 +1,38 @@
+# Spike 06/10: render offline pipeline skill dengan `tes2.mp4`
+
+Tujuan: membuktikan pipeline `/reel-edit` (HyperFrames + FFmpeg) bisa jalan tanpa internet, dan mengukur waktunya.
+Dijalankan di sesi cloud (Linux, 4 core CPU, tanpa GPU), memakai script skill asli dari repo `claude-cowork`.
+
+## Hasil
+
+| Tahap | Hasil | Waktu (cloud 4 core) |
+|---|---|---|
+| Potong + speed 1,25× + grade + bersihkan suara (`build_base.py`) | `base.mp4` 22,74 dtk dari 37,04 dtk mentah (7 potongan) | 106 dtk |
+| Draf subtitle + 3 kata kunci manual (`captions.py`) | 33 kelompok subtitle | < 1 dtk |
+| Komposisi HTML + SFX otomatis (`build_html.py`) | 35 cue SFX, kamera otomatis | < 1 dtk |
+| `hyperframes check` | lulus, 0 error | ±30 dtk |
+| Render frame 1080×1920 (`hyperframes render`, PNG sequence) | 683 frame | **580 dtk** |
+| Mix suara + SFX (`mix.py`) | suara −14,1 LUFS, mix −14,0 LUFS, puncak −1,4 dBFS | ±5 dtk |
+| Encode MP4 (libx264 slow, CRF 18) | 1080×1920 H.264 + AAC, 22,74 dtk | 83 dtk |
+
+Contact sheet hasil: subtitle pill, kata kunci serif emas, gerak kamera, dan grade terlihat benar.
+
+**Batasan spike:** Whisper tidak bisa dijalankan (model diblokir network policy), jadi potongan memakai deteksi energi dan
+kata-katanya placeholder. Pustaka SFX berupa bunyi sintetis, bukan pustaka asli. Kualitas potongan dan subtitle belum dinilai.
+
+## Temuan yang mengubah rencana
+
+1. **Template skill bergantung internet**: Google Fonts (Inter, Playfair Display) dan GSAP dari jsDelivr.
+   Sudah dibuktikan bisa diganti file lokal (`@fontsource/*` + `gsap@3.14.2` dari npm), dan `check` tetap lulus. App wajib membundel keduanya.
+2. **HyperFrames punya telemetry dan cek versi online.** Bisa dimatikan: `HYPERFRAMES_NO_TELEMETRY=1`, `DO_NOT_TRACK=1`.
+   Chrome bisa diarahkan ke binary lokal lewat `HYPERFRAMES_BROWSER_PATH` (app akan membundel Chrome headless shell).
+3. **Render frame adalah bottleneck** (±1,2 frame/dtk di 4 core CPU). Penyebab: setiap frame video di-screenshot Chrome,
+   dan dedup frame statis mati karena ada video di komposisi. Rencana optimasi untuk langkah 1:
+   render **hanya lapisan overlay** (subtitle, grafik) dengan latar transparan sehingga frame yang tidak berubah bisa di-dedup,
+   lalu gabungkan dengan video + kamera di FFmpeg (NVENC di RTX 4060). Preview di app tetap HTML yang sama.
+   Target dan angka nyata harus diukur di laptop Steven.
+4. **2K (1440×2560) tidak didukung langsung** oleh `--resolution` HyperFrames (skala harus kelipatan bulat dari 1080).
+   Opsi: komposisi dibuat 1440 lebar dengan skala CSS, atau render 4K lalu turunkan. Diputuskan di langkah 1.
+5. HyperFrames 0.8.84 sudah punya `transcribe` (whisper.cpp; model multibahasa hanya `large-v3`), `remove-background`
+   (model lokal, bisa CUDA), dan `tts` (Kokoro). Kandidat untuk fitur Remove BG offline; transkripsi tetap dibandingkan di langkah 2.
+6. ±2 dtk awal `tes2.mp4` = kamera dipasang. Perlu deteksi otomatis "awal goyang" (gerak frame), bukan hanya hening.
