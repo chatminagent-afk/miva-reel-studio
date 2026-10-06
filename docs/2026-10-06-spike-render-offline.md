@@ -36,3 +36,17 @@ kata-katanya placeholder. Pustaka SFX berupa bunyi sintetis, bukan pustaka asli.
 5. HyperFrames 0.8.84 sudah punya `transcribe` (whisper.cpp; model multibahasa hanya `large-v3`), `remove-background`
    (model lokal, bisa CUDA), dan `tts` (Kokoro). Kandidat untuk fitur Remove BG offline; transkripsi tetap dibandingkan di langkah 2.
 6. ±2 dtk awal `tes2.mp4` = kamera dipasang. Perlu deteksi otomatis "awal goyang" (gerak frame), bukan hanya hening.
+
+## Lanjutan spike (06/10, sore)
+
+**Render hanya lapisan overlay** (subtitle/grafik di latar transparan, video tidak di dalam komposisi):
+683 frame dalam **94 dtk** vs 580 dtk untuk render penuh di mesin yang sama (±6× lebih cepat).
+Video, grade, dan gerak kamera nantinya digabung oleh FFmpeg (NVENC di laptop Steven). Ini dipakai untuk export app.
+
+**Uji offline sungguhan**: render dijalankan di network namespace tanpa jaringan (`unshare -n`, hanya loopback),
+dengan cache font HyperFrames dikosongkan. Hasil: **lulus**, 683 frame dalam 84 dtk, font memakai file lokal yang dibundel.
+Frame dibandingkan dengan render online: identik, kecuali frame yang sedang animasi blur (selisih kecil di tepi blur; huruf sama).
+Catatan: tanpa network namespace, compiler HyperFrames diam-diam mengunduh font dari Google Fonts kalau ada akses internet,
+jadi app harus selalu menyetel `HYPERFRAMES_FONT_CACHE_DIR` ke folder font yang dibundel dan tidak bergantung pada unduhan itu.
+
+Akibat untuk UAT: perbandingan snapshot preview vs export butuh ambang toleransi piksel (blur tidak bit-identik).
