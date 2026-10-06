@@ -1,0 +1,12 @@
+{
+ "engine": "cpp",
+ "model": "large-v3-turbo",
+ "device": "cuda",
+ "audio_s": 37.04,
+ "error": null,
+ "load_s": 1.4,
+ "transcribe_s": 1.08,
+ "rtf": 0.029,
+ "words": 71,
+ "vram_peak_mb": 1983
+}
