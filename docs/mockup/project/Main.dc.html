@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reel Studio Editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Playfair+Display:ital,wght@1,800&amp;display=swap">
+<style>
+body{margin:0;background:#0E0E10}
+a{color:#F2C94C}a:hover{color:#FFE08A}
+button{font:inherit;color:inherit}
+.muted{color:#9C9CA5}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.lbl{font-size:11px;color:#9C9CA5;letter-spacing:.04em}
+.ib{width:30px;height:30px;border:0;border-radius:6px;background:transparent;color:#C9C9CF;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex:0 0 auto}
+.ib:hover{background:#26262B;color:#FFFFFF}
+.ib.on{background:#2A2A30;color:#F2C94C}
+.btn{height:30px;border:1px solid #2C2C32;border-radius:6px;background:#1F1F23;color:#EDEDEF;padding:0 12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;text-decoration:none;white-space:nowrap;box-sizing:border-box}
+.btn:hover{background:#29292E;color:#EDEDEF}
+.btn-pri{background:#F2C94C;border-color:#F2C94C;color:#1A1400;font-weight:600}
+.btn-pri:hover{background:#FFD866;color:#1A1400}
+.ltab{width:58px;height:52px;border:0;border-radius:8px;background:transparent;color:#9C9CA5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;padding:0}
+.ltab:hover{color:#EDEDEF}
+.ltab.on{color:#F2C94C;background:#1F1F23}
+.rtab{height:36px;border:0;border-bottom:2px solid transparent;background:transparent;color:#9C9CA5;cursor:pointer;font-size:12px;font-weight:500;padding:0 2px}
+.rtab:hover{color:#EDEDEF}
+.rtab.on{color:#EDEDEF;border-bottom-color:#F2C94C}
+.seg{height:26px;border:0;border-radius:5px;background:transparent;color:#9C9CA5;padding:0 10px;cursor:pointer;font-size:12px;white-space:nowrap}
+.seg:hover{color:#EDEDEF}
+.seg.on{background:#2C2C33;color:#EDEDEF}
+.segs{display:inline-flex;gap:2px;padding:2px;background:#121214;border:1px solid #26262B;border-radius:7px;flex-wrap:wrap}
+.sw{width:34px;height:20px;border-radius:999px;border:0;background:#34343A;position:relative;cursor:pointer;padding:0;flex:0 0 auto}
+.sw.on{background:#F2C94C}
+.knob{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#EDEDEF}
+.sw.on .knob{left:17px;background:#1A1400}
+.prow{display:grid;grid-template-columns:76px minmax(0,1fr) 52px 22px;align-items:center;gap:8px}
+.num{width:100%;box-sizing:border-box;height:26px;border:1px solid #2C2C32;border-radius:5px;background:#121214;color:#EDEDEF;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;padding:0 6px;text-align:right}
+.kf{width:22px;height:22px;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.kfd{width:8px;height:8px;transform:rotate(45deg);border:1.5px solid #8A8A93;box-sizing:border-box}
+.kf.on .kfd{background:#F2C94C;border-color:#F2C94C}
+.sec{display:flex;flex-direction:column;gap:12px;padding:14px 0;border-bottom:1px solid #222226}
+.sech{font-size:12px;font-weight:600;color:#EDEDEF}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rng{width:100%;accent-color:#F2C94C}
+.card{display:flex;flex-direction:column;gap:6px;cursor:grab;border-radius:8px;padding:6px;box-sizing:border-box}
+.card:hover{background:#1F1F23}
+.thumb{position:relative;width:100%;aspect-ratio:9/16;border-radius:6px;background:#2A2A30;overflow:hidden}
+.w{font-size:14px;line-height:1.7;color:#EDEDEF;background:transparent;border:0;border-radius:4px;padding:1px 3px;margin:1px 0;cursor:pointer}
+.w:hover{background:#24242A}
+.w.key{color:#F2C94C;font-weight:600}
+.w.cut{color:#85858E;text-decoration:line-through;text-decoration-color:#FF6B6B;text-decoration-thickness:2px}
+.w.sel,.gap.sel{outline:2px solid #4C9AFF}
+.gap{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;border-radius:999px;padding:1px 7px;margin:1px 2px;background:transparent;cursor:pointer;vertical-align:2px}
+.gap-cut{border:1px solid #FF6B6B;color:#FF9D9D;background:#2A1719}
+.gap-keep{border:1px dashed #4A4A52;color:#9C9CA5}
+.tool{width:30px;height:30px;border:0;border-radius:6px;background:transparent;color:#C9C9CF;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.tool:hover{background:#26262B;color:#FFFFFF}
+.tool.on{color:#F2C94C}
+.trk{position:relative;flex:0 0 auto}
+.seg-clip{position:absolute;top:0;bottom:0;border:0;padding:0;margin:0;border-radius:5px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;background:#203457;box-sizing:border-box}
+.seg-clip.sel{box-shadow:inset 0 0 0 2px #FFFFFF}
+.seg-cut{position:absolute;top:6px;bottom:6px;border:0;padding:0;margin:0;border-radius:4px;cursor:pointer;background:repeating-linear-gradient(135deg,#3A1D21 0 5px,#1D1416 5px 10px)}
+.seg-cut.sel{box-shadow:inset 0 0 0 2px #FF9D9D}
+.tiles{display:flex;flex:1 1 auto;gap:1px;overflow:hidden}
+.tile{flex:0 0 34px;background:#2E3F5E;display:flex;align-items:flex-end;justify-content:center}
+.wave{height:16px;display:flex;align-items:center;gap:1px;padding:0 3px;background:#18284A;overflow:hidden}
+.wb{width:2px;flex:0 0 2px;background:#7FA8F0;border-radius:1px}
+.chunk{position:absolute;top:3px;bottom:3px;border:0;margin:0;border-radius:4px;padding:0 6px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;text-align:left;background:#3A3A42;color:#EDEDEF;box-sizing:border-box}
+.chunk.key{background:#F2C94C;color:#1A1400;font-weight:600}
+.chunk.sel{box-shadow:inset 0 0 0 2px #4C9AFF}
+.ovl{position:absolute;top:3px;bottom:3px;border:0;margin:0;border-radius:4px;padding:0 6px;font-size:11px;white-space:nowrap;overflow:hidden;cursor:pointer;text-align:left;background:#3D2F63;color:#EDEDEF;box-sizing:border-box}
+.ovl.sel{box-shadow:inset 0 0 0 2px #FFFFFF}
+.sfxm{position:absolute;top:4px;display:flex;align-items:center;gap:4px;font-size:10px;color:#CDBDFF;white-space:nowrap;font-family:'IBM Plex Mono',ui-monospace,monospace;pointer-events:none}
+.dot{width:7px;height:7px;background:#A08BFF;transform:rotate(45deg);flex:0 0 auto}
+.thead{height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 10px;font-size:11px;color:#9C9CA5;box-sizing:border-box;border-bottom:1px solid #1C1C20}
+.tick{position:absolute;top:0;height:100%;border-left:1px solid #2C2C32;padding-left:4px;font-size:10px;color:#85858E;font-family:'IBM Plex Mono',ui-monospace,monospace;box-sizing:border-box}
+.tilegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.fx{display:flex;flex-direction:column;gap:6px;border:0;background:transparent;cursor:pointer;padding:4px;border-radius:8px;color:#C9C9CF;font-size:11px;text-align:left}
+.fx:hover{background:#1F1F23}
+.fxbox{height:54px;border-radius:6px;background:#26262C;display:flex;align-items:center;justify-content:center;color:#8A8A93}
+.drop{border:1px dashed #3A3A42;border-radius:8px;padding:12px;text-align:center;font-size:11px;color:#9C9CA5}
+</style>
+</helmet>
+<div style="position: relative; min-height: 100vh; display: flex; flex-direction: column; background: #0E0E10; color: #EDEDEF; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 13px">
+
+<header style="height: 46px; flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 0 10px 0 12px; border-bottom: 1px solid #1C1C20; flex-wrap: wrap">
+  <div style="width: 24px; height: 24px; border-radius: 6px; background: #F2C94C; color: #1A1400; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px">M</div>
+  <span class="muted" style="font-size: 12px">Reel Studio</span>
+  <div style="flex: 1 1 auto; display: flex; justify-content: center; align-items: center; gap: 8px; min-width: 0">
+    <span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">2026-10-06-capcut-pro</span>
+    <select aria-label="Version" style="height: 26px; border: 1px solid #2C2C32; border-radius: 6px; background: #18181B; color: #C9C9CF; font: inherit; font-size: 11px; padding: 0 4px">
+      <option>v3</option>
+      <option>v2</option>
+      <option>v1</option>
+    </select>
+    <span class="muted" style="font-size: 11px; white-space: nowrap">Saved 14:21</span>
+  </div>
+  <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #8FD6A8; white-space: nowrap"><span style="width: 6px; height: 6px; border-radius: 50%; background: #8FD6A8"></span>Offline ready</span>
+  <div style="display: flex; gap: 2px; padding: 2px; border-radius: 7px; background: #18181B; border: 1px solid #222226">
+    <button type="button" class="{{ lpDefault }}" aria-label="Default layout" title="Default" onClick="{{ setDefault }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="13" height="12" rx="1.5"></rect><path d="M1.5 9.5h13M5.5 2v7.5M10.5 2v7.5"></path></svg></button>
+    <button type="button" class="{{ lpMedia }}" aria-label="Media focus layout" title="Media focus" onClick="{{ setMedia }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="13" height="12" rx="1.5"></rect><path d="M1.5 10.5h13M8 2v8.5"></path></svg></button>
+    <button type="button" class="{{ lpTimeline }}" aria-label="Timeline focus layout" title="Timeline focus" onClick="{{ setTimeline }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="13" height="12" rx="1.5"></rect><path d="M1.5 6.5h13M5.5 2v4.5M10.5 2v4.5"></path></svg></button>
+    <button type="button" class="{{ lpPreview }}" aria-label="Preview focus layout" title="Preview focus" onClick="{{ setPreview }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="2" width="13" height="12" rx="1.5"></rect><rect x="6" y="3.5" width="4" height="7" rx="0.5"></rect><path d="M1.5 12h13"></path></svg></button>
+  </div>
+  <a href="Import.dc.html" class="btn">Import</a>
+  <button type="button" class="btn" onClick="{{ runAuto }}">Auto Edit</button>
+  <button type="button" class="btn btn-pri" onClick="{{ openExport }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg>Export</button>
+</header>
+
+<div style="flex: 1 1 auto; display: flex; flex-wrap: wrap; min-height: 0">
+
+  <sc-if value="{{ showL }}" hint-placeholder-val="{{ true }}">
+  <section aria-label="Assets" style="flex: 0 1 {{ leftW }}; min-width: 280px; display: flex; flex-direction: column; border-right: 1px solid #1C1C20; min-height: 0; background: #131315">
+    <nav aria-label="Asset types" style="display: flex; gap: 2px; padding: 6px; border-bottom: 1px solid #1C1C20; overflow-x: auto">
+      <button type="button" class="{{ ltMedia }}" onClick="{{ goMedia }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="m10 9 5 3-5 3z"></path></svg>Media</button>
+      <button type="button" class="{{ ltAudio }}" onClick="{{ goAudio }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="17" cy="16" r="3"></circle></svg>Audio</button>
+      <button type="button" class="{{ ltText }}" onClick="{{ goText }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6V4h14v2M12 4v16M9 20h6"></path></svg>Text</button>
+      <button type="button" class="{{ ltCaptions }}" onClick="{{ goCaptions }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M7 12h4M13 12h4M7 15h10"></path></svg>Captions</button>
+      <button type="button" class="{{ ltTrans }}" onClick="{{ goTrans }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="9" height="12" rx="1.5"></rect><rect x="13" y="6" width="9" height="12" rx="1.5"></rect><path d="m10 12 4 0"></path></svg>Transitions</button>
+      <button type="button" class="{{ ltFilters }}" onClick="{{ goFilters }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="10" r="5"></circle><circle cx="15" cy="10" r="5"></circle><circle cx="12" cy="15" r="5"></circle></svg>Filters</button>
+    </nav>
+
+    <sc-if value="{{ tabMedia }}" hint-placeholder-val="{{ true }}">
+    <div style="padding: 10px; display: flex; flex-direction: column; gap: 10px; overflow: auto">
+      <div class="row"><button type="button" class="btn btn-pri" style="flex: 1 1 auto; justify-content: center">Import</button></div>
+      <div class="tilegrid">
+        <sc-for list="{{ media }}" as="m" hint-placeholder-count="4">
+        <div class="card" draggable="true" onDragStart="{{ m.drag }}">
+          <div class="thumb">
+            <svg style="position: absolute; left: 0; top: 0; width: 100%; height: 100%" viewBox="0 0 90 160" fill="none" stroke="#45454D" stroke-width="2"><circle cx="45" cy="58" r="15"></circle><path d="M14 124c3-28 59-28 62 0"></path></svg>
+            <span class="mono" style="position: absolute; right: 4px; bottom: 4px; font-size: 10px; background: rgba(0,0,0,.6); border-radius: 3px; padding: 1px 4px">{{ m.dur }}</span>
+            <button type="button" class="ib" aria-label="Add {{ m.name }} to timeline" onClick="{{ m.add }}" style="position: absolute; right: 4px; top: 4px; width: 22px; height: 22px; background: #F2C94C; color: #1A1400"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></button>
+          </div>
+          <span style="font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ m.name }}</span>
+        </div>
+        </sc-for>
+      </div>
+      <div class="drop">Drop files from Explorer, or drag a card onto the timeline</div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabAudio }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 10px; display: flex; flex-direction: column; gap: 4px; overflow: auto">
+      <span class="lbl" style="padding: 2px 4px 6px">SFX library · drag onto the SFX track</span>
+      <sc-for list="{{ sfxCats }}" as="c" hint-placeholder-count="6">
+      <div class="card" draggable="true" onDragStart="{{ c.drag }}" style="flex-direction: row; align-items: center; gap: 10px">
+        <button type="button" class="ib" aria-label="Play {{ c.name }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"></path></svg></button>
+        <div style="display: flex; flex-direction: column; min-width: 0">
+          <span style="font-size: 12px">{{ c.name }}</span>
+          <span class="muted" style="font-size: 11px">{{ c.use }}</span>
+        </div>
+      </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabText }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 10px; display: flex; flex-direction: column; gap: 10px">
+      <button type="button" class="btn" style="justify-content: center">Add text</button>
+      <div class="tilegrid">
+        <button type="button" class="fx"><span class="fxbox" style="font-weight: 600; color: #EDEDEF">Title</span>Title</button>
+        <button type="button" class="fx"><span class="fxbox" style="font-size: 11px; color: #EDEDEF">Name · Role</span>Lower third</button>
+        <button type="button" class="fx"><span class="fxbox" style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 800; color: #F2C94C; font-size: 18px">Kunci</span>MIVA keyword</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabCaptions }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 12px; display: flex; flex-direction: column; gap: 12px; overflow: auto">
+      <sc-if value="{{ banner }}" hint-placeholder-val="{{ true }}">
+      <div style="border-radius: 8px; padding: 10px 12px; background: #1F1B10; border: 1px solid #3F3518; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 12px; font-weight: 600">Auto Edit done</span>
+        <span style="font-size: 12px; color: #D6CFB8">{{ bannerText }}</span>
+        <div style="display: flex; gap: 6px"><button type="button" class="btn btn-pri" onClick="{{ hideBanner }}">Accept all</button><button type="button" class="btn" onClick="{{ hideBanner }}">Review</button></div>
+      </div>
+      </sc-if>
+      <div class="row">
+        <span class="lbl">Suggest keywords</span>
+        <div class="segs"><sc-for list="{{ kwOpts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+      </div>
+      <span class="muted" style="font-size: 11px">{{ kwNote }}</span>
+      <div style="line-height: 1.8">
+        <sc-for list="{{ items }}" as="item" hint-placeholder-count="24"><button type="button" class="{{ item.cls }}" onClick="{{ item.pick }}" title="{{ item.flag }}">{{ item.label }}</button></sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabTrans }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 10px" class="tilegrid">
+      <sc-for list="{{ transitions }}" as="x" hint-placeholder-count="6"><button type="button" class="fx"><span class="fxbox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="6" width="9" height="12" rx="1.5"></rect><rect x="13" y="6" width="9" height="12" rx="1.5"></rect></svg></span>{{ x }}</button></sc-for>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabFilters }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 10px" class="tilegrid">
+      <sc-for list="{{ filters }}" as="x" hint-placeholder-count="6"><button type="button" class="fx"><span class="fxbox" style="background: {{ x.bg }}"></span>{{ x.name }}</button></sc-for>
+    </div>
+    </sc-if>
+  </section>
+  </sc-if>
+
+  <section aria-label="Player" style="flex: 999 1 360px; min-width: 0; display: flex; flex-direction: column; background: #0E0E10">
+    <div class="row" style="height: 36px; padding: 0 12px; border-bottom: 1px solid #1C1C20">
+      <span class="lbl">Player</span>
+      <span class="mono muted" style="font-size: 11px">9:16 · 1080×1920 source</span>
+    </div>
+    <div style="flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 12px; min-height: 0">
+      <div style="position: relative; width: {{ pvW }}; height: {{ pvH }}; border-radius: 6px; overflow: hidden; background: #222227">
+        <svg style="position: absolute; left: 0; top: 0; width: 100%; height: 100%" viewBox="0 0 90 160" fill="none" stroke="#3C3C44" stroke-width="1.5"><circle cx="45" cy="56" r="15"></circle><path d="M14 122c3-28 59-28 62 0"></path></svg>
+        <sc-if value="{{ hasBig }}" hint-placeholder-val="{{ true }}">
+          <div style="position: absolute; left: 0; right: 0; top: 60%; text-align: center; font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 800; font-size: {{ bigSize }}; color: #F2C94C; text-shadow: 0 2px 12px rgba(0,0,0,.55)">{{ capBig }}</div>
+        </sc-if>
+        <sc-if value="{{ hasSmall }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; left: 0; right: 0; top: 68%; display: flex; justify-content: center"><span style="background: rgba(12,12,14,.72); color: #FFFFFF; font-weight: 600; font-size: {{ smallSize }}; padding: 3px 9px; border-radius: 7px">{{ capSmall }}</span></div>
+        </sc-if>
+        <sc-if value="{{ isCut }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(14,14,16,.8); display: flex; align-items: center; justify-content: center; color: #FF9D9D; font-size: 12px; font-weight: 600">Cut · not in export</div>
+        </sc-if>
+      </div>
+    </div>
+    <div class="row" style="height: 40px; padding: 0 12px; border-top: 1px solid #1C1C20">
+      <span class="mono" style="font-size: 12px"><span style="color: #F2C94C">{{ tcNow }}</span><span class="muted"> / {{ tcAll }}</span></span>
+      <button type="button" class="ib" aria-label="{{ playLabel }}" onClick="{{ togglePlay }}">
+        <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"></path></svg></sc-if>
+        <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"></path></svg></sc-if>
+      </button>
+      <div style="display: flex; gap: 4px; align-items: center">
+        <span class="mono muted" style="font-size: 11px">Final ≈ {{ finalLen }}</span>
+        <button type="button" class="ib" aria-label="Full screen"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <sc-if value="{{ showR }}" hint-placeholder-val="{{ true }}">
+  <aside aria-label="Details" style="flex: 0 1 {{ rightW }}; min-width: 270px; display: flex; flex-direction: column; border-left: 1px solid #1C1C20; background: #131315; min-height: 0">
+    <div style="display: flex; gap: 16px; padding: 0 14px; border-bottom: 1px solid #1C1C20; flex-wrap: wrap">
+      <sc-for list="{{ rtabs }}" as="t" hint-placeholder-count="4"><button type="button" class="{{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</button></sc-for>
+    </div>
+    <div style="padding: 0 14px 14px; overflow: auto; display: flex; flex-direction: column">
+
+      <sc-if value="{{ rVideo }}" hint-placeholder-val="{{ true }}">
+        <div class="sec">
+          <div class="row"><span class="sech">Transform</span><span class="muted" style="font-size: 11px">◇ = keyframe</span></div>
+          <div class="prow"><span class="muted">Scale</span><input class="rng" type="range" min="50" max="200" value="{{ pScale }}" onChange="{{ setScale }}" aria-label="Scale"><input class="num" value="{{ pScaleTxt }}" aria-label="Scale value" readonly><button type="button" class="{{ kfScale }}" aria-label="Keyframe scale" onClick="{{ tkScale }}"><span class="kfd"></span></button></div>
+          <div class="prow"><span class="muted">Position</span><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px"><input class="num" value="X 0" aria-label="Position X" readonly><input class="num" value="Y 0" aria-label="Position Y" readonly></div><span></span><button type="button" class="{{ kfPos }}" aria-label="Keyframe position" onClick="{{ tkPos }}"><span class="kfd"></span></button></div>
+          <div class="prow"><span class="muted">Rotate</span><input class="rng" type="range" min="-180" max="180" value="{{ pRot }}" onChange="{{ setRot }}" aria-label="Rotate"><input class="num" value="{{ pRotTxt }}" aria-label="Rotate value" readonly><button type="button" class="{{ kfRot }}" aria-label="Keyframe rotate" onClick="{{ tkRot }}"><span class="kfd"></span></button></div>
+          <div class="prow"><span class="muted">Opacity</span><input class="rng" type="range" min="0" max="100" value="{{ pOp }}" onChange="{{ setOp }}" aria-label="Opacity"><input class="num" value="{{ pOpTxt }}" aria-label="Opacity value" readonly><button type="button" class="{{ kfOp }}" aria-label="Keyframe opacity" onClick="{{ tkOp }}"><span class="kfd"></span></button></div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap"><button type="button" class="btn">Crop</button><button type="button" class="btn">Mirror</button><button type="button" class="btn">Rotate 90°</button><button type="button" class="btn">Reset</button></div>
+        </div>
+        <div class="sec">
+          <div class="row"><span>Remove background</span><button type="button" class="{{ swRmbg }}" aria-label="Remove background" aria-pressed="{{ prRmbg }}" onClick="{{ tgRmbg }}"><span class="knob"></span></button></div>
+          <div class="row"><span>Stabilize</span><button type="button" class="{{ swStab }}" aria-label="Stabilize" aria-pressed="{{ prStab }}" onClick="{{ tgStab }}"><span class="knob"></span></button></div>
+          <div class="row"><span>Auto camera (zoom &amp; pan)</span><button type="button" class="{{ swCam }}" aria-label="Auto camera" aria-pressed="{{ prCam }}" onClick="{{ tgCam }}"><span class="knob"></span></button></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rAudio }}" hint-placeholder-val="{{ false }}">
+        <div class="sec">
+          <div class="prow"><span class="muted">Volume</span><input class="rng" type="range" min="0" max="200" value="{{ pVol }}" onChange="{{ setVol }}" aria-label="Volume"><input class="num" value="{{ pVolTxt }}" aria-label="Volume value" readonly><span></span></div>
+          <div class="prow"><span class="muted">Fade in</span><input class="rng" type="range" min="0" max="20" value="{{ pFin }}" onChange="{{ setFin }}" aria-label="Fade in"><input class="num" value="{{ pFinTxt }}" aria-label="Fade in value" readonly><span></span></div>
+          <div class="prow"><span class="muted">Fade out</span><input class="rng" type="range" min="0" max="20" value="{{ pFout }}" onChange="{{ setFout }}" aria-label="Fade out"><input class="num" value="{{ pFoutTxt }}" aria-label="Fade out value" readonly><span></span></div>
+        </div>
+        <div class="sec">
+          <div class="row"><span>Noise reduction</span><button type="button" class="{{ swNoise }}" aria-label="Noise reduction" aria-pressed="{{ prNoise }}" onClick="{{ tgNoise }}"><span class="knob"></span></button></div>
+          <div class="row"><span>Voice enhance</span><button type="button" class="{{ swEnh }}" aria-label="Voice enhance" aria-pressed="{{ prEnh }}" onClick="{{ tgEnh }}"><span class="knob"></span></button></div>
+          <div class="row"><span>Duck SFX under voice</span><button type="button" class="{{ swDuck }}" aria-label="Ducking" aria-pressed="{{ prDuck }}" onClick="{{ tgDuck }}"><span class="knob"></span></button></div>
+          <div class="row"><span class="muted">Loudness target</span><span class="mono">−14 LUFS</span></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rSpeed }}" hint-placeholder-val="{{ false }}">
+        <div class="sec">
+          <div class="row"><span class="sech">Speed</span><span class="mono">{{ pSpeedTxt }}</span></div>
+          <input class="rng" type="range" min="0.5" max="2" step="0.05" value="{{ pSpeed }}" onChange="{{ setSpeed }}" aria-label="Speed">
+          <div class="segs"><sc-for list="{{ speedOpts }}" as="o" hint-placeholder-count="4"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+          <span class="muted" style="font-size: 11px">Pitch stays natural. 1.25× is the MIVA fast-paced default.</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rAdjust }}" hint-placeholder-val="{{ false }}">
+        <div class="sec">
+          <span class="sech">Grade preset</span>
+          <div class="segs"><sc-for list="{{ gradeOpts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+        </div>
+        <div class="sec">
+          <sc-for list="{{ adjust }}" as="a" hint-placeholder-count="4"><div class="prow"><span class="muted">{{ a.name }}</span><input class="rng" type="range" min="-50" max="50" value="{{ a.val }}" onChange="{{ a.set }}" aria-label="{{ a.name }}"><input class="num" value="{{ a.val }}" aria-label="{{ a.name }} value" readonly><span></span></div></sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rCaption }}" hint-placeholder-val="{{ false }}">
+        <div class="sec">
+          <div class="row"><span style="font-size: 20px; font-weight: 600">{{ curText }}</span><span class="mono muted" style="font-size: 11px">{{ curTime }}</span></div>
+          <sc-if value="{{ hasFlag }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #FF9D9D">Flagged: {{ curFlag }}</span></sc-if>
+          <div class="row"><span>Keyword</span><button type="button" class="{{ keyCls }}" aria-label="Keyword" aria-pressed="{{ keyPressed }}" onClick="{{ toggleKey }}"><span class="knob"></span></button></div>
+          <div style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Animation</span><div class="segs"><sc-for list="{{ animOpts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div></div>
+          <sc-if value="{{ curKey }}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-direction: column; gap: 6px"><span class="lbl">Hit</span><div class="segs"><sc-for list="{{ hitOpts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div></div></sc-if>
+          <div class="row"><span class="muted">Sound (auto)</span><span>{{ sfxText }}</span></div>
+          <button type="button" class="btn" style="justify-content: center" onClick="{{ toggleCut }}">{{ cutLabel }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rSilence }}" hint-placeholder-val="{{ false }}">
+        <div class="sec">
+          <div class="row"><span style="font-size: 20px; font-weight: 600">{{ curText }}</span><span class="mono muted" style="font-size: 11px">{{ curTime }}</span></div>
+          <span class="muted" style="font-size: 12px">{{ gapNote }}</span>
+          <div class="segs"><sc-for list="{{ gapOpts }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+        </div>
+      </sc-if>
+    </div>
+  </aside>
+  </sc-if>
+</div>
+
+<section aria-label="Timeline" style="height: {{ tlH }}; flex: 0 0 auto; display: flex; flex-direction: column; border-top: 1px solid #1C1C20; background: #111113">
+  <div style="height: 38px; flex: 0 0 auto; display: flex; align-items: center; gap: 2px; padding: 0 8px; border-bottom: 1px solid #1C1C20; flex-wrap: wrap">
+    <button type="button" class="tool on" aria-label="Select" title="Select (A)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 3l14 8-6 2-3 6z"></path></svg></button>
+    <button type="button" class="tool" aria-label="Split" title="Split (Ctrl+B)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M7 8l-3 4 3 4M17 8l3 4-3 4"></path></svg></button>
+    <button type="button" class="tool" aria-label="Delete" title="Delete" onClick="{{ toggleCut }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg></button>
+    <span style="width: 1px; height: 18px; background: #2C2C32; margin: 0 6px"></span>
+    <button type="button" class="tool" aria-label="Freeze frame" title="Freeze"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"></path></svg></button>
+    <button type="button" class="tool" aria-label="Reverse" title="Reverse"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"></path><path d="M4 9h11a5 5 0 0 1 0 10h-3"></path></svg></button>
+    <button type="button" class="tool" aria-label="Mirror" title="Mirror"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3v18"></path><path d="M9 7 3 17h6zM15 7l6 10h-6z"></path></svg></button>
+    <button type="button" class="tool" aria-label="Crop" title="Crop"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 2v16h16M2 6h16v16"></path></svg></button>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 2px">
+      <button type="button" class="{{ magCls }}" aria-label="Main track magnet" aria-pressed="{{ magPressed }}" title="Main track magnet" onClick="{{ tgMag }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3v8a6 6 0 0 0 12 0V3M6 7h4M14 7h4"></path></svg></button>
+      <button type="button" class="{{ snapCls }}" aria-label="Snapping" aria-pressed="{{ snapPressed }}" title="Snapping" onClick="{{ tgSnap }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4v16M20 4v16M8 12h8"></path></svg></button>
+      <span style="width: 1px; height: 18px; background: #2C2C32; margin: 0 6px"></span>
+      <input type="range" min="0.6" max="2.4" step="0.1" value="{{ zoom }}" onChange="{{ setZoom }}" aria-label="Timeline zoom" style="width: 110px; accent-color: #F2C94C">
+    </div>
+  </div>
+  <div style="flex: 1 1 auto; display: flex; min-height: 0">
+    <div style="flex: 0 0 92px; display: flex; flex-direction: column; border-right: 1px solid #1C1C20">
+      <div style="height: 24px; border-bottom: 1px solid #1C1C20"></div>
+      <div style="height: 30px"><div class="thead"><span>Captions</span></div></div>
+      <div style="height: 30px"><div class="thead"><span>Overlay</span></div></div>
+      <div style="flex: 1 1 auto; min-height: 58px"><div class="thead" style="border-bottom: 0"><span>Main</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2C94C" stroke-width="2" stroke-linecap="round"><path d="M6 3v8a6 6 0 0 0 12 0V3"></path></svg></div></div>
+      <div style="height: 30px"><div class="thead" style="border-top: 1px solid #1C1C20"><span>SFX</span></div></div>
+    </div>
+    <div style="flex: 1 1 auto; overflow: auto; min-width: 0">
+      <div style="position: relative; width: {{ tlW }}; min-height: 100%; height: 100%; display: flex; flex-direction: column">
+        <button type="button" aria-label="Move playhead" onClick="{{ seek }}" style="position: relative; height: 24px; flex: 0 0 auto; border: 0; border-bottom: 1px solid #1C1C20; background: transparent; padding: 0; margin: 0; cursor: pointer; display: block; width: 100%">
+          <sc-for list="{{ ticks }}" as="k" hint-placeholder-count="12"><span class="tick" style="left: {{ k.left }}">{{ k.label }}</span></sc-for>
+        </button>
+        <div class="trk" style="height: 30px">
+          <sc-for list="{{ chunks }}" as="c" hint-placeholder-count="8"><button type="button" class="{{ c.cls }}" style="left: {{ c.left }}; width: {{ c.width }}" onClick="{{ c.pick }}">{{ c.text }}</button></sc-for>
+        </div>
+        <div class="trk" style="height: 30px" onDragOver="{{ allowDrop }}" onDrop="{{ dropOverlay }}">
+          <sc-if value="{{ noOverlay }}" hint-placeholder-val="{{ true }}"><span class="muted" style="position: absolute; left: 8px; top: 8px; font-size: 11px">Drag b-roll or images here</span></sc-if>
+          <sc-for list="{{ overlays }}" as="o" hint-placeholder-count="1"><button type="button" class="{{ o.cls }}" style="left: {{ o.left }}; width: {{ o.width }}" onClick="{{ o.pick }}">{{ o.name }}</button></sc-for>
+        </div>
+        <div class="trk" style="flex: 1 1 auto; min-height: 58px; margin: 0 0 4px">
+          <sc-for list="{{ segs }}" as="s" hint-placeholder-count="6">
+            <sc-if value="{{ s.kept }}" hint-placeholder-val="{{ true }}"><button type="button" class="{{ s.cls }}" style="left: {{ s.left }}; width: {{ s.width }}" aria-label="Clip {{ s.label }}" onClick="{{ s.pick }}"><span class="tiles"><sc-for list="{{ s.tiles }}" as="t" hint-placeholder-count="3"><span class="tile"></span></sc-for></span><span class="wave"><sc-for list="{{ s.bars }}" as="b" hint-placeholder-count="10"><span class="wb" style="height: {{ b.h }}"></span></sc-for></span></button></sc-if>
+            <sc-if value="{{ s.cut }}" hint-placeholder-val="{{ false }}"><button type="button" class="{{ s.cls }}" style="left: {{ s.left }}; width: {{ s.width }}" aria-label="Removed {{ s.label }}" title="Removed by Auto Edit · click to review" onClick="{{ s.pick }}"></button></sc-if>
+          </sc-for>
+        </div>
+        <div class="trk" style="height: 30px; border-top: 1px solid #1C1C20" onDragOver="{{ allowDrop }}" onDrop="{{ dropSfx }}">
+          <div style="position: absolute; left: 0; top: 18px; height: 6px; width: {{ riserW }}; border-radius: 3px; background: #3B3168"></div>
+          <sc-for list="{{ sfx }}" as="x" hint-placeholder-count="5"><span class="sfxm" style="left: {{ x.left }}"><span class="dot"></span>{{ x.label }}</span></sc-for>
+        </div>
+        <div style="position: absolute; top: 0; bottom: 0; left: {{ phLeft }}; width: 2px; background: #FFFFFF; pointer-events: none"><div style="position: absolute; top: 0; left: -5px; width: 12px; height: 10px; background: #FFFFFF; border-radius: 2px"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<sc-if value="{{ exportOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(6,6,8,.7); display: flex; align-items: center; justify-content: center; padding: 16px">
+  <div role="dialog" aria-label="Export" style="width: 100%; max-width: 520px; border-radius: 12px; background: #18181B; border: 1px solid #26262B; padding: 20px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+    <div class="row"><span style="font-size: 16px; font-weight: 600">Export</span><button type="button" class="ib" aria-label="Close" onClick="{{ closeExport }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+    <div style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px 14px; align-items: center">
+      <span class="muted">File name</span><input class="num" style="text-align: left; height: 30px; font-size: 12px" value="capcut-pro-v3" aria-label="File name" readonly>
+      <span class="muted">Save to</span><div style="display: flex; gap: 6px; min-width: 0"><input class="num" style="text-align: left; height: 30px; font-size: 12px; flex: 1 1 auto; min-width: 0" value="{{ exDir }}" aria-label="Export folder" title="{{ exDir }}" readonly><button type="button" class="btn" onClick="{{ browseDir }}">Browse…</button></div>
+      <span class="muted">Resolution</span><div class="segs"><sc-for list="{{ exRes }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+      <span class="muted">Frame rate</span><div class="segs"><sc-for list="{{ exFps }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+      <span class="muted">Codec</span><div class="segs"><sc-for list="{{ exCodec }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+      <span class="muted">Bitrate</span><div class="segs"><sc-for list="{{ exBr }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+    </div>
+    <sc-if value="{{ upscale }}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #F2C94C">Source is 1080×1920, so {{ exResName }} is upscaled. It looks sharper on some phones but adds no real detail.</span></sc-if>
+    <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #26262B; padding-top: 14px">
+      <div class="row"><span>Cover JPG</span><button type="button" class="{{ swCover }}" aria-label="Cover JPG" aria-pressed="{{ prCover }}" onClick="{{ tgCover }}"><span class="knob"></span></button></div>
+      <div class="row"><span>WhatsApp copy (smaller file)</span><button type="button" class="{{ swWa }}" aria-label="WhatsApp copy" aria-pressed="{{ prWa }}" onClick="{{ tgWa }}"><span class="knob"></span></button></div>
+      <div class="row"><span>Open folder when done</span><button type="button" class="{{ swOpen }}" aria-label="Open folder when done" aria-pressed="{{ prOpen }}" onClick="{{ tgOpen }}"><span class="knob"></span></button></div>
+      <div class="row"><span>Use this folder as default</span><button type="button" class="{{ swDef }}" aria-label="Use as default folder" aria-pressed="{{ prDef }}" onClick="{{ tgDef }}"><span class="knob"></span></button></div>
+    </div>
+    <div class="row" style="border-top: 1px solid #26262B; padding-top: 14px">
+      <span class="mono muted" style="font-size: 11px">{{ exSummary }}</span>
+      <div style="display: flex; gap: 8px"><button type="button" class="btn" onClick="{{ closeExport }}">Cancel</button><button type="button" class="btn btn-pri" onClick="{{ closeExport }}">Export</button></div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(...a) {
+    super(...a);
+    this.dragItem = null;
+    this.state = {
+      preset: 'default', lt: 'media', rt: 'video', sel: { t: 'clip' }, ov: {}, overlays: [], sfxAdds: [],
+      zoom: 1.2, ph: 0, playing: false, exportOpen: false, banner: true, kw: 'rules', mag: true, snap: true,
+      ex: { res: '1080p', fps: '30', codec: 'H.264', br: 'Recommended', cover: true, wa: false, dir: 0, open: true, def: true },
+      p: { scale: 100, rot: 0, op: 100, rmbg: false, stab: false, cam: true, vol: 100, fin: 0, fout: 0, noise: true, enh: true, duck: true, speed: 1.25, grade: 'natural', Exposure: 0, Contrast: 6, Saturation: 12, Temperature: 0 },
+      kf: { scale: true }
+    };
+  }
+
+  setP(patch) { this.setState((s) => ({ p: Object.assign({}, s.p, patch) })); }
+  setEx(patch) { this.setState((s) => ({ ex: Object.assign({}, s.ex, patch) })); }
+  setOv(id, patch) {
+    this.setState((s) => {
+      const ov = Object.assign({}, s.ov);
+      ov[id] = Object.assign({}, ov[id], patch);
+      return { ov: ov };
+    });
+  }
+
+  renderVals() {
+    const S = this.state;
+    const P = S.p;
+    const cap = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+    const fmt = (s) => {
+      const m = Math.floor(s / 60);
+      const r = s - m * 60;
+      return String(m).padStart(2, '0') + ':' + r.toFixed(2).padStart(5, '0');
+    };
+    const sw = (on) => 'sw' + (on ? ' on' : '');
+    const pr = (on) => (on ? 'true' : 'false');
+    const opt = (list, isOn, pick, lab) => list.map((x) => ({ label: lab ? lab(x) : cap(String(x)), cls: 'seg' + (isOn(x) ? ' on' : ''), pick: () => pick(x) }));
+
+    const LAYOUT = {
+      default: { left: '340px', right: '300px', tl: '250px', pv: 400, showL: true, showR: true },
+      media: { left: '560px', right: '280px', tl: '210px', pv: 360, showL: true, showR: true },
+      timeline: { left: '300px', right: '280px', tl: '420px', pv: 240, showL: true, showR: true },
+      preview: { left: '0px', right: '0px', tl: '170px', pv: 560, showL: false, showR: false }
+    };
+    const L = LAYOUT[S.preset] || LAYOUT.default;
+    const K = Math.round(80 * S.zoom);
+
+    const BASE = [
+      ['w0', 'Jadi', 0.26], ['w1', 'gue', 0.2], ['w2', 'dulu', 0.3], ['w3', 'tiap', 0.26], ['w4', 'edit', 0.28], ['w5', 'reels', 0.36],
+      ['w6', 'harus', 0.3, { cut: true, flag: 'Retake (repeated phrase)' }], ['w7', 'bayar', 0.34, { cut: true, flag: 'Retake (repeated phrase)' }],
+      ['g0', null, 0.9, { gap: true, cut: true }],
+      ['w8', 'harus', 0.28], ['w9', 'langganan', 0.5], ['w10', 'CapCut', 0.46, { key: true, anim: 'slam' }], ['w11', 'Pro', 0.3], ['w12', 'tiap', 0.24], ['w13', 'bulan.', 0.4],
+      ['g1', null, 0.4, { gap: true, cut: true }],
+      ['w14', 'Sekarang', 0.42], ['w15', 'gue', 0.2], ['w16', 'bikin', 0.3], ['w17', 'app', 0.28], ['w18', 'sendiri', 0.4], ['w19', 'pakai', 0.3], ['w20', 'Claude', 0.44, { key: true, anim: 'blur' }],
+      ['g2', null, 1.2, { gap: true, cut: false, flag: 'Kept: hold for on-screen graphic' }],
+      ['w21', 'cuma', 0.28], ['w22', 'butuh', 0.3], ['w23', '5 menit', 0.6, { key: true, anim: 'slam', hit: 'boom' }], ['w24', 'buat', 0.22], ['w25', 'satu', 0.26], ['w26', 'video.', 0.42]
+    ];
+
+    const selId = S.sel && (S.sel.t === 'word' || S.sel.t === 'gap') ? S.sel.id : null;
+    let t = 0;
+    let kept = 0;
+    let firstKey = null;
+    const items = BASE.map((row) => {
+      const id = row[0];
+      const o = row[3] || {};
+      const gap = !!o.gap;
+      const d = row[2];
+      const text = gap ? d.toFixed(1) + 's' : row[1];
+      const v = Object.assign({ cut: !!o.cut, key: !!o.key, anim: o.anim || (o.key ? 'slam' : 'pop'), hit: o.hit || 'none' }, S.ov[id] || {});
+      const start = t;
+      t += d;
+      if (!v.cut) kept += d;
+      const live = !gap && !v.cut;
+      if (live && v.key && firstKey === null) firstKey = start;
+      const sel = selId === id;
+      let cls = gap ? 'gap ' + (v.cut ? 'gap-cut' : 'gap-keep') : 'w' + (v.key ? ' key' : '') + (v.cut ? ' cut' : '');
+      if (sel) cls += ' sel';
+      const sfx = live && v.key ? (v.anim === 'blur' ? 'swish' : v.anim === 'type' ? 'typing' : 'whoosh') : '';
+      const hit = live && v.key && v.hit !== 'none' ? v.hit : '';
+      return {
+        id: id, text: text, label: text, gap: gap, d: d, start: start, v: v, live: live, sel: sel, cls: cls, flag: o.flag || '',
+        sfx: sfx ? sfx + (hit ? ' + ' + hit : '') : '',
+        pick: () => this.setState({ sel: { t: gap ? 'gap' : 'word', id: id }, rt: gap ? 'silence' : 'caption', ph: start })
+      };
+    });
+    const total = t;
+    const cur = items.find((i) => i.sel) || null;
+
+    const chunks = [];
+    let buf = [];
+    const flush = () => {
+      if (!buf.length) return;
+      const a = buf[0];
+      const b = buf[buf.length - 1];
+      const isSel = buf.some((x) => x.sel);
+      chunks.push({
+        text: buf.map((x) => x.text.replace(/[.,]+$/, '')).join(' ').toLowerCase(),
+        cls: 'chunk' + (isSel ? ' sel' : ''),
+        left: Math.round(a.start * K) + 'px', width: Math.max(18, Math.round((b.start + b.d - a.start) * K) - 2) + 'px',
+        pick: a.pick
+      });
+      buf = [];
+    };
+    items.forEach((i) => {
+      if (!i.live) { flush(); return; }
+      if (i.v.key) {
+        flush();
+        chunks.push({ text: i.text, cls: 'chunk key' + (i.sel ? ' sel' : ''), left: Math.round(i.start * K) + 'px', width: Math.max(18, Math.round(i.d * K) - 2) + 'px', pick: i.pick });
+        return;
+      }
+      buf.push(i);
+      if (buf.length === 3) flush();
+    });
+    flush();
+
+    const segs = [];
+    items.forEach((i) => {
+      const last = segs[segs.length - 1];
+      if (last && last.cut === i.v.cut) { last.d += i.d; last.ids.push(i); } else segs.push({ cut: i.v.cut, start: i.start, d: i.d, ids: [i] });
+    });
+    const clipSel = S.sel && S.sel.t === 'clip';
+    const segOut = segs.map((s, n) => {
+      const w = Math.round(s.d * K) - 2;
+      const tiles = [];
+      for (let k = 0; k < Math.max(1, Math.floor(w / 35)); k++) tiles.push({ k: k });
+      const bars = [];
+      for (let k = 0; k < Math.max(2, Math.floor(w / 3)); k++) bars.push({ h: (3 + ((k * 37 + n * 11) % 12)) + 'px' });
+      const first = s.ids[0];
+      return {
+        kept: !s.cut, cut: s.cut,
+        cls: s.cut ? 'seg-cut' + (s.ids.some((x) => x.sel) ? ' sel' : '') : 'seg-clip' + (clipSel ? ' sel' : ''),
+        left: Math.round(s.start * K) + 1 + 'px', width: Math.max(4, w) + 'px', tiles: tiles, bars: bars,
+        label: fmt(s.start),
+        pick: s.cut ? first.pick : () => this.setState({ sel: { t: 'clip' }, rt: 'video', ph: s.start })
+      };
+    });
+
+    const sfx = [];
+    items.forEach((i) => { if (i.sfx) sfx.push({ left: Math.round(i.start * K) + 'px', label: i.sfx }); });
+    sfx.push({ left: '4px', label: 'riser' });
+    S.sfxAdds.forEach((x) => sfx.push({ left: Math.round(x.start * K) + 'px', label: x.name.toLowerCase() }));
+
+    const overlays = S.overlays.map((o) => ({
+      name: o.name, cls: 'ovl' + (S.sel && S.sel.t === 'overlay' && S.sel.id === o.id ? ' sel' : ''),
+      left: Math.round(o.start * K) + 'px', width: Math.round(o.d * K) + 'px',
+      pick: () => this.setState({ sel: { t: 'overlay', id: o.id }, rt: 'video', ph: o.start })
+    }));
+
+    const ticks = [];
+    for (let s = 0; s <= Math.ceil(total); s++) ticks.push({ left: s * K + 'px', label: '00:' + String(s).padStart(2, '0') });
+
+    const addOverlay = (name, d, start) => this.setState((s) => ({ overlays: s.overlays.concat([{ id: 'o' + (s.overlays.length + 1), name: name, d: d, start: start }]) }));
+    const media = [
+      { name: 'raw-footage.mp4', dur: '00:11', d: 2 },
+      { name: 'screen-record.mp4', dur: '00:06', d: 2.2 },
+      { name: 'dashboard.png', dur: 'image', d: 1.6 },
+      { name: 'chat-demo.png', dur: 'image', d: 1.6 }
+    ].map((m) => ({
+      name: m.name, dur: m.dur,
+      drag: (e) => { this.dragItem = { kind: 'media', name: m.name, d: m.d }; try { e.dataTransfer.setData('text/plain', m.name); } catch (err) { } },
+      add: () => addOverlay(m.name, m.d, S.ph)
+    }));
+
+    const SFX = [['Riser', 'Intro, peaks on the first keyword'], ['Typing', 'Typed captions'], ['Click', 'Plain captions popping in'], ['Whoosh', 'Slam keywords, b-roll in'], ['Swish', 'Blur-in keywords'], ['Impact', 'Closing punchline'], ['Boom', 'Biggest reveal, max 1 per video'], ['Pop', 'Chips, cards, stickers']];
+    const sfxCats = SFX.map((c) => ({ name: c[0], use: c[1], drag: (e) => { this.dragItem = { kind: 'sfx', name: c[0] }; try { e.dataTransfer.setData('text/plain', c[0]); } catch (err) { } } }));
+
+    const dropAt = (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      return Math.max(0, (e.clientX - r.left) / K);
+    };
+
+    let capBig = '';
+    let capSmall = '';
+    const at = cur || items.find((i) => i.start <= S.ph && S.ph < i.start + i.d) || items[0];
+    if (at && at.live) {
+      if (at.v.key) capBig = at.text;
+      else {
+        const ch = chunks.find((c) => !c.cls.includes('key') && parseInt(c.left, 10) <= Math.round(at.start * K) && Math.round(at.start * K) < parseInt(c.left, 10) + parseInt(c.width, 10) + 2);
+        capSmall = ch ? ch.text : at.text.toLowerCase();
+      }
+    }
+
+    const cutGaps = items.filter((i) => i.gap && i.v.cut).length;
+    const retakes = items.filter((i) => i.flag.indexOf('Retake') === 0 && i.v.cut).length;
+    const keys = items.filter((i) => !i.gap && i.v.key).length;
+
+    const sel = S.sel ? S.sel.t : 'none';
+    const isClip = sel === 'clip' || sel === 'overlay';
+    const RT = isClip ? [['video', 'Video'], ['audio', 'Audio'], ['speed', 'Speed'], ['adjust', 'Adjust']] : sel === 'word' ? [['caption', 'Caption']] : sel === 'gap' ? [['silence', 'Silence']] : [];
+    const rt = RT.some((x) => x[0] === S.rt) ? S.rt : (RT[0] ? RT[0][0] : '');
+
+    const LT = (k) => 'ltab' + (S.lt === k ? ' on' : '');
+    const LP = (k) => 'ib' + (S.preset === k ? ' on' : '');
+    const KF = (k) => 'kf' + (S.kf[k] ? ' on' : '');
+    const tk = (k) => () => this.setState((s) => { const kf = Object.assign({}, s.kf); kf[k] = !kf[k]; return { kf: kf }; });
+    const tg = (k) => () => this.setP({ [k]: !P[k] });
+
+    const RES = { '1080p': '1080×1920', '2K': '1440×2560', '4K': '2160×3840' };
+    const BR = { '1080p': [12, 20], '2K': [20, 32], '4K': [40, 60] };
+    const finalDur = kept / P.speed;
+    const mbps = BR[S.ex.res][S.ex.br === 'Higher' ? 1 : 0] * (S.ex.fps === '60' ? 1.5 : 1);
+    const sizeMb = (mbps * finalDur) / 8;
+
+    const pvH = L.pv;
+    return {
+      lpDefault: LP('default'), lpMedia: LP('media'), lpTimeline: LP('timeline'), lpPreview: LP('preview'),
+      setDefault: () => this.setState({ preset: 'default' }), setMedia: () => this.setState({ preset: 'media' }),
+      setTimeline: () => this.setState({ preset: 'timeline' }), setPreview: () => this.setState({ preset: 'preview' }),
+      showL: L.showL, showR: L.showR, leftW: L.left, rightW: L.right, tlH: L.tl,
+      ltMedia: LT('media'), ltAudio: LT('audio'), ltText: LT('text'), ltCaptions: LT('captions'), ltTrans: LT('trans'), ltFilters: LT('filters'),
+      goMedia: () => this.setState({ lt: 'media' }), goAudio: () => this.setState({ lt: 'audio' }), goText: () => this.setState({ lt: 'text' }),
+      goCaptions: () => this.setState({ lt: 'captions' }), goTrans: () => this.setState({ lt: 'trans' }), goFilters: () => this.setState({ lt: 'filters' }),
+      tabMedia: S.lt === 'media', tabAudio: S.lt === 'audio', tabText: S.lt === 'text', tabCaptions: S.lt === 'captions', tabTrans: S.lt === 'trans', tabFilters: S.lt === 'filters',
+      media: media, sfxCats: sfxCats,
+      transitions: ['Dissolve', 'Zoom in', 'Whip pan', 'Slide', 'Blur', 'Flash'],
+      filters: [{ name: 'Natural', bg: '#3A3528' }, { name: 'Warm', bg: '#4A3626' }, { name: 'Lift', bg: '#3C3F48' }, { name: 'Mono', bg: '#3A3A3A' }, { name: 'Film', bg: '#3B3A2E' }, { name: 'Cool', bg: '#26364A' }],
+      banner: S.banner, hideBanner: () => this.setState({ banner: false }),
+      bannerText: cutGaps + ' silences and ' + retakes + ' retake words removed, ' + keys + ' keywords marked. Review, then export.',
+      kwOpts: opt(['rules', 'local', 'claude'], (x) => x === S.kw, (x) => this.setState({ kw: x }), (x) => ({ rules: 'Rules', local: 'Local LLM', claude: 'Claude' })[x]),
+      kwNote: ({ rules: 'Offline. Picks numbers, product names and stressed words.', local: 'Offline. Runs a local model on your GPU (optional download).', claude: 'Needs internet. Sends transcript text only, never the video.' })[S.kw],
+      items: items,
+      pvH: pvH + 'px', pvW: Math.round(pvH * 9 / 16) + 'px', bigSize: Math.round(pvH * 0.085) + 'px', smallSize: Math.round(pvH * 0.034) + 'px',
+      hasBig: !!capBig, capBig: capBig, hasSmall: !!capSmall, capSmall: capSmall, isCut: !!(cur && cur.v.cut),
+      tcNow: fmt(S.ph), tcAll: fmt(total), finalLen: fmt(finalDur),
+      playing: S.playing, paused: !S.playing, playLabel: S.playing ? 'Pause' : 'Play', togglePlay: () => this.setState({ playing: !S.playing }),
+      rtabs: RT.map((x) => ({ label: x[1], cls: 'rtab' + (rt === x[0] ? ' on' : ''), pick: () => this.setState({ rt: x[0] }) })),
+      rVideo: rt === 'video', rAudio: rt === 'audio', rSpeed: rt === 'speed', rAdjust: rt === 'adjust', rCaption: rt === 'caption', rSilence: rt === 'silence',
+      pScale: P.scale, pScaleTxt: P.scale + '%', setScale: (e) => this.setP({ scale: Number(e.target.value) }),
+      pRot: P.rot, pRotTxt: P.rot + '°', setRot: (e) => this.setP({ rot: Number(e.target.value) }),
+      pOp: P.op, pOpTxt: P.op + '%', setOp: (e) => this.setP({ op: Number(e.target.value) }),
+      kfScale: KF('scale'), kfPos: KF('pos'), kfRot: KF('rot'), kfOp: KF('op'),
+      tkScale: tk('scale'), tkPos: tk('pos'), tkRot: tk('rot'), tkOp: tk('op'),
+      swRmbg: sw(P.rmbg), prRmbg: pr(P.rmbg), tgRmbg: tg('rmbg'),
+      swStab: sw(P.stab), prStab: pr(P.stab), tgStab: tg('stab'),
+      swCam: sw(P.cam), prCam: pr(P.cam), tgCam: tg('cam'),
+      pVol: P.vol, pVolTxt: P.vol + '%', setVol: (e) => this.setP({ vol: Number(e.target.value) }),
+      pFin: P.fin, pFinTxt: (P.fin / 10).toFixed(1) + 's', setFin: (e) => this.setP({ fin: Number(e.target.value) }),
+      pFout: P.fout, pFoutTxt: (P.fout / 10).toFixed(1) + 's', setFout: (e) => this.setP({ fout: Number(e.target.value) }),
+      swNoise: sw(P.noise), prNoise: pr(P.noise), tgNoise: tg('noise'),
+      swEnh: sw(P.enh), prEnh: pr(P.enh), tgEnh: tg('enh'),
+      swDuck: sw(P.duck), prDuck: pr(P.duck), tgDuck: tg('duck'),
+      pSpeed: P.speed, pSpeedTxt: Number(P.speed).toFixed(2) + '×', setSpeed: (e) => this.setP({ speed: Number(e.target.value) }),
+      speedOpts: opt([0.5, 1, 1.25, 1.5, 2], (x) => x === P.speed, (x) => this.setP({ speed: x }), (x) => x + '×'),
+      gradeOpts: opt(['natural', 'warm', 'lift'], (x) => x === P.grade, (x) => this.setP({ grade: x })),
+      adjust: ['Exposure', 'Contrast', 'Saturation', 'Temperature'].map((n) => ({ name: n, val: P[n], set: (e) => this.setP({ [n]: Number(e.target.value) }) })),
+      curText: cur ? cur.text : '', curTime: cur ? fmt(cur.start) + ' – ' + fmt(cur.start + cur.d) : '',
+      hasFlag: !!(cur && cur.flag && !cur.gap), curFlag: cur ? cur.flag : '', curKey: !!(cur && cur.v.key),
+      keyCls: sw(cur && cur.v.key), keyPressed: pr(cur && cur.v.key),
+      toggleKey: () => { if (cur) this.setOv(cur.id, { key: !cur.v.key, anim: cur.v.key ? 'pop' : 'slam', hit: 'none' }); },
+      animOpts: cur ? opt(cur.v.key ? ['slam', 'blur', 'type'] : ['pop', 'type'], (x) => x === cur.v.anim, (x) => this.setOv(cur.id, { anim: x })) : [],
+      hitOpts: cur ? opt(['none', 'impact', 'boom'], (x) => x === cur.v.hit, (x) => this.setOv(cur.id, { hit: x })) : [],
+      sfxText: cur && cur.sfx ? cur.sfx : (cur && cur.live ? 'click' : 'none'),
+      cutLabel: cur && cur.v.cut ? 'Restore' : 'Cut this word',
+      toggleCut: () => { if (cur) this.setOv(cur.id, { cut: !cur.v.cut }); },
+      gapNote: cur && cur.gap ? (cur.flag || (cur.v.cut ? 'Removed by Auto Edit (silence ≥ 0.22 s).' : 'Kept by you.')) : '',
+      gapOpts: cur && cur.gap ? opt(['remove', 'keep'], (x) => (x === 'remove') === cur.v.cut, (x) => this.setOv(cur.id, { cut: x === 'remove' })) : [],
+      magCls: 'tool' + (S.mag ? ' on' : ''), magPressed: pr(S.mag), tgMag: () => this.setState({ mag: !S.mag }),
+      snapCls: 'tool' + (S.snap ? ' on' : ''), snapPressed: pr(S.snap), tgSnap: () => this.setState({ snap: !S.snap }),
+      zoom: S.zoom, setZoom: (e) => this.setState({ zoom: Number(e.target.value) }),
+      tlW: Math.round(total * K) + 60 + 'px', ticks: ticks, chunks: chunks, segs: segOut, sfx: sfx, overlays: overlays, noOverlay: !overlays.length,
+      riserW: Math.round((firstKey === null ? 1 : firstKey) * K) + 'px', phLeft: Math.round(S.ph * K) + 'px',
+      seek: (e) => { const r = e.currentTarget.getBoundingClientRect(); this.setState({ ph: Math.max(0, Math.min(total, (e.clientX - r.left) / K)), sel: null }); },
+      allowDrop: (e) => e.preventDefault(),
+      dropOverlay: (e) => { e.preventDefault(); const it = this.dragItem; if (it && it.kind === 'media') addOverlay(it.name, it.d, dropAt(e)); this.dragItem = null; },
+      dropSfx: (e) => { e.preventDefault(); const it = this.dragItem; if (it && it.kind === 'sfx') { const st = dropAt(e); this.setState((s) => ({ sfxAdds: s.sfxAdds.concat([{ name: it.name, start: st }]) })); } this.dragItem = null; },
+      runAuto: () => this.setState({ banner: true, ov: {}, lt: 'captions' }),
+      exportOpen: S.exportOpen, openExport: () => this.setState({ exportOpen: true }), closeExport: () => this.setState({ exportOpen: false }),
+      exRes: opt(['1080p', '2K', '4K'], (x) => x === S.ex.res, (x) => this.setEx({ res: x }), (x) => x + ' · ' + RES[x]),
+      exFps: opt(['30', '60'], (x) => x === S.ex.fps, (x) => this.setEx({ fps: x }), (x) => x + ' fps'),
+      exCodec: opt(['H.264', 'HEVC'], (x) => x === S.ex.codec, (x) => this.setEx({ codec: x }), (x) => x),
+      exBr: opt(['Recommended', 'Higher'], (x) => x === S.ex.br, (x) => this.setEx({ br: x }), (x) => x),
+      upscale: S.ex.res !== '1080p', exResName: S.ex.res,
+      swCover: sw(S.ex.cover), prCover: pr(S.ex.cover), tgCover: () => this.setEx({ cover: !S.ex.cover }),
+      swWa: sw(S.ex.wa), prWa: pr(S.ex.wa), tgWa: () => this.setEx({ wa: !S.ex.wa }),
+      exDir: ['D:\\Documents\\Claude Cowork\\MIVA\\reels\\hasil', 'D:\\Videos\\Reels', 'C:\\Users\\Steven\\Desktop'][S.ex.dir % 3],
+      browseDir: () => this.setEx({ dir: S.ex.dir + 1 }),
+      swOpen: sw(S.ex.open), prOpen: pr(S.ex.open), tgOpen: () => this.setEx({ open: !S.ex.open }),
+      swDef: sw(S.ex.def), prDef: pr(S.ex.def), tgDef: () => this.setEx({ def: !S.ex.def }),
+      exSummary: 'MP4 · ' + S.ex.codec + ' · ' + mbps + ' Mbps · ≈ ' + sizeMb.toFixed(1) + ' MB'
+    };
+  }
+}
+</script>
+</body>
+</html>

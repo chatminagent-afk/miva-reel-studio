@@ -17,6 +17,8 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-06 | Export **1080p / 2K (1440×2560) / 4K (2160×3840)** | Permintaan Steven |
 | 2026-10-06 | Folder proyek tetap **kompatibel dengan skill** (`edit.json`, `captions.json`, `timing.json`) | `/reel-edit` di Claude Code tetap bisa melanjutkan proyek dari app |
 | 2026-10-06 | UAT di PC Steven **lulus 100%** sebelum app disebut ready | Standar QA Steven |
+| 2026-10-06 | **UI di-approve**: mockup v2 struktur CapCut (`docs/mockup/`, artifact "MIVA Reel Studio UI") | Approve Steven 06/10 |
+| 2026-10-06 | Export punya **pilihan folder** (Browse), opsi jadikan default, dan buka folder setelah selesai | Feedback Steven 06/10 |
 
 ## Lingkup fitur versi 1
 
@@ -36,7 +38,13 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 
 - "Fitur yang paling sering digunakan user" (jawaban Steven 06/10): interpretasi sementara = speed (0,5–2×), teks bebas/judul,
   freeze frame, reverse, adjust warna (exposure/contrast/saturation/temperature), aspect ratio. Menunggu konfirmasi.
-- Footage sampel asli untuk tes Whisper & baseline UAT: belum diterima (Drive diblokir network policy sesi cloud; jalur: upload ke `samples/`).
+- Footage sampel: `tes2.mp4` diterima 06/10 (37 dtk, 1080×1920 HEVC 30 fps, AAC 44,1 kHz, rekaman di mobil). Belum di-commit
+  ke repo (27 MB, wajah Steven); menunggu keputusan simpan lewat Git LFS atau tidak.
+  Temuan awal: noise floor pita suara -34 dB vs median -29 dB (selisih kecil karena noise mobil), jadi deteksi hening berbasis
+  energi saja lemah; potongan harus berbasis celah kata Whisper (sesuai gotcha skill). ±2 dtk awal = kamera dipasang/goyang.
+  Plafon mobil di atas kepala kosong, aman untuk zona grafik.
+- Tes Whisper di sesi cloud terblokir: `huggingface.co` (dan host model lain) ditolak network policy. Perlu ditambahkan ke
+  Allowed domains: `huggingface.co`, `cdn-lfs.huggingface.co`, `cas-bridge.xethub.hf.co`.
 - Engine Whisper: faster-whisper vs whisper.cpp — diputuskan lewat uji pembanding di langkah 2.
 - Model LLM lokal untuk saran kata kunci: belum dipilih; kualitas bahasa Indonesia harus diuji dulu.
 

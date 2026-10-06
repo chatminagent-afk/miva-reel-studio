@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reel Studio Import</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0F1012}
+a{color:#F2C94C}a:hover{color:#FFE08A}
+.btn{font:inherit;font-size:13px;color:#ECECEE;background:#1E1F23;border:1px solid #2A2C31;border-radius:8px;height:36px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-decoration:none;box-sizing:border-box;white-space:nowrap}
+.btn:hover{background:#26282D;color:#ECECEE}
+.btn-pri{background:#F2C94C;color:#1A1400;border-color:#F2C94C;font-weight:600}
+.btn-pri:hover{background:#FFD866;color:#1A1400}
+.panel{background:#17181B;border:1px solid #232529;border-radius:12px;box-sizing:border-box}
+.lbl{font-size:11px;color:#A0A3AB;text-transform:uppercase;letter-spacing:.06em}
+.muted{color:#A0A3AB}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.proj{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;text-decoration:none;color:#ECECEE}
+.proj:hover{background:#1E1F23;color:#ECECEE}
+.sw{width:40px;height:22px;border-radius:999px;border:0;background:#33363C;position:relative;cursor:pointer;padding:0;flex:0 0 auto}
+.sw.on{background:#F2C94C}
+.knob{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#ECECEE}
+.sw.on .knob{left:21px;background:#1A1400}
+.seg{font:inherit;font-size:12px;color:#A0A3AB;background:transparent;border:0;border-radius:6px;height:28px;padding:0 10px;cursor:pointer}
+.seg.on{background:#2C2E34;color:#ECECEE}
+.segs{display:flex;gap:2px;padding:3px;background:#111214;border:1px solid #26282D;border-radius:8px}
+.step{display:flex;align-items:flex-start;gap:12px}
+.ic{width:22px;height:22px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;box-sizing:border-box}
+.ic-done{background:#1F3A2A;color:#8FD6A8}
+.ic-run{border:2px solid #F2C94C;color:#F2C94C}
+.ic-wait{border:1px solid #3A3D44;color:#8A8D95}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #0F1012; color: #ECECEE; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 13px">
+
+<header style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #222428; flex-wrap: wrap">
+  <div style="width: 28px; height: 28px; border-radius: 7px; background: #F2C94C; color: #1A1400; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px">M</div>
+  <span style="font-weight: 600; font-size: 14px">Reel Studio</span>
+  <div style="margin-left: auto; display: flex; gap: 8px">
+    <button type="button" class="btn">Settings</button>
+  </div>
+</header>
+
+<div style="flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; align-items: flex-start">
+
+  <aside class="panel" aria-label="Recent projects" style="flex: 1 1 280px; max-width: 360px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+    <span class="lbl" style="padding: 0 10px 6px">Recent</span>
+    <a href="Main.dc.html" class="proj">
+      <div style="width: 30px; height: 54px; border-radius: 4px; background: #2A2C31; flex: 0 0 auto"></div>
+      <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+        <span style="font-weight: 500">2026-10-06-capcut-pro</span>
+        <span class="muted" style="font-size: 11px">v3 · edited today 14:21</span>
+      </div>
+    </a>
+    <a href="Main.dc.html" class="proj">
+      <div style="width: 30px; height: 54px; border-radius: 4px; background: #2A2C31; flex: 0 0 auto"></div>
+      <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+        <span style="font-weight: 500">2026-10-05-chatbot-bertele</span>
+        <span class="muted" style="font-size: 11px">v2 · rendered</span>
+      </div>
+    </a>
+    <a href="Main.dc.html" class="proj">
+      <div style="width: 30px; height: 54px; border-radius: 4px; background: #2A2C31; flex: 0 0 auto"></div>
+      <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+        <span style="font-weight: 500">2026-10-03-tes-edit</span>
+        <span class="muted" style="font-size: 11px">v2 · rendered</span>
+      </div>
+    </a>
+  </aside>
+
+  <main style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+
+    <sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}">
+    <section class="panel" aria-label="Import" style="padding: 20px; display: flex; flex-direction: column; gap: 18px">
+      <div style="border: 1.5px dashed #3A3D44; border-radius: 12px; padding: 48px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#A0A3AB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"></path><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg>
+        <span style="font-size: 18px; font-weight: 600">Drop raw footage</span>
+        <span class="muted">MP4 or MOV from your phone, 9:16 talking head</span>
+        <button type="button" class="btn btn-pri" style="margin-top: 6px" onClick="{{ start }}">Choose file</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <span class="lbl">After import</span>
+        <div class="row"><span>Run Auto Edit (cut silences, flag retakes, captions, keywords, SFX)</span><button type="button" class="{{ autoCls }}" aria-label="Run Auto Edit" aria-pressed="{{ autoPressed }}" onClick="{{ toggleAuto }}"><span class="knob"></span></button></div>
+        <div class="row"><span>Speed up 1.25×</span><button type="button" class="{{ fastCls }}" aria-label="Speed up" aria-pressed="{{ fastPressed }}" onClick="{{ toggleFast }}"><span class="knob"></span></button></div>
+        <div class="row"><span>Grade</span><div class="segs"><sc-for list="{{ gradeOpts }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div></div>
+      </div>
+    </section>
+    </sc-if>
+
+    <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}">
+    <section class="panel" aria-label="Auto Edit progress" style="padding: 20px; display: flex; flex-direction: column; gap: 18px">
+      <div class="row">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 16px; font-weight: 600">Auto Edit</span>
+          <span class="muted mono" style="font-size: 12px">raw-footage.mp4 · 01:12</span>
+        </div>
+        <span class="mono" style="font-size: 12px; color: #F2C94C">Step 2 of 5</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <div class="step"><span class="ic ic-done">1</span><div style="display: flex; flex-direction: column; gap: 2px"><span>Make preview proxy (540p)</span><span style="font-size: 12px; color: #8FD6A8">Done</span></div></div>
+        <div class="step"><span class="ic ic-run">2</span><div style="display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto"><span>Transcribe speech (Whisper, on this PC)</span><div style="height: 6px; border-radius: 3px; background: #2A2C31"><div style="height: 6px; width: 64%; border-radius: 3px; background: #F2C94C"></div></div><span class="muted mono" style="font-size: 11px">64%</span></div></div>
+        <div class="step"><span class="ic ic-wait">3</span><div style="display: flex; flex-direction: column; gap: 2px"><span class="muted">Find silences and retakes</span></div></div>
+        <div class="step"><span class="ic ic-wait">4</span><div style="display: flex; flex-direction: column; gap: 2px"><span class="muted">Suggest keywords (Claude)</span><span class="muted" style="font-size: 11px">Sends transcript text only, never the video</span></div></div>
+        <div class="step"><span class="ic ic-wait">5</span><div style="display: flex; flex-direction: column; gap: 2px"><span class="muted">Build captions, camera moves and SFX</span></div></div>
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap">
+        <button type="button" class="btn" onClick="{{ cancel }}">Cancel</button>
+        <a href="Main.dc.html" class="btn btn-pri">Open in editor</a>
+      </div>
+    </section>
+    </sc-if>
+
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(...a) {
+    super(...a);
+    this.state = { busy: false, auto: true, fast: true, grade: 'natural' };
+  }
+
+  renderVals() {
+    const S = this.state;
+    const cap = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+    return {
+      idle: !S.busy,
+      busy: S.busy,
+      start: () => this.setState({ busy: true }),
+      cancel: () => this.setState({ busy: false }),
+      autoCls: 'sw' + (S.auto ? ' on' : ''), autoPressed: S.auto ? 'true' : 'false', toggleAuto: () => this.setState({ auto: !S.auto }),
+      fastCls: 'sw' + (S.fast ? ' on' : ''), fastPressed: S.fast ? 'true' : 'false', toggleFast: () => this.setState({ fast: !S.fast }),
+      gradeOpts: ['natural', 'warm', 'lift'].map((x) => ({ label: cap(x), cls: 'seg' + (S.grade === x ? ' on' : ''), pick: () => this.setState({ grade: x }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>
