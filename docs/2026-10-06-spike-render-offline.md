@@ -50,3 +50,17 @@ Catatan: tanpa network namespace, compiler HyperFrames diam-diam mengunduh font 
 jadi app harus selalu menyetel `HYPERFRAMES_FONT_CACHE_DIR` ke folder font yang dibundel dan tidak bergantung pada unduhan itu.
 
 Akibat untuk UAT: perbandingan snapshot preview vs export butuh ambang toleransi piksel (blur tidak bit-identik).
+
+## Verifikasi export cepat vs render penuh (06/10, malam) — proyek acuan tes2
+
+Render acuan (skill asli, render penuh): 626 frame dalam 396 dtk.
+Export cepat: lapisan overlay saja 64 dtk + gabung video & kamera di FFmpeg (`perspective`, per frame) 45 dtk.
+Perbandingan frame demi frame: **median PSNR 41,3 dB, terburuk 38,7 dB, 0 frame < 30 dB** (identik secara visual;
+selisih dari kompresi JPEG ekstraksi frame HyperFrames dan interpolasi).
+
+Dua bug yang ditemukan dan diperbaiki sebelum lulus: kurung pembagi hilang di ekspresi skala (selisih sampai 183 px),
+dan variabel `in` filter `perspective` mulai dari 1 (frame di sebelah potongan memakai kamera frame berikutnya).
+Keduanya sekarang dikunci tes `tests/core/camera.test.ts`.
+
+Batas: whip (blur saat masuk potongan) belum bisa di FFmpeg; proyek dengan whip memakai render penuh.
+Kriteria UAT yang diusulkan: export app vs render penuh acuan, PSNR per frame ≥ 35 dB.
