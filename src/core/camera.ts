@@ -91,15 +91,16 @@ function exprFor(steps: CamStep[], k: 'scale' | 'x' | 'y', dflt: number): string
 
 /**
  * Filter `perspective` (sense=source, eval=frame) yang menerapkan kamera ke video 1080×1920.
- * `in` = nomor frame input; T = in/fps.
+ * `in` di filter perspective dimulai dari 1 (frame pertama = 1), jadi T = (in - 1)/fps.
+ * Terbukti 06/10: dengan in/fps, frame di sebelah potongan memakai keadaan kamera frame berikutnya (PSNR 14 dB).
  */
 export function perspectiveFilter(camera: CamStep[], origin: string, fps = 30): string {
   const { ox, oy } = parseOrigin(origin);
   const cam = camera.filter((m) => trackOf(m) === 'cam').sort((a, b) => a.t - b.t);
   const ar = camera.filter((m) => trackOf(m) === 'aroll').sort((a, b) => a.t - b.t);
-  const T = `(in/${fps})`;
+  const T = `((in-1)/${fps})`;
   const sub = (e: string) => e.replaceAll('T', T);
-  const S = `(${sub(exprFor(cam, 'scale', 1))})*(${sub(exprFor(ar, 'scale', 1))})`;
+  const S = `((${sub(exprFor(cam, 'scale', 1))})*(${sub(exprFor(ar, 'scale', 1))}))`; // kurung luar wajib: dipakai sebagai pembagi
   const X = sub(exprFor(cam, 'x', 0));
   const Y = sub(exprFor(cam, 'y', 0));
   const left = `(${ox}-(${ox}+${X})/${S})`;
