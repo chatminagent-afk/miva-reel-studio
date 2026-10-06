@@ -24,6 +24,7 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-06 | **Motion graphic masuk fase 1**: pustaka komponen (chip, kartu logo, angka/counter, poll, CTA, lower third) lewat drag & drop + saran penempatan otomatis (Rules / Local LLM / Claude, lalu approve) | Feedback render spike 06/10: end goal butuh motion; di skill grafik dibuat manual per video |
 | 2026-10-06 | **Semua fitur `/reel-edit` masuk fase 1** (gap analysis 06/10): koreksi transkrip + kamus nama, editor cover JPG, detail kamera (titik zoom wajah, kekuatan, punch-in, whip, deteksi awal goyang), detail subtitle (posisi/warna kata kunci, safe zone), jeda untuk grafik + scrim, kelola pustaka SFX, laporan export, kirim WA via Kirimi (online, opsional), musik latar opsional + ducking (default mati) | Pilihan Steven 06/10: hasil app harus setara skill |
 | 2026-10-06 | **`/miva-motion` (naskah → motion + VO) di fase 2**, setelah editor footage lolos UAT | Pilihan Steven 06/10 |
+| 2026-10-06 | Engine transkripsi **faster-whisper large-v3-turbo (CUDA fp16, fallback CPU int8)** | Benchmark di laptop Steven: WER 2,8%, satu-satunya yang akurat sekaligus memberi celah kata untuk potong hening; whisper.cpp gugur (`docs/2026-10-06-whisper-benchmark.md`) |
 
 ## Lingkup fitur versi 1
 
@@ -53,9 +54,7 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
   Temuan awal: noise floor pita suara -34 dB vs median -29 dB (selisih kecil karena noise mobil), jadi deteksi hening berbasis
   energi saja lemah; potongan harus berbasis celah kata Whisper (sesuai gotcha skill). ±2 dtk awal = kamera dipasang/goyang.
   Plafon mobil di atas kepala kosong, aman untuk zona grafik.
-- Tes Whisper di sesi cloud terblokir: `huggingface.co` (dan host model lain) ditolak network policy. Perlu ditambahkan ke
-  Allowed domains: `huggingface.co`, `cdn-lfs.huggingface.co`, `cas-bridge.xethub.hf.co`.
-- Engine Whisper: faster-whisper vs whisper.cpp — diputuskan lewat uji pembanding di langkah 2.
+- Tes Whisper di sesi cloud terblokir network policy (`huggingface.co`); benchmark dijalankan di laptop Steven 06/10.
 - Model LLM lokal untuk saran kata kunci: belum dipilih; kualitas bahasa Indonesia harus diuji dulu.
 
 ## Ditunda (risiko dikerjakan vs tidak)

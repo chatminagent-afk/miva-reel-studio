@@ -1,0 +1,12 @@
+{
+ "engine": "cpp",
+ "model": "medium",
+ "device": "cuda",
+ "audio_s": 37.04,
+ "error": null,
+ "load_s": 1.36,
+ "transcribe_s": 1.98,
+ "rtf": 0.053,
+ "words": 68,
+ "vram_peak_mb": 2255
+}

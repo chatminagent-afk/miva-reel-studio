@@ -1,0 +1,12 @@
+{
+ "engine": "fw",
+ "model": "large-v3-turbo",
+ "device": "cuda",
+ "audio_s": 37.04,
+ "error": null,
+ "load_s": 88.73,
+ "transcribe_s": 3.12,
+ "rtf": 0.084,
+ "words": 72,
+ "vram_peak_mb": 2230
+}

@@ -1,0 +1,12 @@
+{
+ "engine": "fw",
+ "model": "medium",
+ "device": "cuda",
+ "audio_s": 37.04,
+ "error": null,
+ "load_s": 5.52,
+ "transcribe_s": 6.66,
+ "rtf": 0.18,
+ "words": 74,
+ "vram_peak_mb": 2223
+}
