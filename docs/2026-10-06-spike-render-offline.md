@@ -64,3 +64,45 @@ Keduanya sekarang dikunci tes `tests/core/camera.test.ts`.
 
 Batas: whip (blur saat masuk potongan) belum bisa di FFmpeg; proyek dengan whip memakai render penuh.
 Kriteria UAT yang diusulkan: export app vs render penuh acuan, PSNR per frame ≥ 35 dB.
+
+## Runner export di app (06/10, sesi 2)
+
+Kode: `src/core/export.ts` (orkestrasi), `overlay.ts` (template offline), `hyperframes.ts` (CLI + progress), `proc.ts`
+(batal seluruh pohon proses), `src/main/export.ts` (IPC), `src/main/resources.ts` (lokasi file dibundel).
+
+**Aset offline dibundel.** Font `@fontsource` di-inline sebagai `@font-face` di komposisi (HyperFrames hanya membaca
+`@font-face` di HTML; kalau tidak ada, compiler-nya mengambil dari Google). Set face disamakan dengan yang dipakai render
+skill online: Inter normal 100–900 + italic 400/700, Playfair Display normal 400–900 + italic 400/600/700/800.
+Fallback `Segoe UI` dan `Georgia` dibuang dari komposisi app karena compiler mencoba mengunduhnya (online dipetakan ke Roboto
+dan EB Garamond). Chrome headless shell 152.0.7977.30 (versi pin HyperFrames) diunduh + dicek sha256 lewat `npm run fetch-resources`.
+
+**Paritas font lokal vs Google Fonts** (lapisan overlay acuan tes2, 626 frame RGBA): median PSNR 61,5 dB, terburuk 47,9 dB
+(frame animasi slam/blur). Huruf identik secara visual, termasuk italic asli Inter pada kata kecil.
+
+**Penjaga offline.** Proses HyperFrames dijalankan dengan `--import resources/scripts/offline-guard.mjs`: setiap koneksi TCP
+ke luar loopback ditolak dan dicatat (diwarisi worker thread). Komposisi yang masih memuat URL `http(s)://` ditolak sebelum
+render (Chrome tidak lewat penjaga Node). Hasil di semua tes: 0 koneksi diblokir, artinya tidak ada yang mencoba keluar.
+
+**Waktu export (cloud 4 core, tanpa GPU, proyek acuan 20,86 dtk, footage sintetis):**
+
+| Tahap | 1080p 30 fps |
+|---|---|
+| Render overlay (3 worker Chrome) | 27 dtk |
+| Mix suara + SFX | 2 dtk |
+| Gabung video + kamera + encode (libx264 slow CRF 18, blending RGB) | 61 dtk |
+| Total | ±91 dtk |
+
+Klip 3 dtk: 2K 60 fps HEVC ±57 dtk, 4K 30 fps H.264 ±43 dtk (overlay 4K = Chrome DPR 2, 4× piksel).
+Di laptop Steven encode memakai NVENC (dicoba sungguhan dulu, fallback libx264/libx265); angka nyata diukur saat UAT.
+
+**Whip.** Proyek dengan whip otomatis memakai render penuh (footage + kamera di Chrome, template skill versi offline),
+lalu frame di-encode bersama audio. Lebih lambat (±6×). Jalurnya sama dengan render skill, tapi belum dibandingkan PSNR
+dengan render skill asli (butuh footage asli).
+
+**Yang terbukti tes** (`tests/render/export.int.test.ts`, `tests/e2e/export.e2e.ts`): ukuran, fps, codec, durasi ±0,05 dtk,
+audio AAC, kata kunci tampil di frame yang benar, `cues.json` sama dengan acuan, file sementara dibersihkan, batal di tengah
+render menghentikan Chrome dan ffmpeg tanpa file setengah jadi, menutup app saat export ikut menghentikan render,
+dan export lewat IPC app Electron (HyperFrames berjalan sebagai Electron-as-Node).
+
+**Belum tercakup:** footage asli `tes2.mp4` (tidak ada di sesi ini; PSNR vs render penuh skill sudah dibuktikan sesi 1),
+NVENC dan FFmpeg Windows (butuh laptop Steven / CI Windows), Chrome headless di Windows.

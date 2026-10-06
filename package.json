@@ -13,7 +13,11 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",
-    "smoke": "electron-vite build && xvfb-run -a node tests/e2e.smoke.mjs"
+    "smoke": "electron-vite build && xvfb-run -a node tests/e2e.smoke.mjs",
+    "postinstall": "node scripts/prepare-render-assets.mjs",
+    "fetch-resources": "node scripts/fetch-resources.mjs",
+    "e2e": "electron-vite build && xvfb-run -a vitest run -c vitest.e2e.config.ts",
+    "test:offline": "unshare -n python3 tests/tools/offline.py npx vitest run tests/render"
   },
   "repository": {
     "type": "git",
@@ -36,12 +40,17 @@
     "electron": "^38.8.6",
     "electron-builder": "^26.15.3",
     "electron-vite": "^4.0.1",
+    "extract-zip": "2.0.1",
     "playwright": "^1.63.0",
     "typescript": "^5.9.3",
     "vite": "^6.4.4",
     "vitest": "^3.2.7"
   },
   "dependencies": {
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/playfair-display": "5.3.0",
+    "gsap": "3.14.2",
+    "hyperframes": "0.8.84",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   }

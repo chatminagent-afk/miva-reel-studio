@@ -1,0 +1,33 @@
+{
+  "$comment": "Binary pihak ketiga yang dibundel ke app (offline). Diunduh oleh scripts/fetch-resources.mjs ke resources/bin/<platform>/, diverifikasi sha256. Versi Chrome = versi yang dipin HyperFrames 0.8.84 (CHROME_VERSION di dist/cli.js).",
+  "chrome-headless-shell": {
+    "version": "152.0.7977.30",
+    "platforms": {
+      "win64": {
+        "url": "https://storage.googleapis.com/chrome-for-testing-public/152.0.7977.30/win64/chrome-headless-shell-win64.zip",
+        "sha256": "5d7df999a6e4a65a1b16b25b61064f7337b8aa8ee2ed1b4e07bfdd24f6e4275e",
+        "bin": "chrome-headless-shell-win64/chrome-headless-shell.exe"
+      },
+      "linux64": {
+        "url": "https://storage.googleapis.com/chrome-for-testing-public/152.0.7977.30/linux64/chrome-headless-shell-linux64.zip",
+        "sha256": "1b150320178ecabe39726bcf3198ebb896ba2b7a07d870db1710914c42d55221",
+        "bin": "chrome-headless-shell-linux64/chrome-headless-shell"
+      }
+    }
+  },
+  "ffmpeg": {
+    "version": "8.0",
+    "platforms": {
+      "win64": {
+        "url": "https://github.com/GyanD/codexffmpeg/releases/download/8.0/ffmpeg-8.0-essentials_build.zip",
+        "sha256": null,
+        "bin": "ffmpeg-8.0-essentials_build/bin/ffmpeg.exe",
+        "ffprobe": "ffmpeg-8.0-essentials_build/bin/ffprobe.exe"
+      },
+      "linux64": {
+        "system": true,
+        "$comment": "Linux hanya untuk dev/tes cloud: pakai ffmpeg sistem (apt). App rilis = Windows."
+      }
+    }
+  }
+}

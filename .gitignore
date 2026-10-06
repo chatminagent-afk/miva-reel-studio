@@ -5,3 +5,5 @@ release/
 samples/*.mp4
 samples/*.mov
 *.log
+resources/bin/
+resources/render/

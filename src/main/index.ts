@@ -3,6 +3,7 @@
 import { app, BrowserWindow, dialog, ipcMain, session } from 'electron';
 import { join } from 'node:path';
 import { probeDuration } from '../core/ffmpeg';
+import { registerExportIpc } from './export';
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -37,6 +38,13 @@ ipcMain.handle('dialog:pickFolder', async () => {
 });
 
 ipcMain.handle('media:probe', async (_e, path: string) => ({ path, duration: await probeDuration(path) }));
+
+ipcMain.handle('dialog:saveVideo', async (_e, defaultPath?: string) => {
+  const r = await dialog.showSaveDialog({ defaultPath, filters: [{ name: 'MP4', extensions: ['mp4'] }] });
+  return r.canceled ? null : r.filePath;
+});
+
+registerExportIpc();
 
 app.whenReady().then(() => {
   // Blokir semua request keluar dari renderer (offline by design); file lokal dan dev server tetap boleh.
