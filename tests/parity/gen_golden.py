@@ -40,6 +40,31 @@ def synth_audio(path, words, dur, seed):
         wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(sr); wf.writeframes(pcm.tobytes())
 
 
+def ensure_sfx_wavs():
+    """Bunyi sintetis kecil (22,05 kHz mono) untuk tiap id di pustaka fixture."""
+    feat = json.load(open(SFXLIB / "_fitur.json", encoding="utf-8"))
+    for k, (sid, f) in enumerate(sorted(feat.items())):
+        p = SFXLIB / f"{sid}.wav"
+        if p.exists():
+            continue
+        sr = 22050
+        n = int(f["dur"] * sr)
+        t = np.arange(n) / sr
+        env = np.exp(-((t - f["peak_at"] * f["dur"]) ** 2) / (2 * (0.05 + 0.1 * f["dur"]) ** 2))
+        y = 0.6 * env * np.sin(2 * np.pi * (220 + 110 * k) * t)
+        pcm = (np.clip(y, -1, 1) * 32767).astype("<i2")
+        with wave.open(str(p), "wb") as wf:
+            wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(sr); wf.writeframes(pcm.tobytes())
+
+
+def wav_stats(path):
+    """Ringkasan PCM untuk dibandingkan (file _mix.wav terlalu besar untuk di-commit)."""
+    w = wave.open(str(path))
+    x = np.frombuffer(w.readframes(w.getnframes()), dtype="<i2").reshape(-1, 2).astype(np.int64)
+    return {"frames": int(len(x)), "sum_abs": [int(np.abs(x[:, 0]).sum()), int(np.abs(x[:, 1]).sum())],
+            "max_abs": int(np.abs(x).max()), "sparse": x[::997].tolist()}
+
+
 def fake_faster_whisper(words):
     mod = types.ModuleType("faster_whisper")
 
@@ -141,10 +166,24 @@ def run_case(case_dir):
         a = html.index('<script type="application/json" id="data">') + len('<script type="application/json" id="data">')
         data = json.loads(html[a:html.index("</script>", a)])
         json.dump(data, open(golden / "data.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+
+        # mix.py: suara = audio kasus (diresample ffmpeg ke 48 kHz stereo), SFX = pustaka fixture
+        shutil.copy(audio, proj / "assets" / "voice.wav")
+        (proj / "renders").mkdir(exist_ok=True)
+        import io, contextlib
+        raw = io.BytesIO()
+        buf = io.TextIOWrapper(raw, encoding="utf-8")  # mix.py memanggil sys.stdout.reconfigure
+        with contextlib.redirect_stdout(buf):
+            run_script("mix.py", [str(proj)], patch_lib=True)
+        buf.flush()
+        stats = wav_stats(proj / "renders" / "_mix.wav")
+        stats["report"] = raw.getvalue().decode("utf-8").strip()
+        json.dump(stats, open(golden / "mix_stats.json", "w", encoding="utf-8"), ensure_ascii=False)
     print(f"golden: {case_dir.name}")
 
 
 if __name__ == "__main__":
+    ensure_sfx_wavs()
     for d in sorted(CASES.iterdir()):
         if (d / "input.json").exists():
             run_case(d)
