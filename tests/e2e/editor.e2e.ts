@@ -90,6 +90,33 @@ describe.skipIf(!hasBrowser || !hasSite)('alur editor lewat UI', () => {
     expect(await win.textContent('.details')).toMatch(/boom/i);
   });
 
+  it('SFX: tambah whoosh manual di playhead, ubah volume, hapus; matikan SFX otomatis lalu nyalakan lagi', async () => {
+    const markers = () => win.$$eval('[data-testid="sfx-marker"]', (els) => els.map((e) => e.className));
+    const before = (await markers()).length;
+    await win.click('[data-testid="w40"]');
+    await win.click('.ltab:has-text("Audio")');
+    await win.click('[data-testid="add-sfx-whoosh"]');
+    await win.waitForFunction((n) => document.querySelectorAll('[data-testid="sfx-marker"]').length === n + 1, before);
+    expect((await markers()).filter((c) => c.includes('manual')).length).toBe(1);
+    await win.click('[data-testid="sfx-marker"].manual');
+    await win.$eval('[aria-label="Sound volume"]', (el) => {
+      const input = el as HTMLInputElement;
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+      set.call(input, '-6');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await win.waitForFunction(() => document.querySelector('.details')?.textContent?.includes('-6 dB'));
+    await win.click('[data-testid="delete-sfx"]'); // fokus ada di slider: tombol Delete keyboard sengaja tidak menghapus
+    await win.waitForFunction((n) => document.querySelectorAll('[data-testid="sfx-marker"]').length === n, before);
+    // SFX otomatis pertama: mute -> tampil pudar, unmute -> normal
+    await win.click('[data-testid="sfx-marker"]:not(.manual)');
+    await win.click('[data-testid="mute-sfx"]');
+    await win.waitForFunction(() => document.querySelectorAll('[data-testid="sfx-marker"].muted').length === 1);
+    await win.click('[data-testid="mute-sfx"]');
+    await win.waitForFunction(() => document.querySelectorAll('[data-testid="sfx-marker"].muted').length === 0);
+    await win.click('.ltab:has-text("Captions")');
+  });
+
   it('preview: play memajukan waktu, overlay iframe termuat, tanpa request internet', async () => {
     await win.click('[data-testid="w20"]');
     const t0 = await win.textContent('[data-testid="timecode"]');

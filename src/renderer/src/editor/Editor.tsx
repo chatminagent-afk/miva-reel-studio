@@ -143,6 +143,11 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
     } else if (sel.kind === 'gap') {
       const g = d.gaps.find((x) => x.after === sel.after);
       if (g && !g.cut) apply('Cut silence', (x) => ops.setGap(x, g, false));
+    } else if (sel.kind === 'sfx') {
+      if (sel.manual >= 0) {
+        apply('Delete sound', (x) => ops.removeSfx(x, sel.manual));
+        setSel(null);
+      } else apply('Mute sound', (x) => ops.toggleSfxOff(x, sel.kat, sel.t));
     }
   }, [sel, apply, d]);
 
@@ -195,6 +200,13 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
   };
 
   const te = srcToEdited(doc.edit.segs, speed, time);
+  /** waktu edit di titik footage mentah; di bagian terbuang: awal bagian terpakai berikutnya */
+  const editedAt = (src: number) => {
+    const v = srcToEdited(doc.edit.segs, speed, src);
+    if (v !== null) return v;
+    const next = doc.edit.segs.find(([a]) => a > src);
+    return next ? srcToEdited(doc.edit.segs, speed, next[0])! : d.finalDuration;
+  };
   const selWords = useMemo(() => new Set(sel?.kind === 'word' ? [sel.i] : []), [sel]);
   const inserts = (doc.edit.inserts ?? []).map((x) => ({ src: editedToSrc(doc.edit.segs, speed, x.t).src, len: x.dur * speed, name: x.src.split(/[\\/]/).pop() ?? x.src }));
   const sfxGroups = useMemo(() => {
@@ -295,12 +307,22 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
                     <button type="button" className="ib" aria-label={`Play ${g.kat}`} onClick={() => g.ids[0] && void new Audio(`reel://sfx/${encodeURIComponent(g.ids[0])}.wav`).play()}>
                       ▶
                     </button>
-                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: '1 1 auto' }}>
                       <span style={{ fontSize: 12 }}>{g.kat}</span>
                       <span className="muted" style={{ fontSize: 11 }}>
                         {g.ids.length} sound{g.ids.length === 1 ? '' : 's'}
                       </span>
                     </div>
+                    <button
+                      type="button"
+                      className="btn"
+                      data-testid={`add-sfx-${g.kat}`}
+                      disabled={!g.ids.length}
+                      title="Add at the playhead"
+                      onClick={() => apply(`Add ${g.kat}`, (x) => ops.addSfx(x, editedAt(time), g.ids[0], g.kat))}
+                    >
+                      + Add
+                    </button>
                   </div>
                 ))}
               </div>
@@ -349,7 +371,7 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
 
         {L.showR && (
           <div style={{ flex: `0 0 ${L.right}px`, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--line)', background: 'var(--bg2)', minHeight: 0 }}>
-            <Details doc={doc} d={d} sel={sel} apply={apply} onGrade={onGrade} proxyBusy={proxyBusy} sfxBuiltin={!!lib?.builtin} />
+            <Details doc={doc} d={d} sel={sel} apply={apply} onGrade={onGrade} proxyBusy={proxyBusy} sfxBuiltin={!!lib?.builtin} lib={lib} onClearSel={() => setSel(null)} />
           </div>
         )}
       </div>
@@ -395,6 +417,13 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
           onSeek={seek}
           onSelect={select}
           onTrim={(k, edge, t) => apply('Trim', (x) => ops.trimSeg(x, k, edge, t))}
+          onSfxMove={(j, src) => {
+            const m = doc.edit.sfx?.[j];
+            if (!m) return;
+            const f = m.id && lib ? lib.features[m.id] : undefined;
+            const shift = m.align && f ? f.peak_at * f.dur : 0;
+            apply('Move sound', (x) => ops.updateSfx(x, j, { t: Math.round((editedAt(src) + shift) * 1000) / 1000 }));
+          }}
         />
       </section>
 

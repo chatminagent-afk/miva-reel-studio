@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { buildCompositionData, buildCues, layoutCaptions, type SfxLibrary } from '../../../core/compose';
 import { derive } from '../../../core/doc';
 import { editedToSrc, gaps, type Gap } from '../../../core/edit';
+import { applySfxOff, isOff, manualMatch, sfxOff } from '../../../core/sfxedit';
 import type { CuesJson, SfxCue, TimingJson } from '../../../core/types';
 import type { Doc } from './ops';
 
@@ -18,6 +19,14 @@ export interface ChunkView {
   end: number;
 }
 
+export interface SfxView extends SfxCue {
+  src: number;
+  /** cue otomatis yang dimatikan pengguna */
+  muted: boolean;
+  /** indeks di edit.sfx kalau SFX manual, -1 kalau otomatis */
+  manual: number;
+}
+
 export interface Derived {
   timing: TimingJson;
   captions: ReturnType<typeof derive>['captions'];
@@ -29,8 +38,8 @@ export interface Derived {
   cues: CuesJson | null;
   gaps: Gap[];
   chunks: ChunkView[];
-  /** cue SFX dengan waktu footage mentah (untuk track SFX) */
-  sfxSrc: (SfxCue & { src: number })[];
+  /** semua cue SFX (termasuk yang dimatikan) dengan waktu footage mentah, untuk track SFX */
+  sfxSrc: SfxView[];
   finalDuration: number;
 }
 
@@ -41,9 +50,12 @@ export function computeDerived(doc: Doc, lib: SfxLibrary | null): Derived {
   const tIndex = new Map(kept.map((raw, t) => [raw, t]));
   const comp = buildCompositionData(timing, captions, doc.edit);
   let cues: CuesJson | null = null;
+  let all: SfxCue[] = [];
   if (lib) {
     const { caps, keys } = layoutCaptions(timing, captions);
-    cues = buildCues(timing, caps, keys, doc.edit, lib).cues;
+    const full = buildCues(timing, caps, keys, doc.edit, lib).cues;
+    all = full.sfx;
+    cues = applySfxOff(full, doc.edit); // yang benar-benar terdengar (preview = export)
   }
   const fix = doc.edit.fix ?? {};
   const W = doc.state.words;
@@ -60,7 +72,13 @@ export function computeDerived(doc: Doc, lib: SfxLibrary | null): Derived {
     };
   });
   const speed = Number(doc.edit.speed ?? 1.25);
-  const sfxSrc = (cues?.sfx ?? []).map((c) => ({ ...c, src: editedToSrc(doc.edit.segs, speed, Math.max(0, c.t)).src }));
+  const off = sfxOff(doc.edit);
+  const sfxSrc = all.map((c) => ({
+    ...c,
+    src: editedToSrc(doc.edit.segs, speed, Math.max(0, c.t)).src,
+    muted: isOff(c, off),
+    manual: lib ? manualMatch(c, doc.edit, lib.features) : -1,
+  }));
   return {
     timing,
     captions,

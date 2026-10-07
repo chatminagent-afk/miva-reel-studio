@@ -16,6 +16,7 @@ import { canComposeInFfmpeg, perspectiveFilter } from './camera';
 import { buildCompositionData, buildCues, layoutCaptions, renderTemplate, type SfxLibrary } from './compose';
 import { mix, type MixReport } from './mix';
 import { externalUrls, toFullTemplate, toOverlayTemplate, VENDOR_DIR } from './overlay';
+import { applySfxOff } from './sfxedit';
 import { renderOverlay, type RenderRuntime } from './hyperframes';
 import { CancelledError, runProcess } from './proc';
 import type { CaptionsJson, EditJson, TimingJson } from './types';
@@ -241,7 +242,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
   const data = buildCompositionData(T, C, E);
   const fast = canComposeInFfmpeg(data.camera);
   const { caps, keys } = layoutCaptions(T, C);
-  const { cues } = buildCues(T, caps, keys, E, o.sfx);
+  const cues = applySfxOff(buildCues(T, caps, keys, E, o.sfx).cues, E);
   const overlay = {
     css: await readOptional(join(P, 'overlay.css')),
     html: await readOptional(join(P, 'overlay.html')),

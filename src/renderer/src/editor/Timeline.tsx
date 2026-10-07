@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Seg } from '../../../core/types';
 import { fmtShort } from '../api';
-import type { ChunkView } from './derived';
+import type { ChunkView, SfxView } from './derived';
 
 export type Sel =
   | { kind: 'word'; i: number }
   | { kind: 'gap'; after: number }
   | { kind: 'clip'; a: number; b: number }
   | { kind: 'cut'; a: number; b: number }
+  | { kind: 'sfx'; t: number; kat: string; manual: number }
   | null;
 
 interface Props {
@@ -18,7 +19,7 @@ interface Props {
   splits: number[];
   chunks: ChunkView[];
   selWords: Set<number>;
-  sfx: { src: number; kat: string; id: string }[];
+  sfx: SfxView[];
   inserts: { src: number; len: number; name: string }[];
   wave: number[];
   time: number;
@@ -28,6 +29,8 @@ interface Props {
   onSeek: (t: number) => void;
   onSelect: (s: Sel, seekTo?: number) => void;
   onTrim: (seg: number, edge: 'start' | 'end', t: number) => void;
+  /** SFX manual digeser (waktu footage mentah) */
+  onSfxMove: (manual: number, src: number) => void;
 }
 
 interface Piece {
@@ -106,6 +109,25 @@ export function Timeline(p: Props) {
       window.removeEventListener('pointerup', up);
       setDrag(null);
       p.onTrim(seg, edge, tFromEvent(ev, track));
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  const [sfxDrag, setSfxDrag] = useState<{ j: number; src: number } | null>(null);
+  const startSfxDrag = (e: React.PointerEvent, j: number) => {
+    const track = (e.currentTarget as HTMLElement).closest('[data-track]') as HTMLElement;
+    const x0 = e.clientX;
+    let moved = false;
+    const move = (ev: PointerEvent) => {
+      if (Math.abs(ev.clientX - x0) > 3) moved = true;
+      if (moved) setSfxDrag({ j, src: tFromEvent(ev, track) });
+    };
+    const up = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      setSfxDrag(null);
+      if (moved) p.onSfxMove(j, tFromEvent(ev, track));
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
@@ -204,13 +226,26 @@ export function Timeline(p: Props) {
             })}
           </div>
 
-          <div className="trk" style={{ height: 30, borderTop: '1px solid var(--line)' }}>
-            {p.sfx.map((x, n) => (
-              <span key={n} className="sfxm" style={{ left: x.src * K }} title={x.id}>
-                <span className="dot" />
-                {x.kat}
-              </span>
-            ))}
+          <div className="trk" data-track="sfx" style={{ height: 30, borderTop: '1px solid var(--line)' }}>
+            {p.sfx.map((x, n) => {
+              const sel = p.sel?.kind === 'sfx' && p.sel.kat === x.kat && Math.abs(p.sel.t - x.t) < 0.06;
+              const left = (sfxDrag && x.manual === sfxDrag.j ? sfxDrag.src : x.src) * K;
+              return (
+                <button
+                  key={n}
+                  type="button"
+                  className={`sfxm${x.manual >= 0 ? ' manual' : ''}${x.muted ? ' muted' : ''}${sel ? ' sel' : ''}`}
+                  style={{ left }}
+                  title={`${x.id}${x.manual >= 0 ? ' · drag to move' : ' · auto'}${x.muted ? ' · muted' : ''}`}
+                  data-testid="sfx-marker"
+                  onPointerDown={(e) => x.manual >= 0 && startSfxDrag(e, x.manual)}
+                  onClick={() => p.onSelect({ kind: 'sfx', t: x.t, kat: x.kat, manual: x.manual })}
+                >
+                  <span className="dot" />
+                  {x.kat}
+                </button>
+              );
+            })}
           </div>
 
           <div style={{ position: 'absolute', top: 0, bottom: 0, left: p.time * K, width: 2, background: '#fff', pointerEvents: 'none' }} data-testid="playhead">

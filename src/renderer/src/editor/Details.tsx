@@ -1,6 +1,7 @@
 // Panel kanan (Details): isi tergantung pilihan — kata (Caption), jeda (Silence), bagian terbuang (Removed),
 // atau klip/tanpa pilihan (Video, Speed, Adjust, Audio). Hanya kontrol yang benar-benar berfungsi yang ditampilkan.
 import { useEffect, useState, type ReactElement } from 'react';
+import type { SfxLibrary } from '../../../core/compose';
 import type { KeywordMark } from '../../../core/suggest';
 import { fmtTime } from '../api';
 import type { Derived } from './derived';
@@ -16,6 +17,72 @@ interface Props {
   onGrade: (grade: string) => void;
   proxyBusy: boolean;
   sfxBuiltin: boolean;
+  lib: SfxLibrary | null;
+  onClearSel: () => void;
+}
+
+function SfxPanel({ doc, d, sel, apply, lib, onClearSel }: Props & { sel: Extract<Sel, { kind: 'sfx' }> }) {
+  const cue = d.sfxSrc.find((c) => c.kat === sel.kat && Math.abs(c.t - sel.t) < 0.06);
+  if (!cue) return <div className="sec muted">Sound no longer exists.</div>;
+  const m = cue.manual >= 0 ? doc.edit.sfx?.[cue.manual] : undefined;
+  const ids = lib ? (lib.catalog.pilihan[cue.kat] ?? []).filter((i) => lib.catalog.bunyi[i]?.kategori !== 'buang') : [];
+  const play = () => void new Audio(`reel://sfx/${encodeURIComponent(cue.id)}.wav`).play();
+  return (
+    <div className="sec">
+      <div className="row">
+        <span style={{ fontSize: 20, fontWeight: 600 }}>{cue.kat}</span>
+        <span className="mono muted" style={{ fontSize: 11 }}>
+          {fmtTime(Math.max(0, cue.t))}
+        </span>
+      </div>
+      <div className="row">
+        <span className="muted">Sound</span>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <button type="button" className="ib" aria-label="Play sound" onClick={play}>
+            ▶
+          </button>
+          {m ? (
+            <select className="field" style={{ width: 160 }} value={cue.id} aria-label="Sound file" onChange={(e) => apply('Change sound', (x) => ops.updateSfx(x, cue.manual, { id: e.target.value }))}>
+              {ids.map((i) => (
+                <option key={i} value={i}>
+                  {lib?.catalog.bunyi[i]?.label ?? i}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="mono" style={{ fontSize: 11 }}>{cue.id}</span>
+          )}
+        </div>
+      </div>
+      {m ? (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '76px minmax(0,1fr) 52px', alignItems: 'center', gap: 8 }}>
+            <span className="muted">Volume</span>
+            <input className="rng" type="range" min={-12} max={6} step={1} value={m.gain_db ?? 0} aria-label="Sound volume" onChange={(e) => apply('Sound volume', (x) => ops.updateSfx(x, cue.manual, { gain_db: Number(e.target.value) }))} />
+            <span className="mono" style={{ fontSize: 11, textAlign: 'right' }}>
+              {(m.gain_db ?? 0) > 0 ? '+' : ''}
+              {m.gain_db ?? 0} dB
+            </span>
+          </div>
+          <span className="muted" style={{ fontSize: 11 }}>
+            Added by you. Drag the marker on the SFX track to move it.
+          </span>
+          <button type="button" className="btn" data-testid="delete-sfx" onClick={() => { apply('Delete sound', (x) => ops.removeSfx(x, cue.manual)); onClearSel(); }}>
+            Delete sound (Del)
+          </button>
+        </>
+      ) : (
+        <>
+          <span className="muted" style={{ fontSize: 11 }}>
+            Placed automatically by the caption rules (same as the skill).
+          </span>
+          <button type="button" className="btn" data-testid="mute-sfx" onClick={() => apply(cue.muted ? 'Unmute sound' : 'Mute sound', (x) => ops.toggleSfxOff(x, cue.kat, cue.t))}>
+            {cue.muted ? 'Unmute' : 'Mute this sound'}
+          </button>
+        </>
+      )}
+    </div>
+  );
 }
 
 const cap = (x: string) => x[0].toUpperCase() + x.slice(1);
@@ -115,7 +182,10 @@ export function Details(p: Props) {
 
   let body: ReactElement;
   let tabs: { k: string; l: string }[] = [];
-  if (sel?.kind === 'word') {
+  if (sel?.kind === 'sfx') {
+    tabs = [{ k: 'sfx', l: 'Sound' }];
+    body = <SfxPanel {...p} sel={sel} />;
+  } else if (sel?.kind === 'word') {
     tabs = [{ k: 'caption', l: 'Caption' }];
     body = <WordPanel doc={doc} d={d} i={sel.i} apply={apply} />;
   } else if (sel?.kind === 'gap') {

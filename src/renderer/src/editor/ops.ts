@@ -89,3 +89,28 @@ export function setFix(d: Doc, heard: string, correct: string): Doc {
 export function setEdit(d: Doc, patch: Partial<EditJson>): Doc {
   return { ...d, edit: { ...d.edit, ...patch } };
 }
+
+// ---------- SFX ----------
+const ALIGN = new Set(['whoosh', 'swish', 'riser']); // puncak bunyi jatuh tepat di titik (seperti SFX otomatis)
+
+export function addSfx(d: Doc, t: number, id: string, kat: string): Doc {
+  const sfx = [...(d.edit.sfx ?? []), { t: Math.round(t * 1000) / 1000, id, kat, align: ALIGN.has(kat), gain_db: 0 }];
+  return { ...d, edit: { ...d.edit, sfx: sfx.sort((a, b) => a.t - b.t) } };
+}
+
+export function updateSfx(d: Doc, j: number, patch: Partial<NonNullable<EditJson['sfx']>[number]>): Doc {
+  const sfx = (d.edit.sfx ?? []).map((m, k) => (k === j ? { ...m, ...patch } : m));
+  return { ...d, edit: { ...d.edit, sfx } };
+}
+
+export function removeSfx(d: Doc, j: number): Doc {
+  return { ...d, edit: { ...d.edit, sfx: (d.edit.sfx ?? []).filter((_, k) => k !== j) } };
+}
+
+/** Matikan/nyalakan satu SFX otomatis (edit.json "sfx_off", khusus app). */
+export function toggleSfxOff(d: Doc, kat: string, t: number): Doc {
+  const off = Array.isArray(d.edit.sfx_off) ? (d.edit.sfx_off as { kat: string; t: number }[]) : [];
+  const hit = off.findIndex((o) => o.kat === kat && Math.abs(o.t - t) < 0.06);
+  const next = hit >= 0 ? off.filter((_, k) => k !== hit) : [...off, { kat, t }];
+  return { ...d, edit: { ...d.edit, sfx_off: next } };
+}
