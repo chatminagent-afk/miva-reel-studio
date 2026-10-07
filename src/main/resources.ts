@@ -112,14 +112,27 @@ export function appResources(): AppResources {
 export function appWhisper(): WhisperRuntime {
   const L = layout();
   const py = entry(readManifest(L.res), 'python');
-  const python = process.env.REEL_PYTHON ?? (py.system ? which(py.bin ?? 'python3') : join(L.bin, 'python', py.bin!));
+  const env = process.env.REEL_PYTHON;
+  const python = env ? (isAbsolute(env) ? env : which(env)) : py.system ? which(py.bin ?? 'python3') : join(L.bin, 'python', py.bin!);
   const rt: WhisperRuntime = {
     python,
     sidecar: join(L.res, 'whisper', 'sidecar.py'),
-    site: join(L.bin, 'whisper-site'),
+    site: process.env.REEL_WHISPER_SITE ?? join(L.bin, 'whisper-site'),
     modelDir: process.env.REEL_WHISPER_MODEL ?? join(L.models, 'whisper-model'),
   };
   for (const [k, p] of Object.entries({ python: rt.python, sidecar: rt.sidecar, site: rt.site }))
     if (!isAbsolute(p) || !existsSync(p)) throw new Error(`Komponen Whisper tidak ditemukan (${k}): ${p}. Jalankan npm run fetch-resources.`);
   return rt;
+}
+
+/** Folder aset render offline (font, GSAP) tanpa memeriksa binary: untuk protokol reel://vendor. */
+export function renderAssetsDir(): string {
+  return join(layout().res, 'render');
+}
+
+/** Path ffmpeg/ffprobe bawaan (atau sistem di Linux dev) untuk semua helper ffmpeg di src/core. */
+export function appFfmpeg(): { ffmpeg: string; ffprobe: string } {
+  const L = layout();
+  const { ffmpeg, ffprobe } = binPaths(L.bin, readManifest(L.res));
+  return { ffmpeg, ffprobe };
 }

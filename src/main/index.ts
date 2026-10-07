@@ -2,10 +2,16 @@
 // Tidak ada akses jaringan: app harus jalan penuh offline.
 import { app, BrowserWindow, dialog, ipcMain, session } from 'electron';
 import { join } from 'node:path';
-import { probeDuration } from '../core/ffmpeg';
+import { probeDuration, setFfmpegPaths } from '../core/ffmpeg';
 import { checkWhisper } from '../core/whisper';
 import { registerExportIpc } from './export';
-import { appWhisper } from './resources';
+import { registerProjectIpc } from './projects';
+import { handleProtocol, registerSchemePrivileges, setVendorDir } from './protocol';
+import { appFfmpeg, appWhisper, renderAssetsDir } from './resources';
+
+registerSchemePrivileges();
+// tes otomatis: data pengguna (settings, proyek terakhir) di folder sementara
+if (process.env.REEL_USER_DATA) app.setPath('userData', process.env.REEL_USER_DATA);
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -47,15 +53,25 @@ ipcMain.handle('dialog:saveVideo', async (_e, defaultPath?: string) => {
 });
 
 registerExportIpc();
+registerProjectIpc();
 
 // diagnostik komponen transkripsi (versi, GPU CUDA terdeteksi); dipakai Settings/UAT
 ipcMain.handle('whisper:check', () => checkWhisper(appWhisper()));
 
 app.whenReady().then(() => {
+  // helper ffmpeg di src/core (potong hening, mix, probe) memakai ffmpeg bawaan app, bukan PATH
+  try {
+    const f = appFfmpeg();
+    setFfmpegPaths(f.ffmpeg, f.ffprobe);
+  } catch (e) {
+    console.error('ffmpeg tidak ditemukan', e);
+  }
+  setVendorDir(renderAssetsDir());
+  handleProtocol();
   // Blokir semua request keluar dari renderer (offline by design); file lokal dan dev server tetap boleh.
   session.defaultSession.webRequest.onBeforeRequest((details, cb) => {
     const u = details.url;
-    const local = u.startsWith('file:') || u.startsWith('devtools:') || u.startsWith('data:') || u.startsWith('blob:') ||
+    const local = u.startsWith('file:') || u.startsWith('devtools:') || u.startsWith('data:') || u.startsWith('blob:') || u.startsWith('reel:') ||
       (process.env.ELECTRON_RENDERER_URL !== undefined && u.startsWith(process.env.ELECTRON_RENDERER_URL));
     cb({ cancel: !local });
   });

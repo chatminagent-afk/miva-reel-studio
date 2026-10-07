@@ -44,6 +44,7 @@ export interface ExportOptions {
   sfx: SfxLibrary & { dir: string };
   /** Encoder video; default: NVENC kalau benar-benar jalan, kalau tidak libx264/libx265. */
   encoder?: string;
+  quality?: Quality;
   workers?: number;
   signal?: AbortSignal;
   onProgress?: (p: ExportProgress) => void;
@@ -81,17 +82,20 @@ const SPAN: Record<Exclude<ExportStage, 'done'>, [number, number]> = {
   composite: [0.67, 1],
 };
 
-/** Argumen encoder video untuk ffmpeg. */
-export function encoderArgs(encoder: string): string[] {
+export type Quality = 'recommended' | 'higher';
+
+/** Argumen encoder video untuk ffmpeg. "higher" = CRF/CQ 2 lebih rendah (file lebih besar). */
+export function encoderArgs(encoder: string, quality: Quality = 'recommended'): string[] {
+  const q = (n: number) => String(quality === 'higher' ? n - 2 : n);
   switch (encoder) {
     case 'h264_nvenc':
-      return ['-c:v', 'h264_nvenc', '-preset', 'p5', '-tune', 'hq', '-rc', 'vbr', '-cq', '19', '-b:v', '0', '-profile:v', 'high'];
+      return ['-c:v', 'h264_nvenc', '-preset', 'p5', '-tune', 'hq', '-rc', 'vbr', '-cq', q(19), '-b:v', '0', '-profile:v', 'high'];
     case 'hevc_nvenc':
-      return ['-c:v', 'hevc_nvenc', '-preset', 'p5', '-tune', 'hq', '-rc', 'vbr', '-cq', '21', '-b:v', '0', '-tag:v', 'hvc1'];
+      return ['-c:v', 'hevc_nvenc', '-preset', 'p5', '-tune', 'hq', '-rc', 'vbr', '-cq', q(21), '-b:v', '0', '-tag:v', 'hvc1'];
     case 'libx265':
-      return ['-c:v', 'libx265', '-preset', 'medium', '-crf', '20', '-tag:v', 'hvc1'];
+      return ['-c:v', 'libx265', '-preset', 'medium', '-crf', q(20), '-tag:v', 'hvc1'];
     case 'libx264':
-      return ['-c:v', 'libx264', '-preset', 'slow', '-crf', '18']; // sama dengan render.sh skill
+      return ['-c:v', 'libx264', '-preset', 'slow', '-crf', q(18)]; // recommended = render.sh skill
     default:
       throw new Error(`Encoder tidak dikenal: ${encoder}`);
   }
@@ -134,6 +138,7 @@ export interface CompositeSpec {
   camera: Parameters<typeof perspectiveFilter>[0];
   origin: string;
   encoder: string;
+  quality?: Quality;
 }
 
 /**
@@ -155,7 +160,7 @@ export function compositeArgs(s: CompositeSpec): string[] {
     '-i', s.audio,
     '-filter_complex', graph,
     '-map', '[v]', '-map', '2:a',
-    ...encoderArgs(s.encoder),
+    ...encoderArgs(s.encoder, s.quality),
     '-pix_fmt', 'yuv420p', '-r', String(s.fps),
     '-c:a', 'aac', '-b:a', '192k',
     '-t', s.duration.toFixed(3),
@@ -178,6 +183,7 @@ export interface EncodeFramesSpec {
   fps: number;
   duration: number;
   encoder: string;
+  quality?: Quality;
 }
 
 /** Argumen ffmpeg untuk render penuh: frame lengkap dari Chrome + audio mix -> MP4 (seperti render.sh skill). */
@@ -190,7 +196,7 @@ export function encodeFramesArgs(s: EncodeFramesSpec): string[] {
     '-i', s.audio,
     '-filter_complex', `[0:v]${scale}format=yuv420p[v]`,
     '-map', '[v]', '-map', '1:a',
-    ...encoderArgs(s.encoder),
+    ...encoderArgs(s.encoder, s.quality),
     '-pix_fmt', 'yuv420p', '-r', String(s.fps),
     '-c:a', 'aac', '-b:a', '192k',
     '-t', s.duration.toFixed(3),
@@ -225,7 +231,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
   const vendor = join(P, VENDOR_DIR);
   const timings = { overlay: 0, mix: 0, composite: 0 };
 
-  report('prepare', 0, 'Menyiapkan komposisi');
+  report('prepare', 0, 'Preparing composition');
   const T = await readJson<TimingJson>(join(P, 'timing.json'));
   const C = await readJson<CaptionsJson>(join(P, 'captions.json'));
   const E = await readJson<EditJson>(join(P, 'edit.json'));
@@ -255,7 +261,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
     await writeFile(join(P, compositionFile), html);
     await writeFile(join(P, 'cues.json'), JSON.stringify(cues, null, 1)); // sama dengan build_html.py: skill bisa lanjut
     const encoder = o.encoder ?? (await pickEncoder(o.runtime.ffmpeg, o.codec));
-    report('prepare', 1, 'Komposisi siap');
+    report('prepare', 1, 'Composition ready');
 
     check();
     let t0 = Date.now();
@@ -268,7 +274,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
       workers: o.workers ?? defaultWorkers(),
       signal: o.signal,
       onProgress: (p) => {
-        const what = fast ? 'Render grafik' : 'Render penuh (whip)';
+        const what = fast ? 'Rendering graphics' : 'Full render (whip)';
         report('overlay', p.pct / 100, p.frames ? `${what}: frame ${p.frame}/${p.frames}` : `${what}: ${p.message}`);
       },
     });
@@ -276,10 +282,10 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
 
     check();
     t0 = Date.now();
-    report('mix', 0, 'Mix suara + SFX');
+    report('mix', 0, 'Mixing voice and SFX');
     const mixReport = await mix(P, cues, { sfxPath: (id) => join(o.sfx.dir, `${id}.wav`) });
     timings.mix = Date.now() - t0;
-    report('mix', 1, 'Mix selesai');
+    report('mix', 1, 'Mix done');
 
     check();
     t0 = Date.now();
@@ -294,6 +300,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
       fps: o.fps,
       duration,
       encoder,
+      quality: o.quality,
     };
     writingOutput = true;
     const args = fast ? compositeArgs({ ...common, base, camera: data.camera, origin: data.origin }) : encodeFramesArgs(common);
@@ -301,11 +308,11 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
       signal: o.signal,
       onStdoutLine: (l) => {
         const m = /^out_time_us=(\d+)/.exec(l);
-        if (m) report('composite', Number(m[1]) / 1e6 / duration, `${fast ? 'Menggabung video' : 'Encode video'} (${encoder})`);
+        if (m) report('composite', Number(m[1]) / 1e6 / duration, `${fast ? 'Compositing video' : 'Encoding video'} (${encoder})`);
       },
     });
     timings.composite = Date.now() - t0;
-    o.onProgress?.({ stage: 'done', progress: 1, message: 'Selesai' });
+    o.onProgress?.({ stage: 'done', progress: 1, message: 'Done' });
     const mode = fast ? 'fast' : 'full';
     return { output: o.output, mode, duration, width: size.w, height: size.h, fps: o.fps, encoder, mix: mixReport, blocked, timings };
   } catch (e) {

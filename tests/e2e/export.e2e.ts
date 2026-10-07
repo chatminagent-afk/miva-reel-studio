@@ -18,7 +18,7 @@ async function launch(sfxDir: string): Promise<{ app: ElectronApplication; win: 
   win.on('request', (r) => {
     if (!/^(file|data|blob|devtools):/.test(r.url())) external.push(r.url());
   });
-  await win.waitForSelector('[data-testid="import"]', { timeout: 20000 });
+  await win.waitForSelector('[data-testid="choose"]', { timeout: 20000 });
   // kumpulkan event export di halaman
   await win.evaluate(() => {
     (window as unknown as { __ev: ExportEvent[] }).__ev = [];
@@ -108,7 +108,7 @@ describe.skipIf(!existsSync(join(ROOT, 'resources', 'bin', 'linux64', 'whisper-s
     const app = await electron.launch({ args: ['--no-sandbox', resolve('out/main/index.js')] });
     try {
       const win = await app.firstWindow();
-      await win.waitForSelector('[data-testid="import"]', { timeout: 20000 });
+      await win.waitForSelector('[data-testid="choose"]', { timeout: 20000 });
       expect(await win.evaluate(() => window.reel.whisperCheck())).toMatchObject({ faster_whisper: '1.2.1', ctranslate2: '4.8.2', missing_params: [] });
     } finally {
       await app.close();

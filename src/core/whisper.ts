@@ -118,8 +118,8 @@ async function runSidecar(rt: WhisperRuntime, args: string[], o: TranscribeOptio
         const ev = parseSidecarLine(l);
         if (!ev) return;
         events.push(ev);
-        if (ev.type === 'loaded') o.onProgress?.({ stage: 'transcribe', progress: 0, message: `Transkripsi (${ev.device === 'cuda' ? 'GPU' : 'CPU'})` });
-        if (ev.type === 'progress') o.onProgress?.({ stage: 'transcribe', progress: Math.min(1, ev.t / ev.duration), message: 'Transkripsi' });
+        if (ev.type === 'loaded') o.onProgress?.({ stage: 'transcribe', progress: 0, message: `Transcribing on ${ev.device === 'cuda' ? 'GPU' : 'CPU'}` });
+        if (ev.type === 'progress') o.onProgress?.({ stage: 'transcribe', progress: Math.min(1, ev.t / ev.duration), message: 'Transcribing' });
       },
       onStderrLine: (l) => {
         const b = /^\[offline-guard\] blocked (.+)$/.exec(l);
@@ -136,9 +136,9 @@ async function runSidecar(rt: WhisperRuntime, args: string[], o: TranscribeOptio
 /** Transkripsi footage -> words-raw.json + daftar kata. */
 export async function transcribe(rt: WhisperRuntime, o: TranscribeOptions): Promise<TranscribeResult> {
   const audio = join(o.workDir, '_a16k.wav');
-  o.onProgress?.({ stage: 'decode', progress: 0, message: 'Membaca audio' });
+  o.onProgress?.({ stage: 'decode', progress: 0, message: 'Reading audio' });
   await prepareAudio16k(o.src, audio, o.signal);
-  o.onProgress?.({ stage: 'load', progress: 0, message: 'Memuat model Whisper' });
+  o.onProgress?.({ stage: 'load', progress: 0, message: 'Loading Whisper model' });
 
   const requested = o.device ?? 'auto';
   let run = await runSidecar(rt, sidecarArgs(rt, { ...o, audio, device: requested }), o);
@@ -154,7 +154,7 @@ export async function transcribe(rt: WhisperRuntime, o: TranscribeOptions): Prom
   if (run.failure && requested === 'auto' && usedCuda(run) && (!e1 || e1.code === 'cuda' || e1.code === 'internal')) {
     const code = run.failure instanceof ProcError ? run.failure.code : null;
     crashNote = e1 ? `CUDA gagal: ${e1.message}` : `sidecar CUDA berhenti (kode ${code})`;
-    o.onProgress?.({ stage: 'load', progress: 0, message: 'GPU gagal, memakai CPU' });
+    o.onProgress?.({ stage: 'load', progress: 0, message: 'GPU failed, using CPU' });
     const retry = await runSidecar(rt, sidecarArgs(rt, { ...o, audio, device: 'cpu' }), o);
     run = { ...retry, blocked: [...run.blocked, ...retry.blocked] };
   }

@@ -5,12 +5,13 @@
 //   4. saran kata kunci (Rules, offline)
 //   5. subtitle, kamera otomatis (dihitung saat render/preview dari timing), simpan proyek format skill
 // base.mp4 (potong + percepat + bersihkan suara) TIDAK dibuat di sini: lambat dan baru perlu saat export.
-import { mkdir } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { resolveGrade } from './base';
 import { analyzeAudio, PAD_IN, proposeCuts } from './cut';
 import { cutRange, keptWordIndices, srcToEdited } from './edit';
 import { probeDuration } from './ffmpeg';
+import { pyRound } from './py';
 import { CancelledError, runProcess } from './proc';
 import { initialEdit, projectName, saveProject, uniqueDir, type ProjectDoc } from './project';
 import { detectRetakes, suggestKeywords } from './suggest';
@@ -28,6 +29,8 @@ export interface AutoEditOptions {
   /** nama/merek yang diprioritaskan jadi kata kunci */
   names?: string[];
   device?: WhisperDevice;
+  /** false = import tanpa potong otomatis (footage utuh, tanpa saran kata kunci); transkrip tetap dibuat */
+  autoCut?: boolean;
   ffmpeg: string;
   whisper: WhisperRuntime;
   signal?: AbortSignal;
@@ -89,22 +92,31 @@ export function cutRetakes(segs: Seg[], words: RawWord[], retakes: ReturnType<ty
 const applyFix = (w: string, fix: Record<string, string>) => (Object.prototype.hasOwnProperty.call(fix, w) ? fix[w] : w);
 
 export async function runAutoEdit(o: AutoEditOptions): Promise<AutoEditResult> {
+  const dir = uniqueDir(o.root, projectName(o.src));
+  try {
+    return await autoEdit(o, dir);
+  } catch (e) {
+    await rm(dir, { recursive: true, force: true }); // folder baru dibuat oleh Auto Edit ini: jangan tinggalkan proyek setengah jadi
+    throw e;
+  }
+}
+
+async function autoEdit(o: AutoEditOptions, dir: string): Promise<AutoEditResult> {
   const step = (s: AutoEditProgress['step'], progress: number, message: string) => o.onProgress?.({ step: s, progress, message });
   const check = () => {
     if (o.signal?.aborted) throw new CancelledError();
   };
-  const dir = uniqueDir(o.root, projectName(o.src));
   await mkdir(join(dir, 'assets'), { recursive: true });
   await mkdir(join(dir, 'renders'), { recursive: true });
   await mkdir(join(dir, '.reel'), { recursive: true });
   const edit = initialEdit(o.src, { speed: o.speed, grade: o.grade, fix: o.fix });
 
-  step(1, 0, 'Membuat proxy preview (540p)');
+  step(1, 0, 'Making preview proxy');
   const rawDuration = await probeDuration(o.src);
-  await makeProxy(o.ffmpeg, o.src, join(dir, PROXY), edit.grade, rawDuration, o.signal, (f) => step(1, f, 'Membuat proxy preview (540p)'));
+  await makeProxy(o.ffmpeg, o.src, join(dir, PROXY), edit.grade, rawDuration, o.signal, (f) => step(1, f, 'Making preview proxy'));
   check();
 
-  step(2, 0, 'Transkripsi (Whisper, di PC ini)');
+  step(2, 0, 'Transcribing');
   let raw: RawWord[];
   let device: string | null = null;
   let fallback: string | null = null;
@@ -117,7 +129,7 @@ export async function runAutoEdit(o: AutoEditOptions): Promise<AutoEditResult> {
       out: join(dir, 'words-raw.json'),
       device: o.device,
       signal: o.signal,
-      onProgress: (p) => step(2, p.progress, p.stage === 'transcribe' ? p.message : 'Memuat model Whisper'),
+      onProgress: (p) => step(2, p.progress, p.stage === 'transcribe' ? p.message : 'Loading Whisper model'),
     });
     raw = r.words;
     device = r.device;
@@ -126,28 +138,29 @@ export async function runAutoEdit(o: AutoEditOptions): Promise<AutoEditResult> {
   }
   check();
 
-  step(3, 0, 'Mencari hening dan retake');
+  step(3, 0, 'Finding silences and retakes');
   const { edb, duration } = await analyzeAudio(o.src);
   const cut = proposeCuts(raw, edb, duration);
   const words = cut.words; // dengan e_ref
-  const retakes = detectRetakes(words);
-  edit.segs = cutRetakes(cut.segs, words, retakes);
-  const silences = Math.max(0, cut.segs.length - 1) + (cut.segs.length && cut.segs[0][0] > 0.3 ? 1 : 0);
-  step(3, 1, 'Potongan siap');
+  const autoCut = o.autoCut !== false;
+  const retakes = autoCut ? detectRetakes(words) : [];
+  edit.segs = autoCut ? cutRetakes(cut.segs, words, retakes) : [[0, pyRound(duration, 2)]];
+  const silences = !autoCut ? 0 : Math.max(0, cut.segs.length - 1) + (cut.segs.length && cut.segs[0][0] > 0.3 ? 1 : 0);
+  step(3, 1, 'Cuts ready');
   check();
 
-  step(4, 0, 'Saran kata kunci (Rules)');
+  step(4, 0, 'Suggesting keywords');
   const kept = keptWordIndices(edit.segs, words);
   const speed = Number(edit.speed);
   const fixed = words.map((w) => ({ ...w, w: applyFix(w.w, edit.fix ?? {}) }));
-  const keywords = suggestKeywords(fixed, {
+  const keywords = !autoCut ? [] : suggestKeywords(fixed, {
     candidates: kept,
     timeOf: (i) => srcToEdited(edit.segs, speed, words[i].s + 0.05) ?? words[i].s / speed,
     names: o.names,
     sentenceStarts: segStarts,
   });
 
-  step(5, 0, 'Subtitle, kamera, dan SFX');
+  step(5, 0, 'Captions, camera and SFX');
   const now = new Date().toISOString();
   const doc: ProjectDoc = {
     dir,
@@ -169,7 +182,7 @@ export async function runAutoEdit(o: AutoEditOptions): Promise<AutoEditResult> {
     overlay: {},
   };
   const { timing } = await saveProject(doc);
-  step(5, 1, 'Selesai');
+  step(5, 1, 'Done');
   return {
     doc,
     summary: { silences, retakes: retakes.length, keywords: keywords.length, rawDuration, finalDuration: timing.duration, device, fallback },

@@ -7,9 +7,9 @@ import { decodeMono16 } from './ffmpeg';
 import { percentile, pyRound } from './py';
 import type { RawWord, Seg } from './types';
 
-export const GAP_CUT = 0.22; // jeda >= ini dibuang (fast paced 06/10)
-export const PAD_IN = 0.06;
-export const PAD_OUT = 0.08;
+import { GAP_CUT, PAD_IN, PAD_OUT } from './cutparams';
+
+export { GAP_CUT, PAD_IN, PAD_OUT };
 export const SR = 16000;
 const HOP = 160; // 10 ms
 

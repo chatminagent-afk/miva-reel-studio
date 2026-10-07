@@ -39,6 +39,6 @@ describe.skipIf(!hasSite)('sidecar Whisper dengan library asli', () => {
     await expect(transcribe(rt(m), { src: AUDIO, workDir: work, out: join(work, 'b.json'), onProgress: (p) => prog.push(p.message) })).rejects.toMatchObject({
       code: 'internal',
     });
-    expect(prog).not.toContain('GPU gagal, memakai CPU');
+    expect(prog).not.toContain('GPU failed, using CPU');
   });
 });

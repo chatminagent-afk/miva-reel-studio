@@ -8,7 +8,7 @@ const app = await electron.launch({ args: ['--no-sandbox', resolve('out/main/ind
 const win = await app.firstWindow();
 const external = [];
 win.on('request', (r) => { if (!/^(file|data|blob|devtools):/.test(r.url())) external.push(r.url()); });
-await win.waitForSelector('[data-testid="import"]', { timeout: 20000 });
+await win.waitForSelector('[data-testid="choose"]', { timeout: 20000 });
 const title = await win.title();
 let probe = null;
 if (sample) probe = await win.evaluate((p) => window.reel.probe(p), sample);

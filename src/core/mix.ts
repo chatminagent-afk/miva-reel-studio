@@ -13,11 +13,9 @@ import { pyRound } from './py';
 import type { CuesJson } from './types';
 
 export const SR = 48000;
-// puncak tiap kategori (dBFS) setelah klip dinormalisasi; suara -14 LUFS (puncak ±-1,5)
-export const PEAK: Record<string, number> = {
-  ketik: -25, klik: -22, tick: -24, whoosh: -17, swish: -20, impact: -13, boom: -11,
-  riser: -15, ding: -19, pop: -20, kartun: -18, glitch: -20, lain: -20,
-};
+import { PEAK } from './levels';
+
+export { PEAK };
 
 const db = (x: number) => 10 ** (x / 20);
 

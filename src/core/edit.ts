@@ -4,7 +4,7 @@
 //
 // Kata dianggap terpakai kalau awal katanya + 0,05 dtk jatuh di dalam salah satu seg: kriteria yang sama dengan
 // mapTiming() (build_base.py), jadi status kata di UI = kata yang benar-benar muncul di timing.json.
-import { GAP_CUT, PAD_IN, PAD_OUT } from './cut';
+import { GAP_CUT, PAD_IN, PAD_OUT } from './cutparams';
 import { pyRound } from './py';
 import type { RawWord, Seg } from './types';
 
