@@ -48,3 +48,6 @@ Model: `mobiuslabsgmbh/faster-whisper-large-v3-turbo` (alias `large-v3-turbo` di
 GPU: CUDA float16 dicoba dan dipanaskan dengan 1 dtk hening (DLL cuDNN baru dimuat saat encoder jalan). Gagal → CPU int8
 dengan alasan dilaporkan. Kalau DLL CUDA rusak sampai proses mati tanpa exception, runner mengulang sekali di CPU.
 Belum diukur: transkripsi model asli lewat sidecar (model tidak bisa diunduh di sesi cloud).
+**Diukur 07/10 di laptop Steven:** sidecar (Python 3.13.16 + lock win64) memilih CUDA float16 tanpa fallback; muat model 2,2 dtk,
+transkripsi `tes2.mp4` 1,3 dtk; `words-raw.json` identik dengan `bench/2026-10-06-whisper/fw-large-v3-turbo-cuda.json`
+(72 kata, timestamp sama, WER 2,8%, 7 celah ≥ 0,22 dtk). CPU fallback large-v3-turbo masih belum diukur.

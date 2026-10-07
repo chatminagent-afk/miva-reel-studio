@@ -11,7 +11,8 @@ import { checkWhisper, parseSidecarLine, sidecarArgs, transcribe, WhisperError, 
 
 const ROOT = join(__dirname, '..', '..');
 const CASES = join(ROOT, 'tests', 'fixtures', 'cases');
-const hasPython = spawnSync('python3', ['-c', 'import numpy'], { encoding: 'utf-8' }).status === 0;
+// -I sama dengan cara sidecar dijalankan: numpy di user site (mis. Python Microsoft Store) tidak terlihat oleh sidecar
+const hasPython = spawnSync('python3', ['-I', '-c', 'import numpy'], { encoding: 'utf-8' }).status === 0;
 
 let work: string;
 let n = 0;
