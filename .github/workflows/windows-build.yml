@@ -1,11 +1,12 @@
-# Build installer Windows + UAT dengan komponen asli. Jalan saat tag build-* di-push (atau manual dari main) supaya
+# Build installer Windows + UAT dengan komponen asli. Jalan saat commit berisi [build] di-push (atau manual) supaya
 # menit Actions tidak terpakai di setiap push. Satu run ±40–60 menit Windows (dihitung 2× di kuota repo private).
 name: Windows build
 
 on:
-  # build dari branch mana pun: git tag build-<nama> && git push origin build-<nama>
+  # build hanya kalau pesan commit terakhir mengandung [build] (push lain tidak memakai menit Actions),
+  # atau manual dari tab Actions setelah workflow ada di main
   push:
-    tags: ['build-*']
+    branches: [feat/foundation, main]
   workflow_dispatch:
     inputs:
       release:
@@ -18,6 +19,7 @@ permissions:
 
 jobs:
   build:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]') }}
     runs-on: windows-latest
     timeout-minutes: 180
     env:
