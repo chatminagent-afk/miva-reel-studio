@@ -7,6 +7,7 @@ import { makeProxy, PROXY, runAutoEdit, type AutoEditProgress, type AutoEditResu
 import { decodeMono16 } from '../core/ffmpeg';
 import { derive, loadProject, saveProject, type ProjectDoc } from '../core/project';
 import { CancelledError } from '../core/proc';
+import { listVersions, loadVersion, matchingVersion, saveVersion } from '../core/versions';
 import { WhisperError } from '../core/whisper';
 import { setPreviewHtml, setProjectDir, setSfxDir } from './protocol';
 import { appResources, appWhisper } from './resources';
@@ -55,6 +56,24 @@ export function registerProjectIpc(): void {
   ipcMain.handle('settings:set', (_e, patch: Partial<Settings>) => setSettings(patch));
   ipcMain.handle('projects:recent', () => recentProjects());
   ipcMain.handle('projects:open', (_e, dir: string) => open(dir));
+  // checkpoint versi: daftar, simpan, buka (keadaan sekarang disimpan dulu sebagai versi kalau belum ada)
+  ipcMain.handle('versions:list', async (_e, doc: Pick<ProjectDoc, 'edit' | 'state'>) => {
+    if (!current) return { versions: [], current: null };
+    return { versions: await listVersions(current), current: await matchingVersion(current, doc) };
+  });
+  ipcMain.handle('versions:save', async (_e, doc: Pick<ProjectDoc, 'edit' | 'state'>, label: string) => {
+    if (!current) throw new Error('Tidak ada proyek terbuka');
+    return saveVersion(current, doc, label || 'Manual');
+  });
+  ipcMain.handle('versions:open', async (_e, n: number, doc: Pick<ProjectDoc, 'edit' | 'state'>) => {
+    if (!current) throw new Error('Tidak ada proyek terbuka');
+    const dir = current;
+    if ((await matchingVersion(dir, doc)) === null) await saveVersion(dir, doc, `Before opening v${n}`);
+    const v = await loadVersion(dir, n);
+    const full = await loadProject(dir);
+    await saveProject({ ...full, edit: v.edit, state: v.state });
+    return open(dir);
+  });
   ipcMain.handle('projects:save', async (_e, doc: Pick<ProjectDoc, 'edit' | 'state'>) => {
     if (!current) throw new Error('Tidak ada proyek terbuka');
     const full = await loadProject(current);

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } 
 import type { SfxLibrary } from '../../../core/compose';
 import { editedToSrc, srcToEdited } from '../../../core/edit';
 import type { SfxCatalog, SfxFeature } from '../../../core/types';
+import type { VersionInfo } from '../../../core/versions';
 import type { AutoEditEvent, OpenedProject } from '../../../main/projects';
 import { api, fmtTime } from '../api';
 import { useDerived } from './derived';
@@ -28,9 +29,11 @@ interface Props {
   opened: OpenedProject;
   summary: Extract<AutoEditEvent, { type: 'done' }>['summary'] | null;
   onHome: () => void;
+  /** versi lain dibuka: editor dimuat ulang dengan dokumen itu */
+  onSwitch: (p: OpenedProject) => void;
 }
 
-export function Editor({ opened, summary: initialSummary, onHome }: Props) {
+export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Props) {
   const h = useDocHistory({ edit: opened.doc.edit, state: opened.doc.state });
   const { doc, apply } = h;
   const [lib, setLib] = useState<(SfxLibrary & { builtin: boolean }) | null>(null);
@@ -80,15 +83,29 @@ export function Editor({ opened, summary: initialSummary, onHome }: Props) {
   // simpan otomatis 1 dtk setelah edit terakhir
   const docRef = useRef(doc);
   docRef.current = doc;
+  const [versions, setVersions] = useState<{ versions: VersionInfo[]; current: number | null } | null>(null);
+  const refreshVersions = useCallback(async () => setVersions(await api().listVersions({ edit: docRef.current.edit, state: docRef.current.state })), []);
   const flush = useCallback(async () => {
     setSaving(true);
     try {
       const r = await api().saveProject({ edit: docRef.current.edit, state: docRef.current.state });
       setSaved(r.saved);
+      void refreshVersions();
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [refreshVersions]);
+  useEffect(() => void refreshVersions(), [refreshVersions]);
+  const saveVersion = async () => {
+    await flush();
+    await api().saveVersion({ edit: docRef.current.edit, state: docRef.current.state }, 'Manual');
+    await refreshVersions();
+  };
+  const openVersion = async (n: number) => {
+    player.current?.pause();
+    await flush();
+    onSwitch(await api().openVersion(n, { edit: docRef.current.edit, state: docRef.current.state }));
+  };
   useEffect(() => {
     if (h.rev === 0) return;
     const t = setTimeout(() => void flush(), 1000);
@@ -196,6 +213,27 @@ export function Editor({ opened, summary: initialSummary, onHome }: Props) {
           <span style={{ fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} data-testid="project-name">
             {opened.doc.state.name}
           </span>
+          {versions && (
+          <select
+            aria-label="Version"
+            data-testid="version"
+            value={versions.current ?? 'cur'}
+            onChange={(e) => e.target.value !== 'cur' && void openVersion(Number(e.target.value))}
+            style={{ height: 26, border: '1px solid var(--line2)', borderRadius: 6, background: '#18181B', color: '#C9C9CF', fontSize: 11, padding: '0 4px' }}
+          >
+            {versions.current === null && <option value="cur">edited (not a version yet)</option>}
+            {[...versions.versions].reverse().map((v) => (
+              <option key={v.n} value={v.n} title={v.label}>
+                v{v.n} · {v.label}
+              </option>
+            ))}
+          </select>
+          )}
+          {versions && (
+            <button type="button" className="btn" data-testid="save-version" disabled={versions.current !== null} onClick={() => void saveVersion()} title="Keep this state as a new version">
+              Save v{(versions.versions.at(-1)?.n ?? 0) + 1}
+            </button>
+          )}
           <span className="muted" style={{ fontSize: 11, whiteSpace: 'nowrap' }} data-testid="saved">
             {saving ? 'Saving…' : `Saved ${new Date(saved).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
           </span>

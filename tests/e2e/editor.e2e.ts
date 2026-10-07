@@ -123,6 +123,27 @@ describe.skipIf(!hasBrowser || !hasSite)('alur editor lewat UI', () => {
     await win.click('[role="dialog"] .btn-pri:has-text("Close")');
   });
 
+  it('versi: Auto Edit = v1, simpan v2, buka v1 tanpa kehilangan editan (disimpan otomatis sebagai v3)', async () => {
+    const opts = () => win.$$eval('[data-testid="version"] option', (els) => els.map((e) => e.textContent));
+    expect(await opts()).toContain('v1 · Auto Edit');
+    await win.click('[data-testid="save-version"]');
+    await win.waitForFunction(() => (document.querySelector('[data-testid="version"]') as HTMLSelectElement).value === '2');
+    // edit lagi -> "edited", lalu buka v1
+    await win.click('[data-testid="w30"]');
+    await win.keyboard.press('Delete');
+    await win.waitForFunction(() => (document.querySelector('[data-testid="version"]') as HTMLSelectElement).value === 'cur', undefined, { timeout: 10_000 });
+    await win.selectOption('[data-testid="version"]', '1');
+    await win.waitForFunction(() => !document.querySelector('[data-testid="w10"]')?.classList.contains('cut'), undefined, { timeout: 15_000 });
+    await win.waitForFunction(() => document.querySelectorAll('[data-testid="version"] option').length === 3, undefined, { timeout: 10_000 });
+    expect(await opts()).toEqual(['v3 · Before opening v1', 'v2 · Manual', 'v1 · Auto Edit']);
+    expect(await win.$eval('[data-testid="w30"]', (e) => e.classList.contains('cut'))).toBe(false);
+    // kembali ke v3: semua editan (w10, w30 dicoret, kata kunci subtitle) kembali
+    await win.selectOption('[data-testid="version"]', '3');
+    await win.waitForFunction(() => document.querySelector('[data-testid="w30"]')?.classList.contains('cut'), undefined, { timeout: 15_000 });
+    expect(await win.$eval('[data-testid="w10"]', (e) => e.classList.contains('cut'))).toBe(true);
+    expect(await win.$eval('[data-testid="w52"]', (e) => e.classList.contains('key'))).toBe(true);
+  });
+
   it('autosave: buka ulang dari Recent, kata yang dicoret dan kata kunci tetap ada; proyek terbaca format skill', async () => {
     await new Promise((r) => setTimeout(r, 1500));
     await win.click('header .btn:has-text("Projects")');

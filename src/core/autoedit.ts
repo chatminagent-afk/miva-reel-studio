@@ -15,6 +15,7 @@ import { pyRound } from './py';
 import { CancelledError, runProcess } from './proc';
 import { initialEdit, projectName, saveProject, uniqueDir, type ProjectDoc } from './project';
 import { detectRetakes, suggestKeywords } from './suggest';
+import { saveVersion } from './versions';
 import type { RawWord, Seg } from './types';
 import { transcribe, type WhisperDevice, type WhisperRuntime } from './whisper';
 
@@ -182,6 +183,7 @@ async function autoEdit(o: AutoEditOptions, dir: string): Promise<AutoEditResult
     overlay: {},
   };
   const { timing } = await saveProject(doc);
+  await saveVersion(dir, doc, 'Auto Edit');
   step(5, 1, 'Done');
   return {
     doc,

@@ -25,7 +25,13 @@ export function App() {
   return (
     <>
       {opened ? (
-        <Editor key={opened.p.doc.dir} opened={opened.p} summary={opened.summary} onHome={() => setOpened(null)} />
+        <Editor
+          key={`${opened.p.doc.dir}#${opened.p.doc.state.updated}`}
+          opened={opened.p}
+          summary={opened.summary}
+          onHome={() => setOpened(null)}
+          onSwitch={(p) => setOpened({ p, summary: null })}
+        />
       ) : (
         <Home onOpen={open} onSettings={() => setSettings(true)} />
       )}

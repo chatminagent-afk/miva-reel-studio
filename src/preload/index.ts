@@ -5,6 +5,7 @@ import type { AutoEditEvent, AutoEditRequest, OpenedProject } from '../main/proj
 import type { RecentProject, Settings } from '../main/settings';
 import type { ProjectDoc } from '../core/doc';
 import type { SfxCatalog, SfxFeature } from '../core/types';
+import type { VersionInfo } from '../core/versions';
 
 function subscribe<T>(channel: string, cb: (ev: T) => void): () => void {
   const h = (_e: IpcRendererEvent, ev: T) => cb(ev);
@@ -31,6 +32,9 @@ const api = {
   recentProjects: (): Promise<RecentProject[]> => ipcRenderer.invoke('projects:recent'),
   openProject: (dir: string): Promise<OpenedProject> => ipcRenderer.invoke('projects:open', dir),
   saveProject: (doc: Pick<ProjectDoc, 'edit' | 'state'>): Promise<{ saved: string }> => ipcRenderer.invoke('projects:save', doc),
+  listVersions: (doc: Pick<ProjectDoc, 'edit' | 'state'>): Promise<{ versions: VersionInfo[]; current: number | null }> => ipcRenderer.invoke('versions:list', doc),
+  saveVersion: (doc: Pick<ProjectDoc, 'edit' | 'state'>, label: string): Promise<VersionInfo> => ipcRenderer.invoke('versions:save', doc, label),
+  openVersion: (n: number, doc: Pick<ProjectDoc, 'edit' | 'state'>): Promise<OpenedProject> => ipcRenderer.invoke('versions:open', n, doc),
   autoEditStart: (req: AutoEditRequest): Promise<number> => ipcRenderer.invoke('autoedit:start', req),
   autoEditCancel: (): Promise<boolean> => ipcRenderer.invoke('autoedit:cancel'),
   onAutoEditEvent: (cb: (ev: AutoEditEvent) => void): (() => void) => subscribe('autoedit:event', cb),

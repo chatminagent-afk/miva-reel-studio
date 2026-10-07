@@ -69,9 +69,10 @@ jobs:
         shell: bash
         run: |
           FF=$(ls -d "$PWD"/resources/bin/win64/ffmpeg/*/bin | head -1)
-          echo "REEL_FFMPEG=$FF/ffmpeg.exe" >> "$GITHUB_ENV"
-          echo "REEL_FFPROBE=$FF/ffprobe.exe" >> "$GITHUB_ENV"
           "$FF/ffmpeg.exe" -hide_banner -version | head -1
+          # Node di Windows butuh path Windows (D:\...), bukan path Git Bash (/d/...)
+          echo "REEL_FFMPEG=$(cygpath -w "$FF/ffmpeg.exe")" >> "$GITHUB_ENV"
+          echo "REEL_FFPROBE=$(cygpath -w "$FF/ffprobe.exe")" >> "$GITHUB_ENV"
 
       - name: Typecheck + tes unit
         run: |

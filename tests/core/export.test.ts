@@ -2,6 +2,7 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { renderTemplate } from '../../src/core/compose';
 import { compositeArgs, encodeFramesArgs, encoderArgs, SIZES, type CompositeSpec } from '../../src/core/export';
@@ -93,7 +94,7 @@ describe('progress HyperFrames', () => {
 
   it('argumen render: penjaga offline dipasang, 4K lewat --resolution', () => {
     const a = hfRenderArgs(rt, { projDir: '/p', composition: '_render.html', outDir: '/p/o', fps: 60, resolution: '4k' });
-    expect(a.slice(0, 4)).toEqual(['--import', 'file:///x/guard.mjs', '/x/hf.mjs', 'render']);
+    expect(a.slice(0, 4)).toEqual(['--import', pathToFileURL('/x/guard.mjs').href, '/x/hf.mjs', 'render']); // Windows: file:///D:/x/...
     expect(a.join(' ')).toContain('--format png-sequence');
     expect(a.join(' ')).toContain('--fps 60');
     expect(a.join(' ')).toContain('--resolution portrait-4k');

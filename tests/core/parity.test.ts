@@ -45,7 +45,8 @@ describe.each(cases)('paritas skill reel-edit: %s', (name) => {
 
   it('perintah ffmpeg build_base identik', () => {
     const golden = read<string[][]>(g('ffmpeg_cmds.json')).map((c) => c.slice(4)); // buang "ffmpeg -v error -y"
-    const ours = buildBaseCommands({ ...edit, src: '<SRC>' }, '<PROJ>');
+    // pemisah path mengikuti OS (Windows: \\); golden dibuat di Linux
+    const ours = buildBaseCommands({ ...edit, src: '<SRC>' }, '<PROJ>').map((c) => c.map((x) => (x.startsWith('<PROJ>') ? x.replaceAll('\\', '/') : x)));
     expect(ours).toEqual(golden);
   });
 
