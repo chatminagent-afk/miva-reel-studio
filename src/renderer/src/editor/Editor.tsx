@@ -52,7 +52,8 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
   const [saving, setSaving] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [proxyBusy, setProxyBusy] = useState(false);
-  const [videoRev, setVideoRev] = useState(0);
+  const [proxyError, setProxyError] = useState<string | null>(null);
+  const [proxyRev, setProxyRev] = useState(opened.proxyRev);
   const player = useRef<PlayerHandle>(null);
   const stage = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 360, h: 640 });
@@ -191,9 +192,12 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
   const onGrade = async (grade: string) => {
     apply('Grade', (x) => ops.setEdit(x, { grade }));
     setProxyBusy(true);
+    setProxyError(null);
     try {
-      await api().rebuildProxy(grade);
-      setVideoRev((r) => r + 1);
+      setProxyRev((await api().rebuildProxy(grade)).proxyRev);
+    } catch (e) {
+      // grade tetap tersimpan (dipakai export); hanya preview yang belum ikut berubah
+      setProxyError(`Preview not updated: ${e instanceof Error ? e.message.replace(/^Error invoking remote method '[^']+': /, '') : String(e)}`);
     } finally {
       setProxyBusy(false);
     }
@@ -342,8 +346,9 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
           </div>
           <div ref={stage} style={{ flex: '1 1 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12, minHeight: 0 }}>
             <Preview
-              key={videoRev}
+              key={proxyRev}
               ref={player}
+              src={`reel://project/assets/_proxy.mp4?v=${encodeURIComponent(proxyRev)}`}
               segs={doc.edit.segs}
               speed={speed}
               duration={opened.doc.state.duration}
@@ -371,7 +376,7 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
 
         {L.showR && (
           <div style={{ flex: `0 0 ${L.right}px`, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--line)', background: 'var(--bg2)', minHeight: 0 }}>
-            <Details doc={doc} d={d} sel={sel} apply={apply} onGrade={onGrade} proxyBusy={proxyBusy} sfxBuiltin={!!lib?.builtin} lib={lib} onClearSel={() => setSel(null)} />
+            <Details doc={doc} d={d} sel={sel} apply={apply} onGrade={onGrade} proxyBusy={proxyBusy} proxyError={proxyError} sfxBuiltin={!!lib?.builtin} lib={lib} onClearSel={() => setSel(null)} />
           </div>
         )}
       </div>

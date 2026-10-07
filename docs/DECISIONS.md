@@ -37,6 +37,7 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-07 | Build Windows dipicu **commit berisi `[build]`** di `feat/foundation` (atau manual setelah workflow ada di main). Satu run ±40–60 menit Windows (dihitung 2×) | Proxy sesi cloud menolak push tag; push biasa tidak memakai menit Actions |
 | 2026-10-07 | Model dan FFmpeg dipin dari run CI pertama: FFmpeg 8.0 essentials (sha256 647e467c…), large-v3-turbo revisi `0a363e91` | Fail closed: unduhan dengan hash berbeda ditolak |
 | 2026-10-07 | Pustaka SFX bawaan **sintetis** (`resources/sfx-default`, 12 bunyi) sampai pustaka asli Steven ada di `resources/sfx/` | Export butuh SFX; pustaka asli belum di repo |
+| 2026-10-07 | URL proxy preview **berversi** (`?v=` folder + waktu ubah + ukuran) dan protokol `reel://` menjawab Range **per potongan 4 MB** lalu menutup file | Bug UAT manual Steven 07/10: cache media Chromium memutar proxy proyek lain/sebelum ganti Grade untuk URL yang sama; stream yang terbuka mengunci file di Windows |
 | 2026-10-06 | Engine transkripsi **faster-whisper large-v3-turbo (CUDA fp16, fallback CPU int8)** | Benchmark di laptop Steven: WER 2,8%, satu-satunya yang akurat sekaligus memberi celah kata untuk potong hening; whisper.cpp gugur (`docs/2026-10-06-whisper-benchmark.md`) |
 
 ## Lingkup fitur versi 1
@@ -88,6 +89,8 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 | Batas ±2 GB installer NSIS (electron-builder) | — | Perkiraan installer ±3,2 GB terkompresi (cuBLAS 553 MB + cuDNN 743 MB + model ±1,6 GB + Chrome/FFmpeg/app). Opsi di langkah 9: pembuat installer yang mendukung > 2 GB, setup.exe + file data dalam satu folder/zip, atau pangkas DLL cuDNN yang tidak dipakai ctranslate2 (wajib uji GPU). Dipilih saat langkah 9 |
 | Tes transkripsi dengan model asli | Butuh model (CI dengan akses HF atau laptop Steven) | Di cloud teruji: protokol + fallback (faster_whisper palsu), library asli ter-import + API cocok, error model. Akurasi/CUDA belum teruji di app |
 | Whip di export cepat | Terjemahkan blur kamera ke FFmpeg (`gblur` per frame) + verifikasi PSNR | Proyek dengan whip ditolak export cepat (pesan jelas); butuh jalur render penuh sebelum fitur whip dibuka di UI (langkah 6d) |
+| Folder proyek + export default di laptop Steven (sekarang Documents = `C:\Users\Steven\OneDrive\ドキュメント\MIVA Reel Studio`, app di `D:\MIVA Reel Studio`). Usulan 07/10: `D:\Video\MIVA Reel Studio\Projects` + `\Exports`, menunggu jawaban Steven | Footage, proxy, dan export (±50+ MB per reel) tidak ikut ter-upload OneDrive; hemat kuota dan bandwidth | Tiap proyek ikut sinkron ke OneDrive. Path berhuruf Jepang sudah diuji aman (07/10). Bisa diubah sendiri di Settings |
+| Tes e2e editor (`tests/e2e/editor.e2e.ts`, `export.e2e.ts`) di Windows | Ubah deteksi Chrome/Python tes ke win64 (sekarang khusus Linux) | Alur editor lewat UI hanya teruji di sesi cloud Linux; di Windows tercakup sebagian oleh `uat.e2e.ts` + pre-check `tes2` |
 | Teks & stiker manual + preset gaya subtitle lain | Menambah tools, UI lebih ramai | Hanya gaya subtitle MIVA |
 
 ## Risiko teknis yang sudah diketahui

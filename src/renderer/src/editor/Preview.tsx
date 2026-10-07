@@ -16,6 +16,8 @@ export interface PlayerHandle {
 }
 
 interface Props {
+  /** URL proxy berversi (reel://project/assets/_proxy.mp4?v=...), lihat proxyRev() di main/projects.ts */
+  src: string;
   segs: Seg[];
   speed: number;
   duration: number;
@@ -220,7 +222,7 @@ export const Preview = forwardRef<PlayerHandle, Props>(function Preview(p, ref) 
         <div ref={cam} style={{ position: 'absolute', inset: 0, width: W, height: H }}>
           <video
             ref={video}
-            src="reel://project/assets/_proxy.mp4"
+            src={p.src}
             preload="auto"
             playsInline
             data-testid="preview-video"

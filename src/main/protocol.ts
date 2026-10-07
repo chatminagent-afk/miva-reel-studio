@@ -5,6 +5,7 @@
 //   reel://preview/overlay.html  komposisi overlay preview terbaru (HTML dikirim UI lewat IPC preview:set)
 // Mendukung Range (wajib untuk seek <video>). Path di luar folder yang diizinkan ditolak (403).
 import { createReadStream, existsSync, statSync } from 'node:fs';
+import { open } from 'node:fs/promises';
 import { extname, join, normalize, relative, sep } from 'node:path';
 import { Readable } from 'node:stream';
 import { protocol } from 'electron';
@@ -65,19 +66,43 @@ export function resolveInside(root: string, rel: string): string | null {
   return p;
 }
 
-function fileResponse(path: string, range: string | null): Response {
+/**
+ * Byte maksimum per respons Range. Potongan dibaca sekali lalu file langsung ditutup (<video> meminta sisanya sendiri).
+ * Respons yang di-stream menahan file terbuka selama <video> berhenti membaca, dan di Windows file yang terbuka tidak
+ * bisa diganti: proxy baru setelah ganti Grade gagal menggantikan _proxy.mp4 (bug 07/10).
+ */
+export const RANGE_CHUNK = 4 * 1024 * 1024;
+
+async function readSlice(path: string, start: number, length: number): Promise<Uint8Array<ArrayBuffer>> {
+  const fh = await open(path, 'r');
+  try {
+    const buf = new Uint8Array(length);
+    let off = 0;
+    while (off < length) {
+      const { bytesRead } = await fh.read(buf, off, length - off, start + off);
+      if (bytesRead === 0) break;
+      off += bytesRead;
+    }
+    return off === length ? buf : buf.slice(0, off);
+  } finally {
+    await fh.close();
+  }
+}
+
+export async function fileResponse(path: string, range: string | null): Promise<Response> {
   if (!existsSync(path) || !statSync(path).isFile()) return new Response('not found', { status: 404 });
   const size = statSync(path).size;
   const type = MIME[extname(path).toLowerCase()] ?? 'application/octet-stream';
   const m = range ? /bytes=(\d*)-(\d*)/.exec(range) : null;
   if (m) {
     const start = m[1] ? Number(m[1]) : Math.max(0, size - Number(m[2]));
-    const end = m[1] && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1;
-    if (start >= size || start > end) return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
-    const body = Readable.toWeb(createReadStream(path, { start, end })) as ReadableStream;
+    const asked = m[1] && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1;
+    if (start >= size || start > asked) return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
+    const body = await readSlice(path, start, Math.min(asked, start + RANGE_CHUNK - 1) - start + 1);
+    const end = start + body.length - 1;
     return new Response(body, {
       status: 206,
-      headers: { 'Content-Type': type, 'Content-Length': String(end - start + 1), 'Content-Range': `bytes ${start}-${end}/${size}`, 'Accept-Ranges': 'bytes' },
+      headers: { 'Content-Type': type, 'Content-Length': String(body.length), 'Content-Range': `bytes ${start}-${end}/${size}`, 'Accept-Ranges': 'bytes' },
     });
   }
   const body = Readable.toWeb(createReadStream(path)) as ReadableStream;

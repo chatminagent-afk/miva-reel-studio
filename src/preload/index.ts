@@ -41,7 +41,7 @@ const api = {
   renderAssets: (): Promise<{ template: string; fontCss: string }> => ipcRenderer.invoke('render:assets'),
   setPreview: (html: string): Promise<void> => ipcRenderer.invoke('preview:set', html),
   waveform: (): Promise<number[]> => ipcRenderer.invoke('projects:waveform'),
-  rebuildProxy: (grade: string): Promise<{ ok: boolean }> => ipcRenderer.invoke('projects:proxy', grade),
+  rebuildProxy: (grade: string): Promise<{ ok: boolean; proxyRev: string }> => ipcRenderer.invoke('projects:proxy', grade),
   sfxLibrary: (): Promise<{ catalog: SfxCatalog; features: Record<string, SfxFeature>; builtin: boolean }> => ipcRenderer.invoke('sfx:library'),
 };
 

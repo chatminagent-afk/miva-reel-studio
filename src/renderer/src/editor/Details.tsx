@@ -16,6 +16,8 @@ interface Props {
   apply: (label: string, fn: (d: Doc) => Doc) => void;
   onGrade: (grade: string) => void;
   proxyBusy: boolean;
+  /** proxy preview gagal dibuat ulang setelah ganti Grade */
+  proxyError: string | null;
   sfxBuiltin: boolean;
   lib: SfxLibrary | null;
   onClearSel: () => void;
@@ -289,6 +291,11 @@ export function Details(p: Props) {
             <span className="muted" style={{ fontSize: 11 }}>
               {p.proxyBusy ? 'Updating preview…' : 'Natural: daylight phone footage. Warm: indoor/night. Lift: dark or flat footage.'}
             </span>
+            {p.proxyError && !p.proxyBusy && (
+              <span style={{ fontSize: 11, color: 'var(--bad)' }} data-testid="proxy-error">
+                {p.proxyError}
+              </span>
+            )}
           </div>
         )}
         {tab === 'audio' && (

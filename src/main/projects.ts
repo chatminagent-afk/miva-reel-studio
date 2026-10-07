@@ -1,6 +1,7 @@
 // IPC proyek: pengaturan, proyek terakhir, buka/simpan, Auto Edit (dengan progress + batal), komposisi preview.
-import { readFileSync } from 'node:fs';
-import { rename } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { readFileSync, statSync } from 'node:fs';
+import { rename, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { app, ipcMain, type WebContents } from 'electron';
 import { makeProxy, PROXY, runAutoEdit, type AutoEditProgress, type AutoEditResult } from '../core/autoedit';
@@ -31,6 +32,40 @@ export interface OpenedProject {
   /** timing.json/captions.json turunan saat dibuka */
   timing: ReturnType<typeof derive>['timing'];
   captions: ReturnType<typeof derive>['captions'];
+  /** versi proxy preview, lihat proxyRev() */
+  proxyRev: string;
+}
+
+/**
+ * Versi proxy (folder proyek + waktu ubah + ukuran), dipakai di URL preview. File proxy selalu assets/_proxy.mp4, dan
+ * Chromium memakai ulang data media untuk URL yang sama: tanpa versi ini preview memutar video proyek sebelumnya atau
+ * proxy sebelum ganti Grade (bug 07/10).
+ */
+export function proxyRev(dir: string): string {
+  const id = createHash('sha1').update(dir).digest('hex').slice(0, 10);
+  try {
+    const s = statSync(join(dir, PROXY));
+    return `${id}-${Math.round(s.mtimeMs)}-${s.size}`;
+  } catch {
+    return `${id}-0`;
+  }
+}
+
+/** rename yang tahan kunci sesaat di Windows (file sedang dibaca preview atau antivirus): coba ulang sampai ±2 dtk. */
+async function replaceFile(tmp: string, dest: string): Promise<void> {
+  for (let i = 0; ; i++) {
+    try {
+      await rename(tmp, dest);
+      return;
+    } catch (e) {
+      const code = (e as NodeJS.ErrnoException).code;
+      if (i >= 20 || !(code === 'EPERM' || code === 'EBUSY' || code === 'EACCES')) {
+        await rm(tmp, { force: true });
+        throw e;
+      }
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
 }
 
 let current: string | null = null;
@@ -48,7 +83,7 @@ async function open(dir: string): Promise<OpenedProject> {
   setProjectDir(dir);
   touchRecent(dir, doc.state.name);
   const { timing, captions } = derive(doc);
-  return { doc, timing, captions };
+  return { doc, timing, captions, proxyRev: proxyRev(dir) };
 }
 
 export function registerProjectIpc(): void {
@@ -94,8 +129,8 @@ export function registerProjectIpc(): void {
     const doc = await loadProject(dir);
     const tmp = join(dir, 'assets', '_proxy.next.mp4');
     await makeProxy(appResources().runtime.ffmpeg, doc.state.source, tmp, grade, doc.state.duration);
-    await rename(tmp, join(dir, PROXY));
-    return { ok: true };
+    await replaceFile(tmp, join(dir, PROXY));
+    return { ok: true, proxyRev: proxyRev(dir) };
   });
   // bentuk gelombang suara footage mentah: puncak per 10 ms (0..1), dari proxy
   ipcMain.handle('projects:waveform', async () => {
