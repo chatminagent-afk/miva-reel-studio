@@ -1,0 +1,39 @@
+# Packaging app (langkah 9). Tata letak resources harus sama dengan src/main/resources.ts (layout() saat app.isPackaged).
+# Windows: target "dir" lalu installer dibuat Inno Setup (installer/miva-reel-studio.iss) karena total ±3 GB:
+# NSIS dibatasi ±2 GB per .exe, dan aset GitHub Release maks 2 GB per file -> setup.exe + setup-N.bin.
+appId: id.miva.reelstudio
+productName: MIVA Reel Studio
+executableName: MIVA Reel Studio
+directories:
+  output: release
+  buildResources: installer
+files:
+  - out/**
+  - package.json
+  - "!**/*.map"
+# CLI HyperFrames dijalankan sebagai proses Node terpisah (Electron-as-Node) dan memuat modul native (sharp, esbuild):
+# seluruh node_modules harus di luar asar. Kode app (out/) tetap di asar.
+asar: true
+asarUnpack:
+  - node_modules/**
+extraResources:
+  - { from: resources/manifest.json, to: manifest.json }
+  - { from: resources/render, to: render }
+  - { from: resources/scripts, to: scripts }
+  - { from: resources/whisper/sidecar.py, to: whisper/sidecar.py }
+  - { from: resources/sfx-default, to: sfx-default }
+  - { from: resources/sfx, to: sfx, filter: ["**/*"] }
+  - { from: reference/skill-reel-edit/template/template.tpl, to: template/template.tpl }
+  - { from: resources/models, to: models }
+win:
+  target: [dir]
+  extraResources:
+    - { from: resources/bin/win64, to: bin, filter: ["**/*", "!**/.installed.json"] }
+linux:
+  # hanya untuk validasi tata letak paket di Linux (CI/cloud); app rilis = Windows
+  target: [dir]
+  extraResources:
+    - { from: resources/bin/linux64, to: bin, filter: ["**/*", "!**/.installed.json"] }
+npmRebuild: false
+electronLanguages: [en-US, id]
+publish: null

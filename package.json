@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "description": "Desktop app lokal untuk edit Reels talking-head MIVA",
   "main": "out/main/index.js",
-  "directories": {
-    "doc": "docs"
-  },
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
@@ -17,7 +14,8 @@
     "postinstall": "node scripts/prepare-render-assets.mjs",
     "fetch-resources": "node scripts/fetch-resources.mjs",
     "e2e": "electron-vite build && xvfb-run -a vitest run -c vitest.e2e.config.ts",
-    "test:offline": "unshare -n python3 tests/tools/offline.py npx vitest run tests/render tests/core/whisper"
+    "test:offline": "unshare -n python3 tests/tools/offline.py npx vitest run tests/render tests/core/whisper",
+    "dist:dir": "electron-vite build && electron-builder --dir"
   },
   "repository": {
     "type": "git",
@@ -55,5 +53,6 @@
     "hyperframes": "0.8.84",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
-  }
+  },
+  "productName": "MIVA Reel Studio"
 }

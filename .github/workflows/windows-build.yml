@@ -1,0 +1,139 @@
+# Build installer Windows + UAT dengan komponen asli. Jalan saat tag build-* di-push (atau manual dari main) supaya
+# menit Actions tidak terpakai di setiap push. Satu run ±40–60 menit Windows (dihitung 2× di kuota repo private).
+name: Windows build
+
+on:
+  # build dari branch mana pun: git tag build-<nama> && git push origin build-<nama>
+  push:
+    tags: ['build-*']
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Upload installer ke GitHub Release (prerelease)
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 180
+    env:
+      PYTHON: python
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: npm ci
+        run: npm ci --no-audit --no-fund
+
+      - name: Cache komponen offline (Chrome, FFmpeg, Python, paket Whisper, model)
+        uses: actions/cache@v4
+        with:
+          path: |
+            resources/bin/win64
+            resources/models
+          key: win64-${{ hashFiles('resources/manifest.json', 'resources/whisper/requirements-win64.lock') }}
+
+      - name: Unduh komponen offline (kunci hash yang belum dipin)
+        run: node scripts/fetch-resources.mjs --platform win64 --pin
+
+      - name: Laporkan hash yang baru dipin
+        shell: bash
+        run: |
+          if git diff --quiet resources/manifest.json; then
+            echo "Semua hash sudah dipin." >> "$GITHUB_STEP_SUMMARY"
+          else
+            { echo '### Hash baru dipin (commit ke resources/manifest.json)'; echo '```diff'; git diff resources/manifest.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            git diff resources/manifest.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manifest-pinned
+          path: resources/manifest.json
+
+      - name: Path FFmpeg bawaan untuk tes
+        shell: bash
+        run: |
+          FF=$(ls -d "$PWD"/resources/bin/win64/ffmpeg/*/bin | head -1)
+          echo "REEL_FFMPEG=$FF/ffmpeg.exe" >> "$GITHUB_ENV"
+          echo "REEL_FFPROBE=$FF/ffprobe.exe" >> "$GITHUB_ENV"
+          "$FF/ffmpeg.exe" -hide_banner -version | head -1
+
+      - name: Typecheck + tes unit
+        run: |
+          npx tsc --noEmit
+          npx vitest run tests/core
+
+      - name: Build app (electron-builder --dir)
+        run: |
+          npx electron-vite build
+          npx electron-builder --win --dir
+
+      - name: Suara uji (TTS Windows) untuk UAT
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Speech
+          $s = New-Object System.Speech.Synthesis.SpeechSynthesizer
+          $out = Join-Path $env:RUNNER_TEMP 'speech.wav'
+          $s.SetOutputToWaveFile($out)
+          $p = New-Object System.Speech.Synthesis.PromptBuilder
+          foreach ($t in @('Hello everyone.', 'Today I want to try a new app called Reel Studio.', 'It cuts the silences automatically and adds captions.', 'Then it exports the video in one click.', 'What do you think?')) {
+            $p.AppendText($t); $p.AppendBreak([TimeSpan]::FromMilliseconds(900))
+          }
+          $s.Speak($p); $s.Dispose()
+          "REEL_UAT_SPEECH=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Get-Item $out | Select-Object Length
+
+      - name: UAT pada app hasil build (model Whisper asli, CPU)
+        env:
+          REEL_E2E_EXE: ${{ github.workspace }}\release\win-unpacked\MIVA Reel Studio.exe
+        run: npx vitest run -c vitest.e2e.config.ts tests/e2e/uat.e2e.ts
+
+      - name: Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y | Out-Null }
+          $env:APP_VERSION = (node -p "require('./package.json').version") + '-build.${{ github.run_number }}'
+          & $iscc installer\miva-reel-studio.iss
+          Get-ChildItem release\installer | Select-Object Name, Length
+
+      - name: Pasang diam-diam + smoke test app terpasang
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem release\installer\*.exe | Select-Object -First 1
+          $dir = Join-Path $env:RUNNER_TEMP 'miva-installed'
+          Start-Process -Wait -FilePath $setup.FullName -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir"
+          $env:REEL_E2E_EXE = Join-Path $dir 'MIVA Reel Studio.exe'
+          $env:REEL_E2E_INSTALLED = '1'
+          npx vitest run -c vitest.e2e.config.ts tests/e2e/installed.e2e.ts
+
+      - name: Upload ke GitHub Release
+        if: ${{ inputs.release != false }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V=$(node -p "require('./package.json').version")
+          TAG="v$V-build.${{ github.run_number }}"
+          cat > notes.md <<NOTES
+          Build otomatis dari \`${{ github.ref_name }}\` (${{ github.sha }}), UAT otomatis lulus.
+
+          **Cara pasang:** unduh SEMUA file di bawah (.exe dan .bin) ke satu folder, lalu jalankan \`MIVA-Reel-Studio-Setup-*.exe\`.
+          Windows akan menampilkan peringatan SmartScreen karena app belum ditandatangani: klik **More info → Run anyway**.
+          App terpasang per pengguna (tanpa admin) dan jalan penuh offline.
+          NOTES
+          gh release create "$TAG" release/installer/* --prerelease --title "MIVA Reel Studio $V (build ${{ github.run_number }})" --notes-file notes.md --target "${{ github.sha }}"
+          echo "Release: $TAG" >> "$GITHUB_STEP_SUMMARY"

@@ -18,7 +18,7 @@ import {
   srcToEdited,
   wordKept,
 } from '../../src/core/edit';
-import { ffmpeg } from '../../src/core/ffmpeg';
+import { ffmpeg, ffmpegPath } from '../../src/core/ffmpeg';
 import { buildCaptions, derive, loadProject, saveProject } from '../../src/core/project';
 import { detectRetakes, suggestKeywords } from '../../src/core/suggest';
 import type { RawWord } from '../../src/core/types';
@@ -161,7 +161,7 @@ describe('Auto Edit (integrasi, tanpa Whisper)', () => {
     const { doc, summary } = await runAutoEdit({
       src,
       root: work,
-      ffmpeg: 'ffmpeg',
+      ffmpeg: ffmpegPath(),
       whisper: { python: '', sidecar: '', site: '', modelDir: '' },
       wordsOverride: rawWords(),
       fix: { cloud: 'Claude', donton: 'nonton' },
@@ -170,7 +170,7 @@ describe('Auto Edit (integrasi, tanpa Whisper)', () => {
     expect([...new Set(steps)]).toEqual([1, 2, 3, 4, 5]);
     expect(doc.dir).toMatch(/\d{4}-\d{2}-\d{2}-raw$/);
     for (const f of ['edit.json', 'timing.json', 'captions.json', '.reel/state.json', 'assets/_proxy.mp4']) expect(existsSync(join(doc.dir, f))).toBe(true);
-    const dims = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', join(doc.dir, 'assets/_proxy.mp4')], { encoding: 'utf-8' }).trim();
+    const dims = execFileSync(process.env.REEL_FFPROBE ?? 'ffprobe', ['-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', join(doc.dir, 'assets/_proxy.mp4')], { encoding: 'utf-8' }).trim();
     expect(dims).toBe('540,960');
     // hening awal (kamera dipasang, 4,7 dtk) dibuang; hasil jauh lebih pendek dari mentah
     expect(doc.edit.segs[0][0]).toBeGreaterThan(4);

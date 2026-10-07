@@ -41,8 +41,10 @@ export function fakeWhisperEnv(work: string): NodeJS.ProcessEnv {
 }
 
 export async function launchApp(work: string, env: NodeJS.ProcessEnv = {}): Promise<{ app: ElectronApplication; win: Page }> {
+  // REEL_E2E_EXE = jalankan app hasil packaging (release/*-unpacked) alih-alih out/main (dev)
+  const exe = process.env.REEL_E2E_EXE;
   const app = await electron.launch({
-    args: ['--no-sandbox', resolve(ROOT, 'out/main/index.js')],
+    ...(exe ? { executablePath: exe, args: process.platform === 'linux' ? ['--no-sandbox'] : [] } : { args: ['--no-sandbox', resolve(ROOT, 'out/main/index.js')] }),
     env: { ...process.env, REEL_USER_DATA: join(work, 'userdata'), ...env },
   });
   const win = await app.firstWindow();
