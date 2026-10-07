@@ -124,7 +124,8 @@ jobs:
           npx vitest run -c vitest.e2e.config.ts tests/e2e/installed.e2e.ts
 
       - name: Upload ke GitHub Release
-        if: ${{ inputs.release != false }}
+        # push: inputs kosong (null), dan ekspresi Actions menganggap null == false, jadi cek event dulu
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.release }}
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
