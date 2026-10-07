@@ -1,0 +1,3 @@
+# Paket sidecar Whisper untuk dev/tes Linux (CPU saja, tanpa DLL CUDA). Ubah di sini lalu: python3 scripts/lock-whisper.py
+faster-whisper==1.2.1
+ctranslate2==4.8.2

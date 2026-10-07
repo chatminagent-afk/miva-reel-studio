@@ -9,6 +9,8 @@ const api = {
   saveVideo: (defaultPath?: string): Promise<string | null> => ipcRenderer.invoke('dialog:saveVideo', defaultPath),
   exportStart: (req: ExportRequest): Promise<number> => ipcRenderer.invoke('export:start', req),
   exportCancel: (): Promise<boolean> => ipcRenderer.invoke('export:cancel'),
+  whisperCheck: (): Promise<{ python: string; faster_whisper: string; ctranslate2: string; cuda_devices: number; missing_params: string[] }> =>
+    ipcRenderer.invoke('whisper:check'),
   /** Langganan event export (progress/done/cancelled/error); kembalikan fungsi untuk berhenti. */
   onExportEvent: (cb: (ev: ExportEvent) => void): (() => void) => {
     const h = (_e: IpcRendererEvent, ev: ExportEvent) => cb(ev);

@@ -7,7 +7,7 @@ import { join, resolve } from 'node:path';
 import { _electron as electron, type ElectronApplication, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { ExportEvent } from '../../src/main/export';
-import { BROWSER, hasBrowser, makeAcuanProject, makeSfxLib } from '../tools/project';
+import { BROWSER, hasBrowser, makeAcuanProject, makeSfxLib, ROOT } from '../tools/project';
 
 const chromeLeft = () => spawnSync('pgrep', ['-f', BROWSER], { encoding: 'utf-8' }).stdout.trim();
 
@@ -100,5 +100,18 @@ describe.skipIf(!hasBrowser)('export lewat app Electron', () => {
     await new Promise((r) => setTimeout(r, 2000));
     expect(chromeLeft()).toBe('');
     expect(existsSync(join(proj, 'renders', '_frames'))).toBe(false);
+  });
+});
+
+describe.skipIf(!existsSync(join(ROOT, 'resources', 'bin', 'linux64', 'whisper-site', 'faster_whisper')))('diagnostik Whisper lewat app Electron', () => {
+  it('proses utama menemukan Python + sidecar + site dan melaporkan versi terkunci', async () => {
+    const app = await electron.launch({ args: ['--no-sandbox', resolve('out/main/index.js')] });
+    try {
+      const win = await app.firstWindow();
+      await win.waitForSelector('[data-testid="import"]', { timeout: 20000 });
+      expect(await win.evaluate(() => window.reel.whisperCheck())).toMatchObject({ faster_whisper: '1.2.1', ctranslate2: '4.8.2', missing_params: [] });
+    } finally {
+      await app.close();
+    }
   });
 });

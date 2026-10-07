@@ -29,5 +29,52 @@
         "$comment": "Linux hanya untuk dev/tes cloud: pakai ffmpeg sistem (apt). App rilis = Windows."
       }
     }
+  },
+  "python": {
+    "version": "3.13.16",
+    "$comment": "Python untuk sidecar Whisper. Windows: paket NuGet resmi 'python' (tools/python.exe, stdlib lengkap). Linux: Python 3.13 sistem (dev/tes).",
+    "platforms": {
+      "win64": {
+        "url": "https://api.nuget.org/v3-flatcontainer/python/3.13.16/python.3.13.16.nupkg",
+        "sha256": "95fad176338f1d6a799e45946488063f4aa61764e6cff2f132ddeffbf7a04c34",
+        "bin": "tools/python.exe"
+      },
+      "linux64": {
+        "system": true,
+        "bin": "python3"
+      }
+    }
+  },
+  "whisper-site": {
+    "version": "lihat lock",
+    "type": "pip",
+    "$comment": "site-packages sidecar (faster-whisper, ctranslate2, cuBLAS/cuDNN di Windows). Lock dibuat scripts/lock-whisper.py.",
+    "platforms": {
+      "win64": {
+        "lock": "resources/whisper/requirements-win64.lock",
+        "platformArgs": [
+          "--platform",
+          "win_amd64",
+          "--python-version",
+          "3.13",
+          "--implementation",
+          "cp"
+        ]
+      },
+      "linux64": {
+        "lock": "resources/whisper/requirements-linux64.lock"
+      }
+    }
+  },
+  "whisper-model": {
+    "version": "large-v3-turbo",
+    "type": "hf",
+    "$comment": "Model CTranslate2 yang dipakai faster-whisper 1.2.1 untuk 'large-v3-turbo' (sama dengan benchmark 06/10). Revisi + sha256 dipin dengan --pin di mesin yang bisa mengakses huggingface.co (CI pertama).",
+    "repo": "mobiuslabsgmbh/faster-whisper-large-v3-turbo",
+    "revision": null,
+    "files": null,
+    "platforms": {
+      "all": {}
+    }
   }
 }

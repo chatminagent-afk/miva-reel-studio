@@ -174,15 +174,18 @@ describe('penggabung ffmpeg', () => {
 
 describe.skipIf(process.platform === 'win32')('pembatalan proses', () => {
   it('membunuh proses beserta turunannya', async () => {
-    const tag = `reel-cancel-${process.pid}-${Date.now()}`;
+    // durasi unik supaya pgrep tidak tertukar dengan proses lain
+    const a = 3000 + (process.pid % 500);
+    const b = a + 1;
     const ac = new AbortController();
-    const p = runProcess('sh', ['-c', `sleep 30 & sleep 31; wait # ${tag}`], { signal: ac.signal });
-    await new Promise((r) => setTimeout(r, 300));
-    const alive = () => spawnSync('pgrep', ['-f', 'sleep 3[01]'], { encoding: 'utf-8' }).stdout.trim().split('\n').filter(Boolean);
-    expect(alive().length).toBeGreaterThanOrEqual(2);
+    const p = runProcess('sh', ['-c', `sleep ${a} & sleep ${b}; wait`], { signal: ac.signal });
+    const alive = () => spawnSync('pgrep', ['-f', `^sleep (${a}|${b})$`], { encoding: 'utf-8' }).stdout.trim().split('\n').filter(Boolean);
+    // tunggu kedua anak benar-benar jalan (di bawah beban CPU shell bisa lambat start)
+    for (let i = 0; i < 100 && alive().length < 2; i++) await new Promise((r) => setTimeout(r, 50));
+    expect(alive().length).toBe(2);
     ac.abort();
     await expect(p).rejects.toBeInstanceOf(CancelledError);
-    await new Promise((r) => setTimeout(r, 300));
+    for (let i = 0; i < 60 && alive().length; i++) await new Promise((r) => setTimeout(r, 50));
     expect(alive()).toEqual([]);
   });
 

@@ -1,0 +1,6 @@
+# Paket sidecar Whisper untuk app Windows (Python 3.13, win_amd64). Ubah di sini lalu: python3 scripts/lock-whisper.py
+# Versi = benchmark 06/10 (faster-whisper 1.2.1). ctranslate2 4.8.2 butuh cublas64_12.dll + cuDNN 9 (dicek dari DLL wheel).
+faster-whisper==1.2.1
+ctranslate2==4.8.2
+nvidia-cublas-cu12==12.9.2.10
+nvidia-cudnn-cu12==9.27.0.42

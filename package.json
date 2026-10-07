@@ -17,7 +17,7 @@
     "postinstall": "node scripts/prepare-render-assets.mjs",
     "fetch-resources": "node scripts/fetch-resources.mjs",
     "e2e": "electron-vite build && xvfb-run -a vitest run -c vitest.e2e.config.ts",
-    "test:offline": "unshare -n python3 tests/tools/offline.py npx vitest run tests/render"
+    "test:offline": "unshare -n python3 tests/tools/offline.py npx vitest run tests/render tests/core/whisper"
   },
   "repository": {
     "type": "git",

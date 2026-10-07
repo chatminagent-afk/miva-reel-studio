@@ -30,6 +30,8 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-06 | Binary dibundel dan dipin: **Chrome headless shell 152.0.7977.30** (versi pin HyperFrames 0.8.84, sha256 di `resources/manifest.json`), **FFmpeg 8.0 essentials (gyan.dev)** untuk Windows, font `@fontsource` 5.3.0 (set face = yang dipakai render skill online), GSAP 3.14.2 | Syarat offline; versi Chrome sama dengan yang diuji HyperFrames |
 | 2026-10-06 | Proses render dijaga **penjaga offline** (`resources/scripts/offline-guard.mjs`): semua koneksi TCP non-loopback dari proses HyperFrames ditolak dan dicatat; komposisi yang memuat URL internet ditolak sebelum render | Bukti offline di level kode, bukan hanya env var; HyperFrames diam-diam mengunduh font kalau ada internet |
 | 2026-10-06 | Encoder: **NVENC dicoba sungguhan dulu** (encode 0,2 dtk), kalau gagal pakai libx264 (CRF 18, sama dengan skill) / libx265 | `ffmpeg -encoders` mencantumkan NVENC walau tidak ada GPU NVIDIA |
+| 2026-10-07 | **Satu installer** berisi semuanya (app, Chrome headless, FFmpeg, Python, faster-whisper, DLL CUDA, model large-v3-turbo) | Pilihan Steven 07/10: "biar ga ribet". Lihat risiko batas 2 GB NSIS di tabel ditunda |
+| 2026-10-07 | Sidecar transkripsi = **Python 3.13 (paket NuGet resmi) + `resources/whisper/sidecar.py`**, paket dari lock ber-hash (`resources/whisper/requirements-*.lock`, `--require-hashes`); setelan dan format `words-raw.json` sama dengan `transcribe.py` skill; CUDA float16 dites hangat (1 dtk hening) lalu fallback CPU int8; kalau proses mati saat memakai CUDA, diulang sekali di CPU; penjaga offline juga di Python | Offline, hasil instalasi selalu sama, tahan DLL CUDA rusak (bisa mematikan proses tanpa exception) |
 | 2026-10-06 | Engine transkripsi **faster-whisper large-v3-turbo (CUDA fp16, fallback CPU int8)** | Benchmark di laptop Steven: WER 2,8%, satu-satunya yang akurat sekaligus memberi celah kata untuk potong hening; whisper.cpp gugur (`docs/2026-10-06-whisper-benchmark.md`) |
 
 ## Lingkup fitur versi 1
@@ -65,6 +67,9 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 - Build preview (alpha) lebih awal (import → Auto Edit → koreksi transkrip → export 1080p) dengan UAT subset 100%, atau tunggu
   fase 1 lengkap? Estimasi 06/10: alpha ±5–7 sesi, fase 1 lengkap ±15–20 sesi. Alpha melonggarkan aturan "dikirim setelah UAT
   lengkap 100%", jadi butuh keputusan Steven.
+- Tes transkripsi dengan model asli di CI (GitHub Actions, sekali jalan manual `workflow_dispatch`): unduh model + pin hash,
+  transkripsi suara uji. Biaya: menit Actions repo private (kuota Free 2.000 menit/bulan, Windows dihitung 2×), unduhan ±3 GB
+  per run tanpa cache. Alternatif tanpa biaya: Steven menjalankan `npm run fetch-resources -- --pin` + tes di laptop.
 - Footage untuk UAT otomatis di GitHub Actions: `tes2.mp4` lewat Git LFS, atau footage sintetis saja (potong hening dengan
   suara asli tidak teruji di CI).
 
@@ -76,6 +81,9 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 | Code signing `.exe` | ±$200+/tahun | Peringatan SmartScreen saat install ("Run anyway") |
 | Mode naskah/VO (`/miva-motion`) → **fase 2** | TTS ElevenLabs/edge-tts butuh internet; kandidat offline: Kokoro (HyperFrames `tts`, Inggris) untuk VO default Ava, kualitas harus dibandingkan | Selama fase 1, mode motion tetap lewat Claude Code |
 | Pin sha256 FFmpeg Windows (`resources/manifest.json` masih `null`) | — | GitHub diblokir network policy sesi cloud; hash diambil di CI Windows pertama (`fetch-resources --pin`) lalu di-commit. Sebelum dipin, build menolak FFmpeg (fail closed) |
+| Batas ±2 GB installer NSIS (electron-builder) | — | Perkiraan installer ±3,2 GB terkompresi (cuBLAS 553 MB + cuDNN 743 MB + model ±1,6 GB + Chrome/FFmpeg/app). Opsi di langkah 9: pembuat installer yang mendukung > 2 GB, setup.exe + file data dalam satu folder/zip, atau pangkas DLL cuDNN yang tidak dipakai ctranslate2 (wajib uji GPU). Dipilih saat langkah 9 |
+| Pin revisi + sha256 model Whisper (`whisper-model` di manifest masih `null`) | — | huggingface.co diblokir di sesi cloud; dipin di CI/laptop pertama (`fetch-resources --pin`). Sebelum dipin, unduhan model ditolak (fail closed) |
+| Tes transkripsi dengan model asli | Butuh model (CI dengan akses HF atau laptop Steven) | Di cloud teruji: protokol + fallback (faster_whisper palsu), library asli ter-import + API cocok, error model. Akurasi/CUDA belum teruji di app |
 | Whip di export cepat | Terjemahkan blur kamera ke FFmpeg (`gblur` per frame) + verifikasi PSNR | Proyek dengan whip ditolak export cepat (pesan jelas); butuh jalur render penuh sebelum fitur whip dibuka di UI (langkah 6d) |
 | Teks & stiker manual + preset gaya subtitle lain | Menambah tools, UI lebih ramai | Hanya gaya subtitle MIVA |
 

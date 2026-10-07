@@ -9,10 +9,11 @@ Status: **fase 1, langkah 1 (fondasi)** — lihat [`docs/2026-10-06-plan-fase-1.
 
 ```bash
 npm ci                    # juga menyiapkan resources/render (font + GSAP lokal)
-npm run fetch-resources   # Chrome headless (dan FFmpeg di Windows) ke resources/bin/, diverifikasi sha256
+npm run fetch-resources   # Chrome headless, FFmpeg (Windows), Python + paket Whisper, model Whisper; semua dicek sha256
+                          # (model butuh akses huggingface.co; di sesi cloud: npm run fetch-resources -- --skip whisper-model)
 npm test                  # unit + paritas skill + integrasi export (render sungguhan)
 npm run e2e               # app Electron: export, batal, tutup saat export (butuh xvfb di Linux)
-npm run test:offline      # integrasi export di network namespace tanpa internet (Linux, root)
+npm run test:offline      # integrasi export + sidecar Whisper di network namespace tanpa internet (Linux, root)
 npm run dev               # jalankan app
 ```
 

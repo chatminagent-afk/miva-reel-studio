@@ -3,7 +3,9 @@
 import { app, BrowserWindow, dialog, ipcMain, session } from 'electron';
 import { join } from 'node:path';
 import { probeDuration } from '../core/ffmpeg';
+import { checkWhisper } from '../core/whisper';
 import { registerExportIpc } from './export';
+import { appWhisper } from './resources';
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -45,6 +47,9 @@ ipcMain.handle('dialog:saveVideo', async (_e, defaultPath?: string) => {
 });
 
 registerExportIpc();
+
+// diagnostik komponen transkripsi (versi, GPU CUDA terdeteksi); dipakai Settings/UAT
+ipcMain.handle('whisper:check', () => checkWhisper(appWhisper()));
 
 app.whenReady().then(() => {
   // Blokir semua request keluar dari renderer (offline by design); file lokal dan dev server tetap boleh.

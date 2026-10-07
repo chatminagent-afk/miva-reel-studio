@@ -7,3 +7,4 @@ samples/*.mov
 *.log
 resources/bin/
 resources/render/
+resources/models/

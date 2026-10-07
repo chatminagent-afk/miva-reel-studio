@@ -35,3 +35,16 @@ atau installer app + paket model terpisah (keduanya tetap offline setelah terpas
 - CPU fallback large-v3-turbo belum diukur (yang diukur medium CPU, RTF 0,68). Ukur saat UAT.
 - `p` whisper.cpp bukan probabilitas kata, tidak dibandingkan.
 - PyAV lokal tidak cocok dengan faster-whisper 1.2.1 (`metadata_errors`), sama dengan gotcha skill: audio diberikan sebagai array.
+
+## Implementasi di app (07/10)
+
+`resources/whisper/sidecar.py` dijalankan sebagai proses terpisah (`python -I -u`), dipanggil `src/core/whisper.ts`.
+Audio di-decode ffmpeg app persis seperti `load16k()` skill, setelan transkripsi sama (language=id, word timestamps,
+vad_filter=False, beam 5), dan `words-raw.json` ditulis byte-identik dengan skill (diuji pada 3 kasus golden).
+Versi dikunci: faster-whisper 1.2.1 (sama dengan benchmark), ctranslate2 4.8.2 (butuh `cublas64_12.dll` + cuDNN 9,
+dicek dari DLL wheel), nvidia-cublas-cu12 12.9.2.10, nvidia-cudnn-cu12 9.27.0.42, Python 3.13.16 (NuGet).
+Model: `mobiuslabsgmbh/faster-whisper-large-v3-turbo` (alias `large-v3-turbo` di faster-whisper 1.2.1).
+
+GPU: CUDA float16 dicoba dan dipanaskan dengan 1 dtk hening (DLL cuDNN baru dimuat saat encoder jalan). Gagal → CPU int8
+dengan alasan dilaporkan. Kalau DLL CUDA rusak sampai proses mati tanpa exception, runner mengulang sekali di CPU.
+Belum diukur: transkripsi model asli lewat sidecar (model tidak bisa diunduh di sesi cloud).
