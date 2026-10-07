@@ -1,0 +1,98 @@
+{
+ "bunyi": {
+  "def-riser-1": {
+   "kategori": "riser",
+   "label": "riser naik 2 dtk",
+   "bawaan": true
+  },
+  "def-whoosh-1": {
+   "kategori": "whoosh",
+   "label": "whoosh lebar",
+   "bawaan": true
+  },
+  "def-whoosh-2": {
+   "kategori": "whoosh",
+   "label": "whoosh pendek",
+   "bawaan": true
+  },
+  "def-swish-1": {
+   "kategori": "swish",
+   "label": "swish lembut",
+   "bawaan": true
+  },
+  "def-klik-1": {
+   "kategori": "klik",
+   "label": "klik",
+   "bawaan": true
+  },
+  "def-klik-2": {
+   "kategori": "klik",
+   "label": "klik ringan",
+   "bawaan": true
+  },
+  "def-ketik-1": {
+   "kategori": "ketik",
+   "label": "ketik keyboard",
+   "bawaan": true
+  },
+  "def-boom-1": {
+   "kategori": "boom",
+   "label": "boom bass",
+   "bawaan": true
+  },
+  "def-impact-1": {
+   "kategori": "impact",
+   "label": "impact",
+   "bawaan": true
+  },
+  "def-pop-1": {
+   "kategori": "pop",
+   "label": "pop",
+   "bawaan": true
+  },
+  "def-ding-1": {
+   "kategori": "ding",
+   "label": "ding",
+   "bawaan": true
+  },
+  "def-tick-1": {
+   "kategori": "tick",
+   "label": "tick",
+   "bawaan": true
+  }
+ },
+ "pilihan": {
+  "riser": [
+   "def-riser-1"
+  ],
+  "whoosh": [
+   "def-whoosh-1",
+   "def-whoosh-2"
+  ],
+  "swish": [
+   "def-swish-1"
+  ],
+  "klik": [
+   "def-klik-1",
+   "def-klik-2"
+  ],
+  "ketik": [
+   "def-ketik-1"
+  ],
+  "boom": [
+   "def-boom-1"
+  ],
+  "impact": [
+   "def-impact-1"
+  ],
+  "pop": [
+   "def-pop-1"
+  ],
+  "ding": [
+   "def-ding-1"
+  ],
+  "tick": [
+   "def-tick-1"
+  ]
+ }
+}

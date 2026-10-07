@@ -1,0 +1,50 @@
+{
+ "def-riser-1": {
+  "dur": 2.0,
+  "peak_at": 0.94
+ },
+ "def-whoosh-1": {
+  "dur": 0.55,
+  "peak_at": 0.42
+ },
+ "def-whoosh-2": {
+  "dur": 0.4,
+  "peak_at": 0.5
+ },
+ "def-swish-1": {
+  "dur": 0.45,
+  "peak_at": 0.51
+ },
+ "def-klik-1": {
+  "dur": 0.06,
+  "peak_at": 0.0
+ },
+ "def-klik-2": {
+  "dur": 0.05,
+  "peak_at": 0.0
+ },
+ "def-ketik-1": {
+  "dur": 1.0,
+  "peak_at": 0.93
+ },
+ "def-boom-1": {
+  "dur": 1.4,
+  "peak_at": 0.0
+ },
+ "def-impact-1": {
+  "dur": 0.7,
+  "peak_at": 0.0
+ },
+ "def-pop-1": {
+  "dur": 0.15,
+  "peak_at": 0.0
+ },
+ "def-ding-1": {
+  "dur": 0.9,
+  "peak_at": 0.0
+ },
+ "def-tick-1": {
+  "dur": 0.03,
+  "peak_at": 0.0
+ }
+}

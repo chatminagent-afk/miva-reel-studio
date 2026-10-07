@@ -54,6 +54,8 @@ export interface TranscribeResult {
   duration: number;
   /** koneksi jaringan yang diblokir penjaga offline sidecar (harus kosong) */
   blocked: string[];
+  /** indeks kata pertama tiap segmen Whisper (awal kalimat) */
+  segStarts: number[];
 }
 
 export type SidecarEvent =
@@ -61,7 +63,7 @@ export type SidecarEvent =
   | { type: 'trying'; device: 'cuda' | 'cpu' }
   | { type: 'loaded'; device: 'cuda' | 'cpu'; compute_type: string; load_s: number; fallback: string | null }
   | { type: 'progress'; t: number; duration: number }
-  | { type: 'done'; words: number; out: string; transcribe_s: number; duration: number }
+  | { type: 'done'; words: number; out: string; transcribe_s: number; duration: number; seg_starts: number[] }
   | { type: 'check'; python: string; faster_whisper: string; ctranslate2: string; cuda_devices: number; missing_params: string[] }
   | { type: 'error'; code: 'model_missing' | 'audio' | 'cuda' | 'internal'; message: string };
 
@@ -175,6 +177,7 @@ export async function transcribe(rt: WhisperRuntime, o: TranscribeOptions): Prom
     transcribeSeconds: done.transcribe_s,
     duration: done.duration,
     blocked: run.blocked,
+    segStarts: done.seg_starts ?? [],
   };
 }
 

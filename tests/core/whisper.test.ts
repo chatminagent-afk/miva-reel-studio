@@ -123,7 +123,7 @@ describe.skipIf(!hasPython)('sidecar Whisper (faster_whisper palsu)', () => {
     const w = caseWords('basic');
     const { dir, rt, out, calls } = setup({ segments: [w.slice(0, 5), w.slice(5, 12), w.slice(12)], cuda_devices: 0 });
     const prog: number[] = [];
-    await transcribe(rt, {
+    const r = await transcribe(rt, {
       src: audio('basic'),
       workDir: dir,
       out,
@@ -134,6 +134,7 @@ describe.skipIf(!hasPython)('sidecar Whisper (faster_whisper palsu)', () => {
     expect(prog.length).toBe(4); // loaded + 3 segmen
     prog.forEach((v, i) => i && expect(v).toBeGreaterThan(prog[i - 1]));
     expect(calls().at(-1)).toMatchObject({ initial_prompt: 'CapCut, Claude', hotwords: 'MIVA' });
+    expect(r.segStarts).toEqual([0, 5, 12]);
     expect(JSON.parse(readFileSync(out, 'utf-8')).length).toBe(w.length);
   });
 

@@ -11,7 +11,7 @@ Bedanya: model large-v3-turbo, CUDA float16 (benchmark 06/10), fallback CPU int8
 Event (satu objek JSON per baris):
   {"type":"start", ...versi}         {"type":"trying","device"}  (sebelum mencoba memuat di device itu)
   {"type":"loaded","device","compute_type","load_s","fallback"}
-  {"type":"progress","t","duration"} {"type":"done","words","out","transcribe_s","duration"}
+  {"type":"progress","t","duration"} {"type":"done","words","out","transcribe_s","duration","seg_starts"}
   {"type":"check", ...}              {"type":"error","code","message"}   code: model_missing | audio | cuda | internal
 Kalau DLL CUDA rusak, proses bisa mati tanpa exception; runner (src/core/whisper.ts) lalu mengulang dengan --device cpu.
 """
@@ -144,7 +144,10 @@ def transcribe(a):
     segs, info = model.transcribe(audio, **kw)
     duration = len(audio) / 16000
     words = []
+    seg_starts = []  # kata pertama tiap segmen Whisper = awal kalimat (Whisper memberi huruf besar walau tanpa titik)
     for s in segs:
+        if s.words:
+            seg_starts.append(len(words))
         words += [{"w": w.word.strip(), "s": round(w.start, 3), "e": round(w.end, 3), "p": round(w.probability, 2)} for w in s.words]
         emit(type="progress", t=round(s.end, 3), duration=round(duration, 3))
     out = Path(a.out)
@@ -153,7 +156,8 @@ def transcribe(a):
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(words, f, ensure_ascii=False, indent=0)  # format sama dengan transcribe.py skill
     os.replace(tmp, out)
-    emit(type="done", words=len(words), out=str(out), transcribe_s=round(time.time() - t0, 2), duration=round(duration, 3))
+    emit(type="done", words=len(words), out=str(out), transcribe_s=round(time.time() - t0, 2), duration=round(duration, 3),
+         seg_starts=seg_starts)
     return 0
 
 

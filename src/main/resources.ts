@@ -8,6 +8,7 @@
 //   resources/models/ (fetch-resources)          models/  (whisper-model)
 //   resources/whisper/sidecar.py                 whisper/sidecar.py
 //   resources/sfx/  (pustaka SFX Steven)         sfx/
+//   resources/sfx-default/ (SFX sintetis)        sfx-default/
 //   reference/skill-reel-edit/template/          template/
 //   node_modules/hyperframes (asar)              app.asar.unpacked/node_modules/hyperframes (wajib asarUnpack)
 import { execFileSync } from 'node:child_process';
@@ -99,7 +100,8 @@ export function appResources(): AppResources {
     runtime,
     renderAssetsDir: join(L.res, 'render'),
     templatePath: L.template,
-    sfxDir: process.env.REEL_SFX_DIR ?? join(L.res, 'sfx'),
+    // pustaka asli Steven (resources/sfx) kalau ada; kalau belum, pustaka sintetis bawaan
+    sfxDir: process.env.REEL_SFX_DIR ?? (existsSync(join(L.res, 'sfx', 'catalog.json')) ? join(L.res, 'sfx') : join(L.res, 'sfx-default')),
   };
 }
 
