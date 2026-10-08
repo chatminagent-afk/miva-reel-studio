@@ -1,0 +1,149 @@
+sori aku potong, ini tambahan catatan untukmu
+
+ini script + motion graphic nya
+
+<pasted_content id="c84b">
+"“Aku udah bikin lumayan banyak Reels buat jualan bisnis ini… tapi jujur, aku masih belum tahu gimana cara bikin konten yang viral untuk bisnis kayak gini.
+
+**[MOTION 01 — HOOK]**
+Overlay cepat berupa beberapa thumbnail Reels + angka views yang berbeda-beda.
+Munculkan teks besar:
+**“HOW DO I MAKE THIS MIVAL?”**
+→ thumbnail kemudian collapse menjadi logo/teks **MIVA AI**.
+
+Jadi kali ini, aku mau cerita aja kenapa aku bikin bisnis ini.
+
+Di pekerjaan utamaku, aku bisa lihat sendiri kalau service ke customer itu penting banget.
+
+**[MOTION 02 — CUSTOMER CHAT]**
+Munculkan 3–4 chat bubble masuk berturut-turut:
+“Masih tersedia?”
+“Bisa dikirim hari ini?”
+“Boleh tanya dulu kak?”
+
+Counter kecil:
+**NEW MESSAGES: 03 → 07 → 14**
+
+Karena sebagus apa pun bisnisnya, kalau customer susah dapat respons, lama-lama trust-nya bisa hilang.
+
+**[MOTION 03 — TRUST]**
+Visual sederhana:
+**CUSTOMER → CHAT → WAITING…**
+
+Progress waktu berjalan.
+
+Di sampingnya:
+**TRUST 100% → 80% → 60%**
+
+Dari situ aku kepikiran, gimana kalau ada yang bisa bantu business owner handle customer mereka 24/7?
+
+**[MOTION 04 — 24/7]**
+Business owner di tengah dengan notification chat masuk dari berbagai arah.
+Muncul lingkaran:
+**24 / 7**
+
+Kemudian MIVA muncul dan mengambil alih chat satu per satu.
+
+Tapi aku juga nggak mau kalau yang bales terasa kayak robot—ditanya A jawab A, ditanya sedikit beda malah bingung, atau bahkan asal jawab.
+
+**[MOTION 05 — ROBOT VS NATURAL]**
+Split screen chat.
+
+Kiri:
+**ROBOT**
+“Please select option 1.”
+“Please select option 2.”
+
+Kanan:
+**MIVA**
+“Halo kak! Boleh, aku bantu cek dulu ya.”
+
+Lalu tampilkan contoh AI salah konteks secara singkat:
+
+Customer:
+“Kalau pesan 20 pcs ada harga khusus?”
+
+AI:
+“Produk tersedia dalam beberapa warna.”
+
+Muncul:
+**⚠ CONTEXT MISSED**
+
+Akhirnya aku bikin MIVA AI, yang bisa handle pertanyaan, leads, follow-up, sampai mencatat informasi customer.
+
+**[MOTION 06 — MIVA WORKFLOW]**
+Empat icon muncul satu per satu:
+
+**QUESTIONS → LEADS → FOLLOW-UP → CUSTOMER DATA**
+
+Lalu semuanya tersambung ke:
+**MIVA AI**
+
+Tapi MIVA juga nggak menggantikan manusia.
+
+**[MOTION 07 — AI ≠ HUMAN REPLACEMENT]**
+Tampilkan:
+**AI → REPLACE HUMAN ❌**
+
+Kemudian berubah menjadi:
+**AI + HUMAN ✓**
+
+Kalau percakapannya memang butuh manusia, MIVA bisa langsung handover ke admin.
+
+**[MOTION 08 — HUMAN HANDOVER]**
+Chat customer:
+“Saya mau komplain soal pesanan saya.”
+
+MIVA:
+“Aku bantu teruskan ke admin ya kak.”
+
+Animasi chat berpindah:
+**CUSTOMER → MIVA → HUMAN ADMIN**
+
+Muncul:
+**HUMAN HANDOVER ✓**
+
+Jadi fokusku bukan menggantikan manusia, tapi bantu business owner supaya chat dan leads yang masuk nggak begitu aja kelewat.
+
+**[MOTION 09 — BUSINESS OUTCOME]**
+Inbox awal:
+**17 UNANSWERED**
+
+Kemudian MIVA memproses chat.
+
+Counter berubah:
+**17 UNANSWERED → 0**
+
+Beberapa status muncul:
+**LEAD SAVED ✓**
+**FOLLOW-UP ✓**
+**ANSWERED ✓**
+
+Kalau penasaran MIVA bisa ngapain di bisnis kamu, langsung chat nomor di BIO.
+
+**[MOTION 10 — CTA]**
+Tiga elemen muncul cepat:
+
+**COMMENT**
+↓
+**DM**
+↓
+**CHAT IN BIO**
+
+Kemudian fokus ke:
+
+### **TRY MIVA**
+
+Siapa tahu kita bisa bikin versi MIVA buat bisnis kamu.
+
+**[END CARD — 1.5 detik]**
+Logo:
+**MIVA AI**
+
+Subtitle:
+**AI Customer Service for Your Business**
+
+Small text:
+**Chat nomor di BIO**
+"
+</pasted_content id="c84b">

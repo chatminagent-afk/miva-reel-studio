@@ -1,0 +1,93 @@
+@"D:\Documents\Claude Cowork\MIVA\reels\7 okt\5.MP4"
+/reel-edit dengan nama miva_5
+
+<pasted_content id="f3aa">
+"**[0–4s]**
+🎙️ **VO:** “Aku bikin AI Customer Service, tapi aku justru nggak mau AI-nya jawab semuanya.”
+
+🎬 **Motion:**
+Talking head → cut ke mockup chat MIVA.
+Text besar muncul:
+
+**“AI-nya nggak boleh jawab semuanya?”**
+
+Pause 0.5–1 detik.
+
+---
+
+**[4–8s]**
+🎙️ **VO:** “Karena ada pertanyaan yang memang harus dijawab manusia.”
+
+🎬 **Motion:**
+Chat customer masuk dengan label:
+
+**“Needs Human”**
+
+Lalu muncul icon 👤.
+
+---
+
+**[8–17s]**
+🎙️ **VO:**
+“MIVA bisa jawab pertanyaan rutin.
+Bisa bantu booking.
+Bisa follow-up customer.”
+
+🎬 **Motion:**
+Tiga chat bubble / card muncul bergantian:
+
+**FAQ → BOOKING → FOLLOW-UP**
+
+Diselingi contoh chat singkat dari MIVA.
+
+---
+
+**[17–23s]**
+🎙️ **VO:** “Tapi kalau situasinya memang butuh manusia…”
+
+🎬 **Motion:**
+Chat MIVA berhenti → muncul indicator:
+
+**“Human needed”**
+
+---
+
+**[23–28s]**
+🎙️ **VO:** “Percakapannya bisa langsung dialihkan ke admin.”
+
+🎬 **Motion:**
+Animasi alur:
+
+**Customer → MIVA → Admin**
+
+MIVA menyerahkan conversation ke admin.
+
+Text kecil: **“Human handover”**
+
+---
+
+**[28–35s]**
+🎙️ **VO:** “Menurutku, AI Customer Service yang bagus bukan yang menggantikan manusia.”
+
+🎬 **Motion:**
+Split screen:
+
+**AI** + **HUMAN**
+
+Bukan salah satu menggantikan yang lain, tapi bekerja bersama.
+
+---
+
+**[35–40s]**
+🎙️ **VO:** “Tapi yang tahu kapan harus berhenti jadi AI.”
+
+🎬 **Motion:**
+MIVA icon → pause → handover ke human.
+
+Text besar sebagai closing:
+
+**“AI yang tahu kapan harus berhenti.”**
+
+Logo **MIVA** muncul di bawah.
+"
+</pasted_content id="f3aa">

@@ -1,0 +1,178 @@
+{
+ "project": "miva-1",
+ "speed": 1.0,
+ "duration": 77.53,
+ "tail": 0,
+ "note": "Kebenaran dasar = jendela grafik buatan skill /reel-edit (marks.json), dipetakan ke 13 jenis komponen kontrak. Waktu dalam detik hasil edit (skill = mapTiming app). primary = jenis pertama yang diterima; optional = jenis tambahan yang boleh ada.",
+ "blocks": [
+  {
+   "n": 1,
+   "title": "HOOK",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 3.19,
+     "end": 6.29
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 2,
+   "title": "POP-UP 1 FASHION",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 3.49,
+     "end": 6.29
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 3,
+   "title": "POP-UP 2 FLORIST",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 6.29,
+     "end": 12.25
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": [
+    "statement"
+   ]
+  },
+  {
+   "n": 4,
+   "title": "TRANSISI MIVA",
+   "items": [],
+   "primary": [],
+   "optional": [],
+   "note": "tanpa grafik di skill (hanya sapuan transisi)"
+  },
+  {
+   "n": 5,
+   "title": "POP-UP 1 FASHION (MIVA)",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 15.33,
+     "end": 19.44
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 6,
+   "title": "POP-UP 2 FLORIST (MIVA)",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 19.44,
+     "end": 24.75
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 7,
+   "title": "REVEAL",
+   "items": [
+    {
+     "kind": "logo",
+     "start": 26.63,
+     "end": 33.66
+    }
+   ],
+   "primary": [
+    "logo"
+   ],
+   "optional": [
+    "toggle",
+    "statement"
+   ]
+  },
+  {
+   "n": 8,
+   "title": "FOLLOW-UP",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 39.33,
+     "end": 45.95
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 9,
+   "title": "HUMAN HANDOVER",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 46.05,
+     "end": 51.2
+    }
+   ],
+   "primary": [
+    "chain",
+    "chat"
+   ],
+   "optional": [
+    "chat"
+   ]
+  },
+  {
+   "n": 10,
+   "title": "FITUR",
+   "items": [
+    {
+     "kind": "chips",
+     "start": 52.89,
+     "end": 66.31
+    }
+   ],
+   "primary": [
+    "chips"
+   ],
+   "optional": []
+  },
+  {
+   "n": 11,
+   "title": "CTA",
+   "items": [
+    {
+     "kind": "endcard",
+     "start": 74.49,
+     "end": 77.53
+    }
+   ],
+   "primary": [
+    "endcard",
+    "chat"
+   ],
+   "optional": [
+    "chat"
+   ]
+  }
+ ]
+}

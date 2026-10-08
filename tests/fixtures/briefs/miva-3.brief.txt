@@ -1,0 +1,197 @@
+@"D:\Documents\Claude Cowork\MIVA\reels\7 okt\3.MP4"
+/reel-edit dengan nama miva_3
+
+<pasted_content id="030b">
+"“Kalau kamu punya bisnis tapi masih harus pegang HP terus buat balas customer…
+
+**[MOTION 01 — HOOK | 2 detik]**
+
+Talking head tetap terlihat.
+
+Di samping/sekitar kamu muncul notification chat bertubi-tubi:
+
+**NEW MESSAGE**
+**NEW MESSAGE**
+**NEW MESSAGE**
+**NEW MESSAGE**
+
+HP bergetar terus.
+
+Tambahkan counter:
+**12 → 27 → 43 unread messages**
+
+Mungkin kamu bukan lagi sibuk ngurus bisnis.
+
+Tapi sibuk ngurusin chat.
+
+**[MOTION 02 — 2 detik]**
+
+Visual split:
+
+Kiri:
+**BUSINESS**
+📦 Sales
+📊 Marketing
+👥 Team
+
+Kanan:
+**CHAT**
+💬💬💬💬💬
+
+Sisi CHAT semakin penuh sampai menutupi sisi BUSINESS.
+
+Setiap hari pertanyaannya itu-itu lagi.
+
+**[MOTION 03 — 3 detik]**
+
+Tampilkan chat bubble satu per satu dengan animasi cepat:
+
+“**Harga berapa?**”
+
+“**Buka jam berapa?**”
+
+“**Bisa booking?**”
+
+Lalu ulangi lagi pertanyaan yang sama.
+
+Buat chat terlihat seperti infinite loop:
+
+**Harga berapa? → Harga berapa? → Harga berapa?**
+
+Dan akhirnya, kamu nggak bisa benar-benar lepas dari HP.
+
+**[MOTION 04 — 2–3 detik]**
+
+Visual tangan memegang HP.
+
+Jam berubah:
+
+**08:12 → 12:47 → 18:36 → 22:51**
+
+Notification tetap masuk.
+
+Kemudian muncul teks:
+
+**“Still replying…”**
+
+Mungkin masalahnya bukan customer kamu terlalu banyak.
+
+**[MOTION 05 — PAUSE | 1.5 detik]**
+
+Semua notification tiba-tiba **freeze**.
+
+Screen menjadi lebih clean.
+
+Tampilkan teks besar:
+
+**“Mungkin bukan customer-nya.”**
+
+Tahan sebentar sebelum punchline berikutnya.
+
+Tapi sistem customer service kamu belum bisa kerja sendiri.
+
+**[MOTION 06 — PUNCHLINE | 2–3 detik]**
+
+Tampilkan:
+
+**CUSTOMER**
+↓
+💬💬💬
+↓
+**YOU**
+↓
+💬💬💬
+↓
+**YOU**
+↓
+💬💬💬
+
+Lalu semuanya berubah menjadi:
+
+**CUSTOMER**
+↓
+💬
+↓
+**MIVA**
+↓
+✓
+
+Tambahkan teks:
+
+### **“Your system should work too.”**
+
+Ini alasan gue bikin MIVA.
+
+**[MOTION 07 — MIVA REVEAL | 2 detik]**
+
+Semua chat bubble tadi ditarik ke tengah dan berubah menjadi logo:
+
+### **MIVA AI**
+
+Subtitle:
+
+**AI CUSTOMER SERVICE**
+
+Supaya pertanyaan yang berulang bisa ditangani otomatis, leads tetap ke-follow up, dan kalau memang butuh manusia, MIVA bisa handover ke admin.
+
+**[MOTION 08 — MIVA WORKFLOW | 4 detik]**
+
+Buat workflow sederhana:
+
+**CUSTOMER**
+↓
+💬 “Harga berapa?”
+
+↓
+**MIVA**
+“Untuk paket A, harganya…”
+
+↓
+
+**LEAD**
+✓ Saved
+
+↓
+
+**FOLLOW-UP**
+✓ Scheduled
+
+Kemudian untuk kasus yang membutuhkan manusia:
+
+**Customer**
+“Pesanan saya bermasalah.”
+
+↓
+
+**MIVA**
+“Aku bantu teruskan ke admin ya.”
+
+↓
+
+**HUMAN ADMIN**
+✓
+
+Jadi kamu bisa fokus ngurus bisnisnya, bukan inbox-nya.
+
+**[MOTION 09 — ENDING | 2 detik]**
+
+Visual berubah dari:
+
+**YOU → 📱 → 💬💬💬**
+
+menjadi:
+
+**YOU → BUSINESS → 📈**
+
+Di bawahnya:
+
+### **Let MIVA handle the inbox.**
+
+Lalu end card:
+
+**MIVA AI**
+*AI Customer Service*
+
+**Chat nomor di BIO**
+"
+</pasted_content id="030b">

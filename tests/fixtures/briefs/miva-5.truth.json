@@ -1,0 +1,135 @@
+{
+ "project": "miva-5",
+ "speed": 1.25,
+ "duration": 21.168,
+ "tail": 3.0,
+ "note": "Kebenaran dasar = jendela grafik buatan skill /reel-edit (marks.json), dipetakan ke 13 jenis komponen kontrak. Waktu dalam detik hasil edit (skill = mapTiming app). primary = jenis pertama yang diterima; optional = jenis tambahan yang boleh ada.",
+ "blocks": [
+  {
+   "n": 1,
+   "title": "0-4s",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 0.05,
+     "end": 2.68
+    },
+    {
+     "kind": "statement",
+     "start": 2.82,
+     "end": 4.92
+    }
+   ],
+   "primary": [
+    "chat",
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 2,
+   "title": "4-8s",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 5.1,
+     "end": 6.612
+    }
+   ],
+   "primary": [
+    "chat",
+    "chips"
+   ],
+   "optional": []
+  },
+  {
+   "n": 3,
+   "title": "8-17s",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 6.792,
+     "end": 10.784
+    }
+   ],
+   "primary": [
+    "chain",
+    "chips",
+    "chat"
+   ],
+   "optional": [
+    "chat"
+   ]
+  },
+  {
+   "n": 4,
+   "title": "17-23s",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 10.864,
+     "end": 13.828
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 5,
+   "title": "23-28s",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 13.828,
+     "end": 15.916
+    }
+   ],
+   "primary": [
+    "chain"
+   ],
+   "optional": []
+  },
+  {
+   "n": 6,
+   "title": "28-35s",
+   "items": [
+    {
+     "kind": "split",
+     "start": 16.312,
+     "end": 20.056
+    }
+   ],
+   "primary": [
+    "split",
+    "toggle"
+   ],
+   "optional": [
+    "toggle"
+   ]
+  },
+  {
+   "n": 7,
+   "title": "35-40s",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 20.056,
+     "end": 21.578
+    },
+    {
+     "kind": "endcard",
+     "start": 21.578,
+     "end": 24.168
+    }
+   ],
+   "primary": [
+    "chain",
+    "endcard",
+    "statement"
+   ],
+   "optional": []
+  }
+ ]
+}

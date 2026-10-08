@@ -1,0 +1,102 @@
+@"D:\Documents\Claude Cowork\MIVA\reels\7 okt\4.MP4"
+/reel-edit dengan nama miva_4
+
+<pasted_content id="07ab">
+"**[0–3s]**
+🎙️ **VO:** “Customer kamu nggak peduli kalau jam kerja kamu udah selesai.”
+
+🎬 **Motion:**
+Tampilan WhatsApp → jam kerja muncul **09.00–17.00** → lalu jam berubah jadi **23.00**.
+Text besar: **“Customer tetap bisa chat.”**
+
+---
+
+**[3–7s]**
+🎙️ **VO:** “Mereka bisa chat jam 11 malam. Jam 1 pagi. Bahkan hari Minggu.”
+
+🎬 **Motion:**
+Jam berubah cepat:
+**23:00 → 01:00 → SUNDAY**
+Muncul beberapa notification WhatsApp masuk.
+
+---
+
+**[7–11s]**
+🎙️ **VO:** “Dan masalahnya, kalau baru dibalas besok… bisa jadi mereka udah cari alternatif lain.”
+
+🎬 **Motion:**
+Chat masuk → status **“No reply”** → customer chat ke bisnis lain.
+Text: **“Too late?”**
+
+---
+
+**[11–16s]**
+🎙️ **VO:** “Aku sendiri nggak mungkin nyaranin owner buat standby di WhatsApp 24/7.”
+
+🎬 **Motion:**
+Visual owner pegang HP tengah malam → notifikasi terus masuk → ekspresi capek.
+Cross-out pada teks: **“Standby 24/7”**
+
+---
+
+**[16–19s]**
+🎙️ **VO:** “Makanya aku bikin MIVA.”
+
+🎬 **Motion:**
+Logo/text **MIVA** muncul clean.
+Subtext: **AI WhatsApp Assistant**
+
+---
+
+**[19–27s]**
+🎙️ **VO:** “MIVA bisa bantu balas chat WhatsApp bisnis 24/7, follow-up customer, dan handle pertanyaan yang masuk.”
+
+🎬 **Motion:**
+3 fitur muncul satu per satu:
+
+* **24/7 Reply**
+* **Follow-up**
+* **Handle Questions**
+
+Diselingi mockup chat WhatsApp MIVA membalas customer.
+
+---
+
+**[27–31s]**
+🎙️ **VO:** “Jadi saat kamu lagi tidur, MIVA tetap bisa bantu handle chat yang masuk.”
+
+🎬 **Motion:**
+Split screen:
+**OWNER 😴** | **MIVA 💬**
+Notification masuk → MIVA membalas.
+
+---
+
+**[31–36s]**
+🎙️ **VO:** “Dan kalau percakapannya memang butuh manusia, MIVA bisa handover ke admin.”
+
+🎬 **Motion:**
+Chat MIVA → icon **Human Admin** → panah berpindah ke admin.
+Text: **“AI → Human when needed”**
+
+---
+
+**[36–41s]**
+🎙️ **VO:** “Karena menurutku, customer nggak harus nunggu kamu online cuma untuk dapat respons.”
+
+🎬 **Motion:**
+Customer mengirim chat → **MIVA responds** → owner tetap offline/istirahat.
+
+Text besar:
+**“Customer nggak harus nunggu kamu online.”**
+
+---
+
+**[41–45s]**
+🎙️ **VO:** “Kalau kamu mau coba MIVA buat bisnis kamu, chat nomor di BIO.”
+
+🎬 **Motion:**
+Logo MIVA + WhatsApp icon + **“CHAT NOMOR DI BIO”**
+Tambahkan animasi cursor/tap ke area BIO.
+"
+</pasted_content id="07ab">

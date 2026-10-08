@@ -1,0 +1,192 @@
+{
+ "project": "miva-4",
+ "speed": 1.25,
+ "duration": 32.424,
+ "tail": 2.6,
+ "note": "Kebenaran dasar = jendela grafik buatan skill /reel-edit (marks.json), dipetakan ke 13 jenis komponen kontrak. Waktu dalam detik hasil edit (skill = mapTiming app). primary = jenis pertama yang diterima; optional = jenis tambahan yang boleh ada.",
+ "blocks": [
+  {
+   "n": 1,
+   "title": "0-3s",
+   "items": [
+    {
+     "kind": "statement",
+     "start": 0.068,
+     "end": 2.928
+    }
+   ],
+   "primary": [
+    "statement",
+    "phone"
+   ],
+   "optional": [
+    "phone"
+   ]
+  },
+  {
+   "n": 2,
+   "title": "3-7s",
+   "items": [
+    {
+     "kind": "phone",
+     "start": 2.928,
+     "end": 6.412
+    }
+   ],
+   "primary": [
+    "phone"
+   ],
+   "optional": []
+  },
+  {
+   "n": 3,
+   "title": "7-11s",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 6.512,
+     "end": 10.192
+    },
+    {
+     "kind": "statement",
+     "start": 9.51,
+     "end": 10.192
+    }
+   ],
+   "primary": [
+    "chat",
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 4,
+   "title": "11-16s",
+   "items": [
+    {
+     "kind": "toasts",
+     "start": 10.332,
+     "end": 13.582
+    },
+    {
+     "kind": "statement",
+     "start": 11.628,
+     "end": 13.582
+    }
+   ],
+   "primary": [
+    "toasts",
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 5,
+   "title": "16-19s",
+   "items": [
+    {
+     "kind": "logo",
+     "start": 13.782,
+     "end": 14.936
+    }
+   ],
+   "primary": [
+    "logo"
+   ],
+   "optional": []
+  },
+  {
+   "n": 6,
+   "title": "19-27s",
+   "items": [
+    {
+     "kind": "chips",
+     "start": 14.956,
+     "end": 19.894
+    }
+   ],
+   "primary": [
+    "chips",
+    "chat"
+   ],
+   "optional": [
+    "chat"
+   ]
+  },
+  {
+   "n": 7,
+   "title": "27-31s",
+   "items": [
+    {
+     "kind": "split",
+     "start": 20.094,
+     "end": 22.726
+    }
+   ],
+   "primary": [
+    "split"
+   ],
+   "optional": []
+  },
+  {
+   "n": 8,
+   "title": "31-36s",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 23.096,
+     "end": 26.498
+    }
+   ],
+   "primary": [
+    "chain",
+    "statement"
+   ],
+   "optional": [
+    "statement"
+   ]
+  },
+  {
+   "n": 9,
+   "title": "36-41s",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 26.648,
+     "end": 29.48
+    },
+    {
+     "kind": "statement",
+     "start": 28.148,
+     "end": 29.48
+    }
+   ],
+   "primary": [
+    "chain",
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 10,
+   "title": "41-45s",
+   "items": [
+    {
+     "kind": "cta",
+     "start": 29.6,
+     "end": 32.466
+    },
+    {
+     "kind": "endcard",
+     "start": 32.466,
+     "end": 35.024
+    }
+   ],
+   "primary": [
+    "cta",
+    "endcard"
+   ],
+   "optional": []
+  }
+ ]
+}

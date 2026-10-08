@@ -1,0 +1,102 @@
+@"D:\Documents\Claude Cowork\MIVA\reels\7 okt\6.MP4"
+/reel-edit dengan nama miva_6
+
+<pasted_content id="3320">
+"**[0–3s]**
+🎙️ **VO:** “Chat WhatsApp bisnis kamu makin ramai? Jangan senang dulu.”
+
+🎬 **Motion:**
+Notifikasi WhatsApp masuk bertubi-tubi.
+Counter naik: **10 → 50 → 100+ chat**
+
+Lalu tiba-tiba **freeze**.
+
+Text besar: **“Tapi…”**
+
+---
+
+**[3–10s]**
+🎙️ **VO:**
+“Pertanyaannya…
+Berapa yang cuma nanya?
+Berapa yang jadi lead?
+Datangnya dari mana?”
+
+🎬 **Motion:**
+Chat-chat tadi dipecah menjadi beberapa kategori:
+
+**❓ Tanya** | **🔥 Lead** | **📍 Source**
+
+Angka bergerak seperti dashboard sederhana.
+
+---
+
+**[10–14s]**
+🎙️ **VO:** “Dan berapa yang akhirnya nggak pernah dibalas lagi?”
+
+🎬 **Motion:**
+Satu chat masuk → status **“Unanswered”** → perlahan tenggelam di antara chat lainnya.
+
+---
+
+**[14–19s]**
+🎙️ **VO:** “Karena chat yang banyak tanpa sistem juga bisa berarti banyak lead yang bocor.”
+
+🎬 **Motion:**
+Visual funnel:
+
+**100 Chat → ??? Lead → ??? Customer**
+
+Beberapa titik chat jatuh keluar funnel.
+
+Text: **“Lead bocor.”**
+
+---
+
+**[19–22s]**
+🎙️ **VO:** “Makanya MIVA bukan cuma balas chat.”
+
+🎬 **Motion:**
+Logo **MIVA** muncul → dashboard terbuka.
+
+---
+
+**[22–29s]**
+🎙️ **VO:**
+“Lead dicatat.
+Sumber traffic bisa dilacak.
+Dan follow-up bisa dilakukan otomatis.”
+
+🎬 **Motion:**
+Tiga card muncul satu per satu:
+
+**📋 Lead Recorded**
+**📍 Traffic Source**
+**🔄 Auto Follow-up**
+
+Gunakan mockup dashboard/chat supaya terasa seperti fitur nyata, bukan sekadar icon animation.
+
+---
+
+**[29–36s]**
+🎙️ **VO:** “Jadi bukan cuma tahu berapa banyak yang chat.”
+
+🎬 **Motion:**
+Counter **“100 Chats”** muncul, lalu zoom out menjadi dashboard.
+
+Text: **“Beyond chat volume.”**
+
+---
+
+**[36–41s]**
+🎙️ **VO:** “Tapi tahu apa yang terjadi setelah mereka chat.”
+
+🎬 **Motion:**
+Alur visual:
+
+**Chat → Lead → Source → Follow-up → Outcome**
+
+End frame: **MIVA** + CTA kecil
+**“Chat nomor di BIO.”**
+"
+</pasted_content id="3320">

@@ -1,0 +1,156 @@
+{
+ "project": "miva-3",
+ "speed": 1.25,
+ "duration": 29.16,
+ "tail": 2.6,
+ "note": "Kebenaran dasar = jendela grafik buatan skill /reel-edit (marks.json), dipetakan ke 13 jenis komponen kontrak. Waktu dalam detik hasil edit (skill = mapTiming app). primary = jenis pertama yang diterima; optional = jenis tambahan yang boleh ada.",
+ "blocks": [
+  {
+   "n": 1,
+   "title": "HOOK",
+   "items": [
+    {
+     "kind": "counter",
+     "start": 0.068,
+     "end": 3.356
+    },
+    {
+     "kind": "toasts",
+     "start": 0.496,
+     "end": 3.356
+    }
+   ],
+   "primary": [
+    "counter",
+    "toasts"
+   ],
+   "optional": []
+  },
+  {
+   "n": 2,
+   "title": "",
+   "items": [
+    {
+     "kind": "split",
+     "start": 3.806,
+     "end": 8.468
+    }
+   ],
+   "primary": [
+    "split"
+   ],
+   "optional": []
+  },
+  {
+   "n": 3,
+   "title": "",
+   "items": [
+    {
+     "kind": "bubbles",
+     "start": 8.658,
+     "end": 11.652
+    }
+   ],
+   "primary": [
+    "bubbles"
+   ],
+   "optional": []
+  },
+  {
+   "n": 4,
+   "title": "",
+   "items": [
+    {
+     "kind": "phone",
+     "start": 11.772,
+     "end": 14.244
+    }
+   ],
+   "primary": [
+    "phone"
+   ],
+   "optional": []
+  },
+  {
+   "n": 5,
+   "title": "PAUSE",
+   "items": [
+    {
+     "kind": "statement",
+     "start": 14.244,
+     "end": 15.992
+    }
+   ],
+   "primary": [
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 6,
+   "title": "PUNCHLINE",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 16.112,
+     "end": 18.812
+    }
+   ],
+   "primary": [
+    "chain"
+   ],
+   "optional": []
+  },
+  {
+   "n": 7,
+   "title": "MIVA REVEAL",
+   "items": [
+    {
+     "kind": "logo",
+     "start": 18.852,
+     "end": 20.722
+    }
+   ],
+   "primary": [
+    "logo"
+   ],
+   "optional": []
+  },
+  {
+   "n": 8,
+   "title": "MIVA WORKFLOW",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 20.772,
+     "end": 26.832
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 9,
+   "title": "ENDING",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 27.112,
+     "end": 29.646
+    },
+    {
+     "kind": "endcard",
+     "start": 29.646,
+     "end": 31.76
+    }
+   ],
+   "primary": [
+    "chain",
+    "endcard"
+   ],
+   "optional": []
+  }
+ ]
+}

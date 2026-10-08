@@ -1,0 +1,163 @@
+@"D:\Documents\Claude Cowork\MIVA\reels\miva 1\miva_1.MOV"
+/reel-edit 
+hasil akhir tolong kirim ke whatsapp steven 
+dan masukan ke dalam folder 
+D:\Documents\Claude Cowork\MIVA\reels\miva 1\result
+berikut adalah lengkap script dan graphic motion serta visualisasi teks untuk video tersebut
+
+<pasted_content id="bd73">
+"### HOOK
+
+**VO:**
+“Kalian pasti males kalau dibales sama AI chatbot yang kayak gini.”
+
+**Visual:** Pop-up chat muncul satu per satu.
+
+---
+
+### POP-UP 1 — INDUSTRI FASHION / BAJU
+
+**Calon Pembeli:**
+“Kak, baju ini ukuran L masih ready enggak?”
+
+**Bisnis Owner:**
+“Halo Kak, terima kasih sudah bertanya mengenai ketersediaan stok baju ukuran L kami yang merupakan salah satu produk terlaris, dan untuk menjawab pertanyaan kakak apakah ukuran L masih ready, sebenarnya jawabannya adalah masih ada karena kami baru saja restock minggu lalu.”
+
+**VO:**
+“Pertanyaannya cuma satu kalimat…”
+
+**Beat**
+
+“Jawabannya satu paragraf.”
+
+---
+
+### POP-UP 2 — INDUSTRI FLORIST / BUKET BUNGA
+
+**Calon Klien:**
+“Halo, kalau pesan buket bunga custom untuk wisuda besok lusa bisa keburu enggak ya?”
+
+**Bisnis Owner:**
+“Selamat pagi Kak, terima kasih sudah mempercayakan momen wisuda spesialnya kepada florist kami, dan untuk menjawab pertanyaan apakah pesanan buket bunga custom dengan waktu pengerjaan besok lusa bisa selesai atau tidak, tentu saja bisa kami sanggupi karena tim perangkai kami siap lembur demi memastikan hari wisuda Kakak berjalan sempurna tanpa ada kendala sama sekali.”
+
+**VO:**
+“Padahal customer cuma nanya…”
+
+**Text:**
+**“Bisa atau nggak?”**
+
+---
+
+### TRANSISI — MIVA
+
+**VO:**
+“Tapi gimana kalau dia bisa bales kayak gini?”
+
+---
+
+### POP-UP 1 — FASHION / BAJU
+
+**Calon Pembeli:**
+“Kak, baju ini ukuran L masih ready enggak?”
+
+**MIVA:**
+“Ready, Kak! Ukuran L masih lengkap semua warna. Mau langsung dicheckout?”
+
+---
+
+### POP-UP 2 — FLORIST / BUKET BUNGA
+
+**Calon Klien:**
+“Halo, kalau pesan buket bunga custom untuk wisuda besok lusa bisa keburu enggak ya?”
+
+**MIVA:**
+“Bisa banget, Kak! Besok lusa masih terkejar kok. Mau pilih model buket yang seperti apa?”
+
+---
+
+### REVEAL
+
+**VO:**
+“Tadi adalah contoh jawaban yang MIVA AI berikan buat calon customer.”
+
+“Dia bisa jawab natural, kayak manusia biasa lagi ngobrol.”
+
+“Dia nggak kaku dan santai.”
+
+**Text kecil:**
+“Dan kalau bisnis kamu butuh lebih formal, gaya komunikasinya juga bisa disesuaikan.”
+
+---
+
+### FOLLOW-UP — BUKAN SEKADAR TEMPLATE
+
+**VO:**
+“Dan bukan cuma jawab chat.”
+
+“MIVA juga bisa follow-up sesuai konteks chat yang berlangsung dengan calon pembeli.”
+
+**POP-UP 1 — FASHION**
+
+**Penjual:**
+“Halo Kak, gimana jadi ambil yang ukuran L? Mumpung warnanya yang Kakak tanyain kemarin masih lengkap, takutnya nanti keduluan yang lain soalnya tinggal sisa beberapa pcs aja nih.”
+
+---
+
+**POP-UP 2 — FLORIST**
+
+**Penjual:**
+“Halo Kak, selamat pagi! Kelupaan ngabarin, kalau jadi pesan buket wisudanya untuk lusa, slot slot tim perangkai kita hari ini harus segera diconfirm ya Kak supaya bisa langsung masuk antrean pertama. Mau pakai referensi foto yang mana Kak?”
+
+**VO:**
+“Jadi bukan sekadar template yang dikirim ke semua customer.”
+
+---
+
+### HUMAN HANDOVER
+
+**VO:**
+“Dan kalau percakapannya sudah butuh manusia…”
+
+**Visual:** AI → Human Handover
+
+“MIVA bisa handover ke manusia.”
+
+“MIVA bantu handle chat-nya, tapi manusia tetap pegang kendali ketika memang dibutuhkan.”
+
+---
+
+### FITUR
+
+**VO:**
+“Dan MIVA punya fitur lainnya.”
+
+**Visual — motion graphic satu per satu:**
+
+* **Handle chat 24/7**
+* **Catat order / booking**
+* **Hafal produk kita**
+* **Follow-up**
+* **Custom brand persona**
+* **Kirim foto / video**
+* **Baca foto**
+* **Human handover**
+* **Multi bahasa**
+* **Lapor insight**
+
+---
+
+### CTA
+
+**VO:**
+“Kalau kamu tertarik…”
+
+“Chat aja nomor di BIO buat coba ngobrol sama MIVA versi aku.”
+
+“Dan nanti MIVA akan buatin penawaran yang disesuaikan buat bisnis kamu.”
+
+**END CARD:**
+
+**MIVA AI**
+*AI Customer Service WhatsApp untuk bisnismu*
+"
+</pasted_content id="bd73">

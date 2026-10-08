@@ -1,0 +1,168 @@
+{
+ "project": "miva-6",
+ "speed": 1.25,
+ "duration": 24.096,
+ "tail": 3.5,
+ "note": "Kebenaran dasar = jendela grafik buatan skill /reel-edit (marks.json), dipetakan ke 13 jenis komponen kontrak. Waktu dalam detik hasil edit (skill = mapTiming app). primary = jenis pertama yang diterima; optional = jenis tambahan yang boleh ada.",
+ "blocks": [
+  {
+   "n": 1,
+   "title": "0-3s",
+   "items": [
+    {
+     "kind": "counter",
+     "start": 0.068,
+     "end": 2.848
+    },
+    {
+     "kind": "toasts",
+     "start": 0.268,
+     "end": 2.848
+    },
+    {
+     "kind": "statement",
+     "start": 2.068,
+     "end": 2.848
+    }
+   ],
+   "primary": [
+    "counter",
+    "toasts",
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 2,
+   "title": "3-10s",
+   "items": [
+    {
+     "kind": "chips",
+     "start": 3.462,
+     "end": 6.976
+    }
+   ],
+   "primary": [
+    "chips",
+    "counter"
+   ],
+   "optional": [
+    "counter"
+   ]
+  },
+  {
+   "n": 3,
+   "title": "10-14s",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 7.206,
+     "end": 9.368
+    }
+   ],
+   "primary": [
+    "chat",
+    "bubbles"
+   ],
+   "optional": [
+    "bubbles"
+   ]
+  },
+  {
+   "n": 4,
+   "title": "14-19s",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 9.408,
+     "end": 11.67
+    },
+    {
+     "kind": "statement",
+     "start": 10.816,
+     "end": 11.67
+    }
+   ],
+   "primary": [
+    "chain",
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 5,
+   "title": "19-22s",
+   "items": [
+    {
+     "kind": "logo",
+     "start": 12.718,
+     "end": 14.344
+    }
+   ],
+   "primary": [
+    "logo"
+   ],
+   "optional": []
+  },
+  {
+   "n": 6,
+   "title": "22-29s",
+   "items": [
+    {
+     "kind": "chips",
+     "start": 14.364,
+     "end": 19.848
+    }
+   ],
+   "primary": [
+    "chips",
+    "chat"
+   ],
+   "optional": [
+    "chat"
+   ]
+  },
+  {
+   "n": 7,
+   "title": "29-36s",
+   "items": [
+    {
+     "kind": "counter",
+     "start": 20.196,
+     "end": 22.292
+    },
+    {
+     "kind": "statement",
+     "start": 21.488,
+     "end": 22.292
+    }
+   ],
+   "primary": [
+    "counter",
+    "statement"
+   ],
+   "optional": []
+  },
+  {
+   "n": 8,
+   "title": "36-41s",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 22.536,
+     "end": 24.232
+    },
+    {
+     "kind": "endcard",
+     "start": 25.032,
+     "end": 27.596
+    }
+   ],
+   "primary": [
+    "chain",
+    "endcard"
+   ],
+   "optional": []
+  }
+ ]
+}

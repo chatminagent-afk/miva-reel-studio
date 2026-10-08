@@ -1,0 +1,210 @@
+{
+ "project": "miva-2",
+ "speed": 1.25,
+ "duration": 46.248,
+ "tail": 1.6,
+ "note": "Kebenaran dasar = jendela grafik buatan skill /reel-edit (marks.json), dipetakan ke 13 jenis komponen kontrak. Waktu dalam detik hasil edit (skill = mapTiming app). primary = jenis pertama yang diterima; optional = jenis tambahan yang boleh ada.",
+ "blocks": [
+  {
+   "n": 1,
+   "title": "HOOK",
+   "items": [
+    {
+     "kind": "statement",
+     "start": 0.528,
+     "end": 5.806
+    },
+    {
+     "kind": "logo",
+     "start": 5.806,
+     "end": 8.532
+    }
+   ],
+   "primary": [
+    "statement",
+    "logo"
+   ],
+   "optional": []
+  },
+  {
+   "n": 2,
+   "title": "CUSTOMER CHAT",
+   "items": [
+    {
+     "kind": "bubbles",
+     "start": 9.55,
+     "end": 11.916
+    },
+    {
+     "kind": "counter",
+     "start": 9.55,
+     "end": 11.916
+    }
+   ],
+   "primary": [
+    "bubbles",
+    "counter"
+   ],
+   "optional": []
+  },
+  {
+   "n": 3,
+   "title": "TRUST",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 12.136,
+     "end": 16.894
+    },
+    {
+     "kind": "counter",
+     "start": 12.136,
+     "end": 16.894
+    }
+   ],
+   "primary": [
+    "chain",
+    "counter"
+   ],
+   "optional": []
+  },
+  {
+   "n": 4,
+   "title": "24/7",
+   "items": [
+    {
+     "kind": "toasts",
+     "start": 17.592,
+     "end": 22.09
+    }
+   ],
+   "primary": [
+    "toasts"
+   ],
+   "optional": [
+    "statement"
+   ]
+  },
+  {
+   "n": 5,
+   "title": "ROBOT VS NATURAL",
+   "items": [
+    {
+     "kind": "split",
+     "start": 22.12,
+     "end": 23.838
+    },
+    {
+     "kind": "chat",
+     "start": 23.908,
+     "end": 25.5
+    }
+   ],
+   "primary": [
+    "split",
+    "chat"
+   ],
+   "optional": []
+  },
+  {
+   "n": 6,
+   "title": "MIVA WORKFLOW",
+   "items": [
+    {
+     "kind": "chain",
+     "start": 25.922,
+     "end": 30.442
+    }
+   ],
+   "primary": [
+    "chain"
+   ],
+   "optional": []
+  },
+  {
+   "n": 7,
+   "title": "AI HUMAN",
+   "items": [
+    {
+     "kind": "toggle",
+     "start": 30.642,
+     "end": 31.8
+    }
+   ],
+   "primary": [
+    "toggle"
+   ],
+   "optional": []
+  },
+  {
+   "n": 8,
+   "title": "HUMAN HANDOVER",
+   "items": [
+    {
+     "kind": "chat",
+     "start": 31.84,
+     "end": 35.294
+    }
+   ],
+   "primary": [
+    "chat"
+   ],
+   "optional": [
+    "chain"
+   ]
+  },
+  {
+   "n": 9,
+   "title": "BUSINESS OUTCOME",
+   "items": [
+    {
+     "kind": "counter",
+     "start": 37.078,
+     "end": 40.992
+    },
+    {
+     "kind": "chips",
+     "start": 38.538,
+     "end": 40.992
+    }
+   ],
+   "primary": [
+    "counter",
+    "chips"
+   ],
+   "optional": []
+  },
+  {
+   "n": 10,
+   "title": "CTA",
+   "items": [
+    {
+     "kind": "cta",
+     "start": 41.232,
+     "end": 46.152
+    }
+   ],
+   "primary": [
+    "cta"
+   ],
+   "optional": [
+    "statement"
+   ]
+  },
+  {
+   "n": 11,
+   "title": "END CARD",
+   "items": [
+    {
+     "kind": "endcard",
+     "start": 46.152,
+     "end": 47.848
+    }
+   ],
+   "primary": [
+    "endcard"
+   ],
+   "optional": []
+  }
+ ]
+}
