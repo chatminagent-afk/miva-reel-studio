@@ -38,6 +38,11 @@ Pipeline diturunkan dari skill `/reel-edit` dan `/miva-motion` (sumber: repo `cl
 | 2026-10-07 | Model dan FFmpeg dipin dari run CI pertama: FFmpeg 8.0 essentials (sha256 647e467c…), large-v3-turbo revisi `0a363e91` | Fail closed: unduhan dengan hash berbeda ditolak |
 | 2026-10-07 | Pustaka SFX bawaan **sintetis** (`resources/sfx-default`, 12 bunyi) sampai pustaka asli Steven ada di `resources/sfx/` | Export butuh SFX; pustaka asli belum di repo |
 | 2026-10-07 | URL proxy preview **berversi** (`?v=` folder + waktu ubah + ukuran) dan protokol `reel://` menjawab Range **per potongan 4 MB** lalu menutup file | Bug UAT manual Steven 07/10: cache media Chromium memutar proxy proyek lain/sebelum ganti Grade untuk URL yang sama; stream yang terbuka mengunci file di Windows |
+| 2026-10-08 | **Bug export `spawn ENAMETOOLONG`** (UAT Steven, 3.MP4): graph FFmpeg kamera 33.063 karakter, command line 33.855 > batas Windows 32.766 (24 langkah kamera; tes2 19 langkah lolos). Fix: graph ditulis ke file dan dibaca `-/filter_complex <file>` (FFmpeg >= 7), panjang dicek sebelum render overlay | Reproduksi dengan data proyek asli; flag diuji di FFmpeg 8.0 bundel, output identik |
+| 2026-10-08 | **Motion graphic = pustaka komponen parametrik gaya MIVA** (13 jenis, kontrak `src/core/motion/types.ts`), diporting dari overlay skill miva-1..6; waktu ditambat ke indeks kata mentah | Hasil app jauh dari `/reel-edit` (miva-3: 10 motion buatan tangan); katalog 7 video: 10 jenis teratas menutup ±80-85% motion |
+| 2026-10-08 | **Tab Motion + field Motion brief** (format sama dengan skill: naskah + blok `[MOTION NN - JUDUL \| durasi]`), diterjemahkan **Rules offline saja** (tanpa Claude API/CLI) | Pilihan Steven 08/10. Gratis + offline; konsekuensi: hasil lebih kasar, lebih banyak edit manual di UI |
+| 2026-10-08 | Visual di luar pustaka -> **komponen terdekat + ditandai "review"** (bukan kode custom) | Pilihan Steven 08/10. Render tetap aman dan bisa diedit lewat field |
+| 2026-10-08 | Fix export + motion **dirilis bersama dalam satu build** | Pilihan Steven 08/10 |
 | 2026-10-06 | Engine transkripsi **faster-whisper large-v3-turbo (CUDA fp16, fallback CPU int8)** | Benchmark di laptop Steven: WER 2,8%, satu-satunya yang akurat sekaligus memberi celah kata untuk potong hening; whisper.cpp gugur (`docs/2026-10-06-whisper-benchmark.md`) |
 
 ## Lingkup fitur versi 1
@@ -91,6 +96,9 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 | Whip di export cepat | Terjemahkan blur kamera ke FFmpeg (`gblur` per frame) + verifikasi PSNR | Proyek dengan whip ditolak export cepat (pesan jelas); butuh jalur render penuh sebelum fitur whip dibuka di UI (langkah 6d) |
 | Folder proyek + export default di laptop Steven (sekarang Documents = `C:\Users\Steven\OneDrive\ドキュメント\MIVA Reel Studio`, app di `D:\MIVA Reel Studio`). Usulan 07/10: `D:\Video\MIVA Reel Studio\Projects` + `\Exports`, menunggu jawaban Steven | Footage, proxy, dan export (±50+ MB per reel) tidak ikut ter-upload OneDrive; hemat kuota dan bandwidth | Tiap proyek ikut sinkron ke OneDrive. Path berhuruf Jepang sudah diuji aman (07/10). Bisa diubah sendiri di Settings |
 | Tes e2e editor (`tests/e2e/editor.e2e.ts`, `export.e2e.ts`) di Windows | Ubah deteksi Chrome/Python tes ke win64 (sekarang khusus Linux) | Alur editor lewat UI hanya teruji di sesi cloud Linux; di Windows tercakup sebagian oleh `uat.e2e.ts` + pre-check `tes2` |
+| Mode Claude (API/CLI) untuk menerjemahkan brief motion | Interpretasi brief jauh lebih pintar, mendekati skill. Biaya API per generate Opus 5.5 ±$0,11-0,19 / Sonnet 5.5 ±$0,06-0,10 (±$2-6/bln untuk 30 reel), butuh internet | Rules offline saja (pilihan 08/10): blok yang tidak dikenali jatuh ke komponen terdekat + tanda review |
+| Kode motion custom dari Claude (di luar pustaka) | Paling mirip skill | Tidak bisa diedit lewat field, risiko render; komponen terdekat dipakai |
+| Kamera: rantai `if()` FFmpeg gagal parse di ±90-100 langkah (reel ±3 menit) | Ubah jadi pohon seimbang | Reels < 90 dtk aman |
 | Teks & stiker manual + preset gaya subtitle lain | Menambah tools, UI lebih ramai | Hanya gaya subtitle MIVA |
 
 ## Risiko teknis yang sudah diketahui
