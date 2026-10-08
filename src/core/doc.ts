@@ -2,6 +2,8 @@
 import { draftCaptions } from './captions';
 import { keptWordIndices } from './edit';
 import type { KeywordMark, Retake } from './suggest';
+import type { MotionItem } from './motion/types';
+import type { BriefReport } from './motion/resolve';
 import { mapTiming, SPEED_DEFAULT } from './timing';
 import type { CaptionsJson, Chunk, EditJson, RawWord, TimingJson } from './types';
 
@@ -27,6 +29,12 @@ export interface ProjectState {
   keywordMode: 'rules' | 'llm' | 'claude' | 'manual';
   /** indeks kata pertama tiap segmen Whisper (awal kalimat; dipakai saran kata kunci) */
   segStarts?: number[];
+  /** motion graphic (app-only; overlay.* tulisan tangan skill tetap dipakai dan digabung sesudahnya) */
+  motion?: MotionItem[];
+  /** teks Motion brief terakhir (naskah + blok `[MOTION NN - JUDUL | durasi]`) */
+  motionBrief?: string;
+  /** laporan penerjemah brief terakhir (peringatan per blok, kebutuhan tail) untuk UI */
+  motionReport?: BriefReport;
 }
 
 export interface ProjectDoc {

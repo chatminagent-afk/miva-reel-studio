@@ -18,15 +18,19 @@ export function isOff(c: Pick<SfxCue, 'kat' | 't'>, off: SfxOff[]): boolean {
   return off.some((o) => o.kat === c.kat && near(o.t, c.t));
 }
 
-/** Buang cue otomatis yang dimatikan pengguna (dipakai export dan preview). */
+/**
+ * Buang cue otomatis yang dimatikan pengguna (dipakai export dan preview). SFX motion graphic (`m: 1`) TIDAK ikut dibuang:
+ * `sfx_off` mengenali cue lewat (kategori, waktu) SFX otomatis subtitle, sedangkan bunyi motion adalah bagian dari grafiknya
+ * (ketik/klik/whoosh yang menyertai animasi). Untuk membisukannya hapus/ubah item motion-nya.
+ */
 export function applySfxOff(cues: CuesJson, edit: EditJson): CuesJson {
   const off = sfxOff(edit);
-  return off.length ? { ...cues, sfx: cues.sfx.filter((c) => !isOff(c, off)) } : cues;
+  return off.length ? { ...cues, sfx: cues.sfx.filter((c) => c.m === 1 || !isOff(c, off)) } : cues;
 }
 
 /** Indeks entri edit.sfx yang menghasilkan cue ini (SFX manual, selalu ber-id di app), atau -1 kalau otomatis. */
 export function manualMatch(c: SfxCue, edit: EditJson, features: Record<string, { dur: number; peak_at: number }>): number {
-  if (c.prio < 3) return -1;
+  if (c.prio < 3 || c.m === 1) return -1;
   return (edit.sfx ?? []).findIndex((m) => {
     if (!m.id || m.id !== c.id) return false;
     const shift = m.align && features[m.id] ? features[m.id].peak_at * features[m.id].dur : 0;

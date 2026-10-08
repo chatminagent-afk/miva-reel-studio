@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { buildBaseCommands } from './base';
 import { ffmpegPath, graphToFile } from './ffmpeg';
 import { runProcess } from './proc';
+import { tailOf } from './timing';
 import type { EditJson } from './types';
 
 export function baseKey(edit: EditJson): string {
@@ -16,7 +17,9 @@ export function baseKey(edit: EditJson): string {
   } catch {
     /* footage hilang: kunci tetap dihitung, build akan gagal dengan pesan ffmpeg */
   }
-  return JSON.stringify({ src: edit.src, ...src, segs: edit.segs, speed: edit.speed ?? 1.25, grade: edit.grade ?? 'natural' });
+  // tail hanya masuk kunci kalau > 0: kunci proyek lama (tanpa tail) tidak berubah, base-nya tidak dibangun ulang
+  const tail = tailOf(edit);
+  return JSON.stringify({ src: edit.src, ...src, segs: edit.segs, speed: edit.speed ?? 1.25, grade: edit.grade ?? 'natural', ...(tail ? { tail } : {}) });
 }
 
 export async function baseIsFresh(proj: string, edit: EditJson): Promise<boolean> {
@@ -33,7 +36,7 @@ export async function ensureBase(proj: string, edit: EditJson, o: { signal?: Abo
   if (!edit.segs.length) throw new Error('Semua bagian video dipotong: tidak ada yang bisa di-export');
   await mkdir(join(proj, 'assets'), { recursive: true });
   const [encode, video, audio] = buildBaseCommands(edit, proj);
-  const out = edit.segs.reduce((a, [x, y]) => a + (y - x), 0) / Number(edit.speed ?? 1.25);
+  const out = edit.segs.reduce((a, [x, y]) => a + (y - x), 0) / Number(edit.speed ?? 1.25) + tailOf(edit);
   const graphFile = join(proj, 'assets', '_base-graph.txt'); // graf potong+gabung tumbuh ±161 karakter per potongan
   try {
     const encodeArgs = await graphToFile(['-v', 'error', '-y', '-nostats', '-progress', 'pipe:1', ...encode], graphFile);

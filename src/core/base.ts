@@ -9,7 +9,7 @@ import { mkdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ffmpeg } from './ffmpeg';
 import { pyFixed, pyFloatStr } from './py';
-import { mapTiming, SPEED_DEFAULT, type TimingResult } from './timing';
+import { mapTiming, SPEED_DEFAULT, tailOf, type TimingResult } from './timing';
 import type { EditJson, RawWord } from './types';
 
 export { mapTiming, SPEED_DEFAULT, type TimingResult };
@@ -55,12 +55,16 @@ export function buildBaseFilter(edit: EditJson): string {
   const sp = pyFloatStr(speed);
   const sv = speed !== 1 ? `setpts=PTS/${sp},` : '';
   const sa = speed !== 1 ? `atempo=${sp},` : '';
+  // tail: freeze frame terakhir + hening sesudah kata terakhir (ruang end card); persis build_base.py
+  const tail = tailOf(edit);
+  const vt = tail ? `,tpad=stop_mode=clone:stop_duration=${pyFloatStr(tail)}` : '';
+  const at = tail ? `,apad=pad_dur=${pyFloatStr(tail)}` : '';
   return (
     parts.join('') +
     `${labels}concat=n=${edit.segs.length}:v=1:a=1[vc][ac];` +
-    `[vc]${sv}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,${grade},format=yuv420p[vo];` +
+    `[vc]${sv}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,${grade}${vt},format=yuv420p[vo];` +
     `[ac]${sa}highpass=f=90,afftdn=nr=12:nf=-30,acompressor=threshold=-20dB:ratio=3:attack=5:release=120,` +
-    'loudnorm=I=-14:TP=-1.5:LRA=9,aresample=48000[ao]'
+    `loudnorm=I=-14:TP=-1.5:LRA=9,aresample=48000${at}[ao]`
   );
 }
 

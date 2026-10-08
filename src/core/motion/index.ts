@@ -80,7 +80,7 @@ export function buildMotionOverlay(items: ResolvedMotion[], opts: BuildOptions =
       if (!cssByKind.has(it.kind)) cssByKind.set(it.kind, b.css);
       htmlParts.push(b.html);
       jsBlocks.push(`{ // ${it.kind} ${id} (${r3(it.t0)}-${r3(it.t1)} dtk)\n${b.js}\n}`);
-      sfx.push(...b.sfx);
+      if (!it.silent) sfx.push(...b.sfx); // silent = grafik tanpa SFX (sfx_off tidak berlaku untuk motion)
       if (item.scene ?? comp.sceneDefault) ranges.push({ s: item.t0, e: item.t1 });
     } catch (err) {
       used.delete(id);

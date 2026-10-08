@@ -40,7 +40,7 @@ describe('komposisi overlay offline', () => {
   });
 
   it('font lokal di-inline sebagai @font-face (HyperFrames tidak mengunduh) dan fallback tak terbundel dibuang', () => {
-    expect((html.match(/@font-face/g) ?? []).length).toBe(42);
+    expect((html.match(/@font-face/g) ?? []).length).toBe(46); // Inter 22 + Playfair 20 + Montserrat 600/800 (4)
     expect(html).toContain('url("assets/_vendor/fonts/inter-latin-700-italic.woff2")');
     expect(html).toContain('url("assets/_vendor/fonts/playfair-display-latin-800-italic.woff2")');
     expect(html).not.toMatch(/Segoe UI|Georgia/);
@@ -63,7 +63,7 @@ describe('komposisi overlay offline', () => {
     expect(full).not.toMatch(/googleapis|jsdelivr|Segoe UI|Georgia/);
     expect(full).toContain('<video id="aroll" class="clip" src="assets/base.mp4"');
     expect(full).toContain('html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }');
-    expect((full.match(/@font-face/g) ?? []).length).toBe(42);
+    expect((full.match(/@font-face/g) ?? []).length).toBe(46);
     expect(externalUrls(full)).toEqual([]);
   });
 

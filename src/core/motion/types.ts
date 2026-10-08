@@ -213,6 +213,8 @@ export interface MotionItemOf<K extends MotionKind> {
   dur?: number;
   /** adegan: scrim gelap + footage blur di belakang grafik */
   scene?: boolean;
+  /** tanpa SFX untuk item ini (tombol mute SFX otomatis tidak berlaku untuk motion) */
+  silent?: boolean;
   /** titik internal (mis. tiap nilai counter, tiap bubble). Kosong = dibagi rata di dalam durasi */
   beats?: MotionAnchor[];
   props: MotionPropsMap[K];

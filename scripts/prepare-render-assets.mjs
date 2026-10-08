@@ -6,6 +6,7 @@
 // Set face = persis yang tersedia saat skill merender online, supaya hasil identik:
 //   Inter: compiler HyperFrames meminta normal 100–900 + italic 400/700 (URL default fetchGoogleFont).
 //   Playfair Display: default compiler (normal 400–900, italic 400/700) + link template (italic 600/700/800).
+//   Montserrat: hanya normal 600 + 800 (wordmark MIVA di motion graphic, src/core/motion); tidak dipakai template skill.
 // Weight/style lain sengaja TIDAK dibundel: browser harus memilih face terdekat yang sama dengan render skill.
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -20,6 +21,7 @@ const SUBSETS = ['latin', 'latin-ext'];
 const FAMILIES = [
   { pkg: '@fontsource/inter', normal: [100, 200, 300, 400, 500, 600, 700, 800, 900], italic: [400, 700] },
   { pkg: '@fontsource/playfair-display', normal: [400, 500, 600, 700, 800, 900], italic: [400, 600, 700, 800] },
+  { pkg: '@fontsource/montserrat', normal: [600, 800], italic: [] },
 ];
 
 function pkgDir(name) {

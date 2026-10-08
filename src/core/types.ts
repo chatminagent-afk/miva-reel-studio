@@ -68,6 +68,8 @@ export interface EditJson {
   sfx?: ManualSfx[];
   inserts?: Insert[];
   mode?: string;
+  /** dtk freeze frame terakhir + hening sesudah kata terakhir (ruang end card); sama dengan `tail` di build_base.py skill */
+  tail?: number;
   [k: string]: unknown;
 }
 
@@ -121,6 +123,8 @@ export interface SfxCue {
   dur: number | null;
   prio: number;
   gain_db: number;
+  /** 1 = SFX bagian motion graphic (bukan SFX otomatis subtitle): tidak terkena `sfx_off`. Skill mengabaikan field ini. */
+  m?: 1;
 }
 
 export interface CuesJson {

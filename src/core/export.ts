@@ -19,7 +19,9 @@ import { externalUrls, toFullTemplate, toOverlayTemplate, VENDOR_DIR } from './o
 import { applySfxOff } from './sfxedit';
 import { graphToFile } from './ffmpeg';
 import { renderOverlay, type RenderRuntime } from './hyperframes';
+import { mergeOverlay, motionOverlayFor, SCENE_BLUR_PX, SCENE_FADE, sceneBlurJs, type SceneRange } from './motionDoc';
 import { CancelledError, runProcess } from './proc';
+import type { ProjectState } from './doc';
 import type { CaptionsJson, EditJson, TimingJson } from './types';
 
 export type Resolution = '1080p' | '2k' | '4k';
@@ -74,6 +76,8 @@ export interface ExportResult {
   /** Koneksi jaringan yang diblokir saat render (harus kosong). */
   blocked: string[];
   timings: Record<'overlay' | 'mix' | 'composite', number>;
+  /** motion graphic yang ikut dirender (dari .reel/state.json); tidak ada = proyek tanpa motion */
+  motion?: { items: number; scenes: number; sfx: number; errors: string[] };
 }
 
 // Bobot progress per tahap (overlay paling lama). Dipakai hanya untuk bar progress UI.
@@ -141,20 +145,56 @@ export interface CompositeSpec {
   origin: string;
   encoder: string;
   quality?: Quality;
+  /** adegan motion (detik hasil edit): footage di-blur di dalam rentang ini, dengan fade 0,3 dtk masuk/keluar */
+  scenes?: SceneRange[];
+}
+
+const num = (x: number) => String(Math.round(x * 1000) / 1000);
+
+/**
+ * Cabang blur footage per adegan, dipasang di antara `[inLabel]` (video + kamera, sudah di ukuran target, gbrp) dan overlay.
+ * Per adegan: aliran dibelah dua; cabang blur (gblur hanya aktif di dalam rentang adegan) diberi alpha yang naik/turun
+ * (fade alpha) lalu ditumpuk ke aliran tajam hanya di dalam rentang. Tanpa blend per-piksel. Kembalikan filter + label keluaran
+ * (tanpa adegan: filter kosong, label = inLabel).
+ */
+export function sceneBlurFilters(scenes: SceneRange[] | undefined, width: number, inLabel: string): { filters: string; out: string } {
+  const list = (scenes ?? [])
+    .filter((x) => x.e - x.s > 0.1)
+    .sort((a, b) => a.s - b.s);
+  if (!list.length) return { filters: '', out: inLabel };
+  const sigma = num((SCENE_BLUR_PX * width) / 1080);
+  let cur = inLabel;
+  const parts: string[] = [];
+  list.forEach((sc, i) => {
+    const d = Math.min(SCENE_FADE, (sc.e - sc.s) / 2);
+    const on = `'between(t,${num(sc.s)},${num(sc.e)})'`;
+    const next = `bs${i + 1}`;
+    parts.push(
+      `[${cur}]split[bk${i}a][bk${i}b]`,
+      `[bk${i}b]gblur=sigma=${sigma}:planes=7:enable=${on},format=gbrap,` +
+        `fade=t=in:st=${num(sc.s)}:d=${num(d)}:alpha=1,fade=t=out:st=${num(sc.e - d)}:d=${num(d)}:alpha=1[bl${i}]`,
+      `[bk${i}a][bl${i}]overlay=format=gbrp:enable=${on}[${next}]`,
+    );
+    cur = next;
+  });
+  return { filters: parts.join(';') + ';', out: cur };
 }
 
 /**
  * Argumen ffmpeg penggabung. Kamera diterapkan di resolusi asli base (1080×1920, sama dengan koordinat template),
- * lalu diskalakan ke target. Blending di RGB (gbrp) seperti Chrome, lalu satu kali ke yuv420p.
+ * lalu diskalakan ke target. Kalau ada adegan motion, footage di-blur per adegan (sceneBlurFilters) sebelum overlay.
+ * Blending di RGB (gbrp) seperti Chrome, lalu satu kali ke yuv420p.
  */
 export function compositeArgs(s: CompositeSpec): string[] {
   const { w, h } = s.size;
   const scaleBg = w === 1080 && h === 1920 ? '' : `,scale=${w}:${h}:flags=lanczos`;
   const scaleOv = s.framesSize.w === w && s.framesSize.h === h ? '' : `scale=${w}:${h}:flags=lanczos,`;
+  const blur = sceneBlurFilters(s.scenes, w, 'bg');
   const graph =
     `[0:v]fps=${s.fps},${perspectiveFilter(s.camera, s.origin, s.fps)}${scaleBg},format=gbrp[bg];` +
+    blur.filters +
     `[1:v]${scaleOv}format=gbrap[ov];` +
-    `[bg][ov]overlay=format=gbrp:eof_action=pass,format=yuv420p[v]`;
+    `[${blur.out}][ov]overlay=format=gbrp:eof_action=pass,format=yuv420p[v]`;
   return [
     '-v', 'error', '-y', '-nostats', '-progress', 'pipe:1',
     '-i', s.base,
@@ -244,12 +284,20 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
   const data = buildCompositionData(T, C, E);
   const fast = canComposeInFfmpeg(data.camera);
   const { caps, keys } = layoutCaptions(T, C);
-  const cues = applySfxOff(buildCues(T, caps, keys, E, o.sfx).cues, E);
-  const overlay = {
+  // motion graphic app-only: .reel/state.json (proyek skill tidak punya). Waktu dihitung dari kata mentah + potongan terkini.
+  const stateText = await readOptional(join(P, '.reel', 'state.json'));
+  const state = stateText ? (JSON.parse(stateText) as ProjectState) : null;
+  const mo = state?.motion?.length ? motionOverlayFor(E, state, T) : null;
+  const cues = applySfxOff(buildCues(T, caps, keys, E, o.sfx, mo?.overlay.sfx).cues, E);
+  // overlay motion dulu, overlay.* tulisan tangan skill sesudahnya (keduanya tampil)
+  const overlay = mergeOverlay(mo?.overlay ?? {}, {
     css: await readOptional(join(P, 'overlay.css')),
     html: await readOptional(join(P, 'overlay.html')),
     js: await readOptional(join(P, 'overlay.js')),
-  };
+  });
+  // render penuh (whip): footage ada di Chrome, jadi blur adegan dibuat di timeline yang sama (jalur cepat: FFmpeg, lihat compositeArgs)
+  const scenes = mo?.overlay.scenes ?? [];
+  if (!fast && scenes.length) overlay.js = [overlay.js, sceneBlurJs(scenes)].filter(Boolean).join('\n');
   const html = renderTemplate((fast ? toOverlayTemplate : toFullTemplate)(o.template, o.fontCss), data, overlay);
   const ext = externalUrls(html);
   if (ext.length) throw new Error(`Komposisi memuat URL internet (tidak boleh, app offline): ${ext.join(', ')}`);
@@ -305,9 +353,10 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
       encoder,
       quality: o.quality,
     };
+    const motion = mo ? { items: mo.resolved.length, scenes: scenes.length, sfx: mo.overlay.sfx.length, errors: mo.errors.map((e) => `${e.id}: ${e.message}`) } : undefined;
     writingOutput = true;
     // graf kamera tumbuh ±1,4 KB per langkah: 24 langkah sudah 33 KB > 32.767 di Windows (spawn ENAMETOOLONG)
-    const args = await graphToFile(fast ? compositeArgs({ ...common, base, camera: data.camera, origin: data.origin }) : encodeFramesArgs(common), graphFile);
+    const args = await graphToFile(fast ? compositeArgs({ ...common, base, camera: data.camera, origin: data.origin, scenes }) : encodeFramesArgs(common), graphFile);
     await runProcess(o.runtime.ffmpeg, args, {
       signal: o.signal,
       onStdoutLine: (l) => {
@@ -318,7 +367,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
     timings.composite = Date.now() - t0;
     o.onProgress?.({ stage: 'done', progress: 1, message: 'Done' });
     const mode = fast ? 'fast' : 'full';
-    return { output: o.output, mode, duration, width: size.w, height: size.h, fps: o.fps, encoder, mix: mixReport, blocked, timings };
+    return { output: o.output, mode, duration, width: size.w, height: size.h, fps: o.fps, encoder, mix: mixReport, blocked, timings, motion };
   } catch (e) {
     if (writingOutput) await rm(o.output, { force: true }); // tidak meninggalkan file setengah jadi (UAT 15)
     throw e;

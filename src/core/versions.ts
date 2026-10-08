@@ -26,8 +26,12 @@ export async function listVersions(proj: string): Promise<VersionInfo[]> {
   return out.sort((a, b) => a.n - b.n);
 }
 
-const sameDoc = (a: { edit: EditJson; state: ProjectState }, b: { edit: EditJson; state: ProjectState }) =>
-  JSON.stringify(a.edit) === JSON.stringify(b.edit) && JSON.stringify(a.state.keywords) === JSON.stringify(b.state.keywords);
+// motion kosong dan tidak ada dianggap sama (proyek lama belum punya field-nya)
+export const sameDoc = (a: { edit: EditJson; state: ProjectState }, b: { edit: EditJson; state: ProjectState }) =>
+  JSON.stringify(a.edit) === JSON.stringify(b.edit) &&
+  JSON.stringify(a.state.keywords) === JSON.stringify(b.state.keywords) &&
+  JSON.stringify(a.state.motion ?? []) === JSON.stringify(b.state.motion ?? []) &&
+  (a.state.motionBrief ?? '') === (b.state.motionBrief ?? '');
 
 /** Simpan versi baru (vN+1). Kalau isinya sama dengan versi terakhir, versi terakhir dikembalikan (tidak dobel). */
 export async function saveVersion(proj: string, doc: { edit: EditJson; state: ProjectState }, label: string): Promise<VersionInfo> {

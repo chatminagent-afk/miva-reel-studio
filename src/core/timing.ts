@@ -4,6 +4,12 @@ import type { EditJson, RawWord, TimedWord, TimingJson } from './types';
 
 export const SPEED_DEFAULT = 1.25; // fast paced (06/10)
 
+/** `edit.tail` (dtk freeze + hening sesudah kata terakhir), tidak pernah negatif. Sama dengan `tail` di build_base.py skill. */
+export function tailOf(edit: Pick<EditJson, 'tail'>): number {
+  const t = Number(edit.tail ?? 0);
+  return Number.isFinite(t) && t > 0 ? t : 0;
+}
+
 export interface TimingResult {
   timing: TimingJson;
   lost: string[];
@@ -14,6 +20,7 @@ export function mapTiming(edit: EditJson, words: RawWord[]): TimingResult {
   const segs = edit.segs;
   const fix = edit.fix ?? {};
   const speed = Number(edit.speed ?? SPEED_DEFAULT);
+  const tail = tailOf(edit);
   const offs: number[] = [];
   let acc = 0;
   for (const [a, b] of segs) {
@@ -44,7 +51,7 @@ export function mapTiming(edit: EditJson, words: RawWord[]): TimingResult {
     if (!found) lost.push(w.w);
   }
   return {
-    timing: { duration: pyRound(acc / speed, 3), speed, cuts: offs.slice(1).map((o) => pyRound(o / speed, 3)), words: res },
+    timing: { duration: pyRound(acc / speed + tail, 3), speed, cuts: offs.slice(1).map((o) => pyRound(o / speed, 3)), words: res },
     lost,
   };
 }

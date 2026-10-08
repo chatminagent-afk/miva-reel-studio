@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import type { SfxLibrary } from '../../../core/compose';
 import { editedToSrc, srcToEdited } from '../../../core/edit';
+import { mergeOverlay } from '../../../core/motionDoc';
 import type { SfxCatalog, SfxFeature } from '../../../core/types';
 import type { VersionInfo } from '../../../core/versions';
 import type { AutoEditEvent, OpenedProject } from '../../../main/projects';
@@ -41,6 +42,8 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
   const [assets, setAssets] = useState<{ template: string; fontCss: string } | null>(null);
   const [overlayRev, setOverlayRev] = useState(0);
   const [time, setTime] = useState(0);
+  /** detik di dalam ekor (freeze frame akhir) kalau playhead ada di sana, selain itu null */
+  const [tailT, setTailT] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [sel, setSel] = useState<Sel>(null);
   const [splits, setSplits] = useState<number[]>([]);
@@ -70,16 +73,17 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
     void api().renderAssets().then(setAssets);
   }, []);
 
-  // komposisi overlay preview diperbarui (debounce) setiap dokumen berubah
+  // komposisi overlay preview diperbarui (debounce) setiap dokumen berubah; isi = motion app dulu, overlay.* skill sesudahnya
+  const overlay = useMemo(() => mergeOverlay(d.motion.overlay, opened.doc.overlay), [d.motion.overlay, opened.doc.overlay]);
   useEffect(() => {
     if (!assets) return;
     const t = setTimeout(() => {
       void api()
-        .setPreview(previewHtml(assets.template, assets.fontCss, d.comp, opened.doc.overlay))
+        .setPreview(previewHtml(assets.template, assets.fontCss, d.comp, overlay))
         .then(() => setOverlayRev((r) => r + 1));
     }, 150);
     return () => clearTimeout(t);
-  }, [assets, d.comp, opened.doc.overlay]);
+  }, [assets, d.comp, overlay]);
 
   // simpan otomatis 1 dtk setelah edit terakhir
   const docRef = useRef(doc);
@@ -130,8 +134,9 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
     },
     [seek],
   );
-  const onTime = useCallback((t: number, isPlaying: boolean) => {
+  const onTime = useCallback((t: number, isPlaying: boolean, tail?: number) => {
     setTime(t);
+    setTailT(tail ?? null);
     setPlaying(isPlaying);
   }, []);
 
@@ -203,7 +208,7 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
     }
   };
 
-  const te = srcToEdited(doc.edit.segs, speed, time);
+  const te = tailT !== null ? d.bodyDuration + tailT : srcToEdited(doc.edit.segs, speed, time);
   /** waktu edit di titik footage mentah; di bagian terbuang: awal bagian terpakai berikutnya */
   const editedAt = (src: number) => {
     const v = srcToEdited(doc.edit.segs, speed, src);
@@ -355,6 +360,8 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
               comp={d.comp}
               cues={d.cues}
               overlayRev={overlayRev}
+              scenes={d.scenes}
+              tail={d.tail}
               onTime={onTime}
               boxWidth={Math.max(120, box.w)}
               boxHeight={Math.max(200, box.h)}

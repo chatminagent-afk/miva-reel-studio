@@ -1,7 +1,12 @@
 // Operasi edit (murni, bisa di-undo): semua mengubah segs / kata kunci / kamus, tidak pernah file langsung.
 import type { ProjectState } from '../../../core/doc';
-import { cutRange, keepRange, keptWordIndices, normalizeSegs, setGapKept, setWordKept, srcToEdited, wordKept, type Gap } from '../../../core/edit';
+import { cutRange, keepRange, keptDuration, keptWordIndices, normalizeSegs, setGapKept, setWordKept, srcToEdited, wordKept, type Gap } from '../../../core/edit';
+import { getComponent } from '../../../core/motion';
+import { briefToMotion, resolveMotion } from '../../../core/motion/resolve';
+import type { MotionItem, MotionKind } from '../../../core/motion/types';
+import { anchorAt } from '../../../core/motionDoc';
 import { suggestKeywords, type KeywordMark } from '../../../core/suggest';
+import { tailOf } from '../../../core/timing';
 import type { EditJson, Seg } from '../../../core/types';
 
 export interface Doc {
@@ -113,4 +118,150 @@ export function toggleSfxOff(d: Doc, kat: string, t: number): Doc {
   const hit = off.findIndex((o) => o.kat === kat && Math.abs(o.t - t) < 0.06);
   const next = hit >= 0 ? off.filter((_, k) => k !== hit) : [...off, { kat, t }];
   return { ...d, edit: { ...d.edit, sfx_off: next } };
+}
+
+// ---------- motion graphic ----------
+// Item motion ditambat ke indeks kata mentah (state.words) + offset, jadi ikut bergeser saat potongan berubah.
+// Item buatan penerjemah brief punya origin 'rules' (diganti saat Generate ulang); item buatan tangan 'manual' (dipertahankan).
+// Mengedit item 'rules' TIDAK mengubah origin-nya; kirim `origin: 'manual'` lewat updateMotion untuk mengunci hasil editan.
+
+/** Detik `edit.tail` default untuk end card (sama dengan ENDCARD_TAIL penerjemah brief). */
+export const TAIL_DEFAULT = 2.5;
+const TAIL_MAX = 10;
+const MIN_LEN = 0.5;
+
+const clamp = (x: number, lo: number, hi: number) => Math.min(Math.max(x, lo), hi);
+
+/** Durasi hasil edit tanpa tail (detik). */
+export function bodyDuration(d: Doc): number {
+  return keptDuration(d.edit.segs) / Number(d.edit.speed ?? 1.25);
+}
+const totalDuration = (d: Doc) => bodyDuration(d) + tailOf(d.edit);
+
+const withMotion = (d: Doc, motion: MotionItem[]): Doc => ({ ...d, state: { ...d.state, motion } });
+
+export function setMotionBrief(d: Doc, text: string): Doc {
+  return { ...d, state: { ...d.state, motionBrief: text.trim() ? text : undefined } };
+}
+
+/** Ekor (freeze frame akhir) dalam detik; 0 = hapus. Dibatasi 0..10. */
+export function setTail(d: Doc, seconds: number): Doc {
+  const t = Number.isFinite(seconds) ? clamp(Math.round(seconds * 100) / 100, 0, TAIL_MAX) : 0;
+  const edit = { ...d.edit };
+  if (t > 0) edit.tail = t;
+  else delete edit.tail;
+  return { ...d, edit };
+}
+
+/**
+ * Terjemahkan Motion brief (Rules offline): item origin 'rules' diganti hasil baru, item 'manual' dipertahankan; laporan
+ * disimpan di state.motionReport. Kalau brief berisi end card dan `edit.tail` belum diisi, tail diset (2,5 dtk).
+ */
+export function generateMotion(d: Doc): Doc {
+  const brief = d.state.motionBrief ?? '';
+  const speed = Number(d.edit.speed ?? 1.25);
+  const run = (tail: number) => briefToMotion(brief, d.state.words, d.edit.segs, speed, bodyDuration(d) + tail, { tail });
+  let edit = d.edit;
+  let res = run(tailOf(edit));
+  if (res.report.needsTail > 0 && tailOf(edit) <= 0) {
+    edit = { ...edit, tail: res.report.needsTail || TAIL_DEFAULT };
+    res = run(tailOf(edit)); // ulang supaya peringatan "butuh tail" di laporan tidak basi
+  }
+  const manual = (d.state.motion ?? []).filter((m) => m.origin === 'manual');
+  const taken = new Set(manual.map((m) => m.id));
+  const fresh = res.items.map((it) => {
+    let id = it.id;
+    for (let n = 2; taken.has(id); n++) id = `${it.id}-${n}`;
+    taken.add(id);
+    return id === it.id ? it : { ...it, id };
+  });
+  // urut menurut waktu mulai (resolveMotion), stabil terhadap urutan brief
+  const all = [...fresh, ...manual];
+  const resolved = resolveMotion(all, d.state.words, d.edit.segs, speed, bodyDuration(d) + tailOf(edit));
+  const order = all.map((_, i) => i).sort((a, b) => resolved[a].t0 - resolved[b].t0 || a - b);
+  return { edit, state: { ...d.state, motion: order.map((i) => all[i]), motionReport: res.report } };
+}
+
+/** Tambah motion di detik hasil edit `editedT`: props bawaan komponen, adegan sesuai komponen, durasi 2,5 dtk (dijepit min/maks). */
+export function addMotion(d: Doc, kind: MotionKind, editedT: number): Doc {
+  const comp = getComponent(kind);
+  if (!comp) throw new Error(`Komponen motion belum tersedia: ${kind}`);
+  const items = d.state.motion ?? [];
+  const used = new Set(items.map((m) => m.id));
+  let n = 1;
+  while (used.has(`mt-man-${kind}-${n}`)) n++;
+  const speed = Number(d.edit.speed ?? 1.25);
+  const item = {
+    id: `mt-man-${kind}-${n}`,
+    kind,
+    start: anchorAt(clamp(editedT, 0, totalDuration(d)), d.state.words, d.edit.segs, speed),
+    dur: clamp(2.5, comp.minDur, comp.maxDur),
+    scene: comp.sceneDefault,
+    props: comp.defaults(),
+    origin: 'manual',
+  } as MotionItem;
+  return withMotion(d, [...items, item]);
+}
+
+export interface MotionPatch {
+  /** gabung dangkal ke props lama (kunci tingkat atas); nilai undefined menghapus kunci */
+  props?: Record<string, unknown>;
+  label?: string;
+  scene?: boolean;
+  /** false = tandai sudah dicek (kunci `review` dihapus) */
+  review?: boolean;
+  origin?: 'rules' | 'manual';
+}
+
+export function updateMotion(d: Doc, id: string, patch: MotionPatch): Doc {
+  const items = (d.state.motion ?? []).map((m) => {
+    if (m.id !== id) return m;
+    const next = { ...m } as MotionItem & Record<string, unknown>;
+    if (patch.props) {
+      const props = { ...(m.props as unknown as Record<string, unknown>), ...patch.props };
+      for (const k of Object.keys(props)) if (props[k] === undefined) delete props[k];
+      next.props = props as never;
+    }
+    if (patch.label !== undefined) next.label = patch.label;
+    if (patch.scene !== undefined) next.scene = patch.scene;
+    if (patch.review !== undefined) {
+      if (patch.review) next.review = true;
+      else delete next.review;
+    }
+    if (patch.origin) next.origin = patch.origin;
+    return next as MotionItem;
+  });
+  return withMotion(d, items);
+}
+
+/**
+ * Atur waktu item (detik hasil edit) -> jangkar kata. Beats di dalam item ikut: posisi relatifnya dipertahankan dan diskalakan
+ * kalau durasinya berubah. Dijepit ke [0, durasi + tail], panjang minimal 0,5 dtk.
+ */
+export function setMotionTimes(d: Doc, id: string, t0: number, t1: number): Doc {
+  const cur = (d.state.motion ?? []).find((m) => m.id === id);
+  if (!cur) return d;
+  const speed = Number(d.edit.speed ?? 1.25);
+  const maxT = Math.max(totalDuration(d), MIN_LEN);
+  const b = clamp(Math.max(t1, t0 + MIN_LEN), MIN_LEN, maxT);
+  const a = clamp(t0, 0, b - MIN_LEN);
+  const old = resolveMotion([cur], d.state.words, d.edit.segs, speed, maxT)[0];
+  const oldLen = old.t1 - old.t0;
+  const scale = oldLen > 0.01 ? (b - a) / oldLen : 1;
+  const at = (t: number) => anchorAt(t, d.state.words, d.edit.segs, speed);
+  const items = (d.state.motion ?? []).map((m) => {
+    if (m.id !== id) return m;
+    const next = { ...m, start: at(a), end: at(b) } as MotionItem;
+    delete next.dur;
+    if (m.beats?.length) next.beats = old.beatTimes.map((bt) => at(clamp(a + (bt - old.t0) * scale, a, b)));
+    return next;
+  });
+  return withMotion(d, items);
+}
+
+export function removeMotion(d: Doc, id: string): Doc {
+  return withMotion(
+    d,
+    (d.state.motion ?? []).filter((m) => m.id !== id),
+  );
 }

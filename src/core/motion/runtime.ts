@@ -11,11 +11,10 @@ import type { MotionSfx, ResolvedMotion, Tone } from './types';
 /** Lama animasi keluar (detik): selesai tepat di t1. */
 export const EXIT_DUR = 0.25;
 /**
- * Font wordmark MIVA. Skill memakai Montserrat 800/600, tetapi Montserrat BELUM dibundel (resources/render/fonts.css hanya
- * Inter + Playfair): menyebut keluarga tanpa @font-face membuat compiler HyperFrames mengunduhnya dari Google (gagal offline).
- * Jadi sementara Inter. Setelah Montserrat dibundel, ganti ke '"Montserrat", "Inter", sans-serif' (satu-satunya tempat).
+ * Font wordmark MIVA = Montserrat 800/600 seperti skill, dibundel di resources/render/fonts.css (@fontsource/montserrat).
+ * Keluarga font tanpa @font-face lokal membuat compiler HyperFrames mengunduhnya dari Google (gagal offline).
  */
-export const WORDMARK_FONT = '"Inter", sans-serif';
+export const WORDMARK_FONT = '"Montserrat", "Inter", sans-serif';
 
 // ---------- nada (tone) ----------
 

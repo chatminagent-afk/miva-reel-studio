@@ -7,6 +7,7 @@
 //   whip/insert      -> whoosh
 // Kepadatan: klik/ketik dilewati kalau < 0,30 dtk dari SFX sebelumnya; boom maks 1 per video.
 import { CPS } from './captions';
+import type { MotionSfx } from './motion/types';
 import { pyFixed, pyLen, pyRound } from './py';
 import type {
   CamStep,
@@ -182,8 +183,20 @@ export interface SfxLibrary {
   catalog: SfxCatalog;
 }
 
-/** SFX otomatis + manual, lalu aturan kepadatan. Sama dengan build_html.py. */
-export function buildCues(T: TimingJson, caps: PlainCap[], keys: KeyCap[], E: EditJson, lib: SfxLibrary): { cues: CuesJson; dropped: number } {
+/**
+ * SFX otomatis + manual, lalu aturan kepadatan. Sama dengan build_html.py.
+ * `motion` = SFX bagian motion graphic (app): diperlakukan seperti SFX manual (prio 3, puncak disejajarkan kalau `align`, `dur`
+ * dihormati) dan ditambahkan PALING AKHIR supaya pilihan bunyi SFX otomatis (rotasi per kategori) tidak bergeser. Cue-nya
+ * ditandai `m: 1` sehingga tidak terkena `sfx_off` (lihat applySfxOff).
+ */
+export function buildCues(
+  T: TimingJson,
+  caps: PlainCap[],
+  keys: KeyCap[],
+  E: EditJson,
+  lib: SfxLibrary,
+  motion: MotionSfx[] = [],
+): { cues: CuesJson; dropped: number } {
   const W = T.words;
   const rot: Record<string, number> = {};
   const pick = (kat: string): string | null => {
@@ -197,16 +210,16 @@ export function buildCues(T: TimingJson, caps: PlainCap[], keys: KeyCap[], E: Ed
   const add = (
     t: number,
     kat: string,
-    o: { peakAlign?: boolean; dur?: number | null; prio?: number; gainDb?: number; sid?: string | null } = {},
+    o: { peakAlign?: boolean; dur?: number | null; prio?: number; gainDb?: number; sid?: string | null; motion?: boolean } = {},
   ) => {
     const sid = o.sid || pick(kat);
     if (!sid) return;
     let off = 0.0;
     if (o.peakAlign) {
       const f = lib.features[sid];
-      off = f.peak_at * f.dur;
+      if (f) off = f.peak_at * f.dur;
     }
-    cues.push({ t: pyRound(t - off, 3), id: sid, kat, dur: o.dur ?? null, prio: o.prio ?? 1, gain_db: o.gainDb ?? 0.0 });
+    cues.push({ t: pyRound(t - off, 3), id: sid, kat, dur: o.dur ?? null, prio: o.prio ?? 1, gain_db: o.gainDb ?? 0.0, ...(o.motion ? { m: 1 as const } : {}) });
   };
 
   const firstKey = keys.find((k) => k.hit <= 5)?.hit;
@@ -235,6 +248,7 @@ export function buildCues(T: TimingJson, caps: PlainCap[], keys: KeyCap[], E: Ed
   for (const ins of E.inserts ?? []) add(ins.t, 'whoosh', { peakAlign: true, prio: 2 });
   for (const m of E.sfx ?? [])
     add(m.t, m.kat ?? '', { peakAlign: m.align ?? false, prio: 3, gainDb: m.gain_db ?? 0, sid: m.id, dur: m.dur ?? null });
+  for (const m of motion) add(m.t, m.kat, { peakAlign: m.align ?? false, prio: 3, gainDb: m.gain_db ?? 0, dur: m.dur ?? null, motion: true });
 
   cues.sort((a, b) => a.t - b.t); // stabil, sama dengan sort Python
   const hi = cues.filter((c) => c.prio >= 2 && c.kat !== 'riser').map((c) => c.t);
