@@ -1,14 +1,19 @@
 // Unit: komposisi overlay offline, parser progress HyperFrames, argumen ffmpeg penggabung, pembatalan proses.
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { describe, expect, it } from 'vitest';
-import { renderTemplate } from '../../src/core/compose';
+import { afterAll, describe, expect, it } from 'vitest';
+import { buildBaseCommands } from '../../src/core/base';
+import { autoCamera, renderTemplate } from '../../src/core/compose';
 import { compositeArgs, encodeFramesArgs, encoderArgs, SIZES, type CompositeSpec } from '../../src/core/export';
+import { graphToFile } from '../../src/core/ffmpeg';
 import { hfRenderArgs, hyperframesEnv, parseHfLine, type RenderRuntime } from '../../src/core/hyperframes';
 import { externalUrls, toFullTemplate, toOverlayTemplate } from '../../src/core/overlay';
-import { CancelledError, runProcess } from '../../src/core/proc';
+import { assertCommandFits, CancelledError, commandLineLength, runProcess, WIN_CMDLINE_MAX } from '../../src/core/proc';
+import type { EditJson, Seg, TimingJson } from '../../src/core/types';
+import { friendlyError } from '../../src/renderer/src/api';
 import { ACUAN, renderAssets } from '../tools/project';
 
 const { template, fontCss } = renderAssets();
@@ -170,6 +175,141 @@ describe('penggabung ffmpeg', () => {
     expect(encoderArgs('libx265')).toContain('hvc1');
     expect(encoderArgs('h264_nvenc')).toEqual(expect.arrayContaining(['-c:v', 'h264_nvenc', '-cq', '19']));
     expect(() => encoderArgs('x')).toThrow();
+  });
+});
+
+// Regresi spawn ENAMETOOLONG (Windows, 08/10): graf kamera ±1,4 KB per langkah, graf base ±161 karakter per potongan,
+// keduanya inline di argumen -> lewat 32.767 karakter. Sekarang graf lewat file (-/filter_complex <file>, ffmpeg >= 7).
+describe('graf filter lewat file (batas baris perintah Windows)', () => {
+  const LIMIT = 32_766;
+  const tmp = mkdtempSync(join(tmpdir(), 'reel-graph-'));
+  afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+  const graphOf = (a: string[]) => a[a.indexOf('-filter_complex') + 1];
+
+  /** Reel 60 dtk dengan 30 potongan dan kamera otomatis penuh. */
+  const longSpec = (): CompositeSpec => {
+    const T: TimingJson = { duration: 60, speed: 1.25, cuts: Array.from({ length: 30 }, (_, i) => +(((i + 1) * 60) / 31).toFixed(3)), words: [] };
+    const camera = autoCamera(T, [], { src: 'x', segs: [] });
+    return {
+      base: 'D:\\proyek\\assets\\base.mp4',
+      frames: 'D:\\proyek\\renders\\_frames\\frame_%06d.png',
+      framesSize: SIZES['1080p'],
+      audio: 'D:\\proyek\\renders\\_mix.wav',
+      output: 'D:\\hasil\\reel.mp4',
+      size: SIZES['1080p'],
+      fps: 30,
+      duration: 60,
+      camera,
+      origin: '50% 40%',
+      encoder: 'libx264',
+    };
+  };
+
+  it('graphToFile: graf keluar dari argumen, isi file = graf, opsi -/filter_complex', async () => {
+    const g = '[0:v]fps=30,format=gbrp[bg];[bg]format=yuv420p[v]';
+    const file = join(tmp, 'g1.txt');
+    const out = await graphToFile(['-v', 'error', '-i', 'a.mp4', '-filter_complex', g, '-map', '[v]', 'o.mp4'], file);
+    expect(out).toEqual(['-v', 'error', '-i', 'a.mp4', '-/filter_complex', file, '-map', '[v]', 'o.mp4']);
+    expect(out).not.toContain(g);
+    expect(readFileSync(file, 'utf-8')).toBe(g);
+  });
+
+  it('graphToFile: graf berkutip/non-ASCII utuh, -vf/-af juga dipindah, tanpa opsi graf tidak berubah', async () => {
+    const g = "[0:v]perspective=x0='if(gte(T,1),2,3)':sense=source,drawtext=text='Kopi \u2615'[v]";
+    const f1 = join(tmp, 'g2.txt');
+    expect(await graphToFile(['-i', 'a', '-vf', g, 'o'], f1)).toEqual(['-i', 'a', '-/vf', f1, 'o']);
+    expect(readFileSync(f1, 'utf-8')).toBe(g);
+    const f2 = join(tmp, 'g3.txt');
+    expect(await graphToFile(['-i', 'a', '-af', 'volume=2', 'o'], f2)).toEqual(['-i', 'a', '-/af', f2, 'o']);
+    const none = ['-i', 'a', '-c:v', 'copy', 'o'];
+    const f3 = join(tmp, 'g4.txt');
+    expect(await graphToFile(none, f3)).toBe(none);
+    expect(existsSync(f3)).toBe(false);
+    await expect(graphToFile(['-vf', 'a', '-af', 'b'], join(tmp, 'g5.txt'))).rejects.toThrow(/hanya satu opsi graf/);
+  });
+
+  it('composite reel 60 dtk, 30 potongan: inline > 32.766 karakter, lewat file < 4.000', async () => {
+    const inline = compositeArgs(longSpec());
+    expect(graphOf(inline).length).toBeGreaterThan(LIMIT); // grafnya sendiri sudah melewati batas
+    expect(commandLineLength('ffmpeg.exe', inline)).toBeGreaterThan(LIMIT);
+    expect(() => assertCommandFits('ffmpeg.exe', inline, 'win32')).toThrow(/terlalu panjang untuk Windows \(\d+ karakter/);
+
+    const file = join(tmp, 'composite.txt');
+    const viaFile = await graphToFile(inline, file);
+    expect(commandLineLength('ffmpeg.exe', viaFile)).toBeLessThan(4000);
+    expect(() => assertCommandFits('ffmpeg.exe', viaFile, 'win32')).not.toThrow();
+    expect(readFileSync(file, 'utf-8')).toBe(graphOf(inline));
+    expect(viaFile).not.toContain('-filter_complex');
+  });
+
+  it('build base 250 potongan: inline > 32.766 karakter, lewat file < 4.000', async () => {
+    const segs: Seg[] = Array.from({ length: 250 }, (_, i) => [i * 2 + 0.123, i * 2 + 1.789]);
+    const edit: EditJson = { src: 'D:\\footage\\mentah.mp4', segs };
+    const [encode] = buildBaseCommands(edit, 'D:\\proyek');
+    const inline = ['-v', 'error', '-y', '-nostats', '-progress', 'pipe:1', ...encode];
+    expect(commandLineLength('ffmpeg.exe', inline)).toBeGreaterThan(LIMIT);
+    expect(() => assertCommandFits('ffmpeg.exe', inline, 'win32')).toThrow(/terlalu panjang untuk Windows/);
+
+    const file = join(tmp, 'base.txt');
+    const viaFile = await graphToFile(inline, file);
+    expect(commandLineLength('ffmpeg.exe', viaFile)).toBeLessThan(4000);
+    expect(readFileSync(file, 'utf-8')).toBe(inline[inline.indexOf('-filter_complex') + 1]);
+  });
+
+  it('runProcess: pesan jelas (bukan ENAMETOOLONG) kalau baris perintah kepanjangan di Windows', async () => {
+    expect(WIN_CMDLINE_MAX).toBeLessThan(32_767);
+    expect(() => assertCommandFits('ffmpeg.exe', ['x'.repeat(WIN_CMDLINE_MAX)], 'linux')).not.toThrow(); // POSIX: batasnya jauh lebih besar
+    expect(() => assertCommandFits('C:\\bin\\ffmpeg.exe', ['x'.repeat(WIN_CMDLINE_MAX)], 'win32')).toThrow(/^Perintah ffmpeg\.exe terlalu panjang untuk Windows \(3\d{4} karakter, batas 32000\)/);
+    if (process.platform === 'win32') await expect(runProcess('ffmpeg.exe', ['x'.repeat(WIN_CMDLINE_MAX)])).rejects.toThrow(/terlalu panjang untuk Windows/);
+  });
+
+  it('friendlyError: pesan batas baris perintah tampil sebagai kalimat yang bisa dipahami', () => {
+    const msg = 'Perintah ffmpeg.exe terlalu panjang untuk Windows (33855 karakter, batas 32000): proyek ini terlalu kompleks untuk satu perintah. Laporkan sebagai bug.';
+    expect(friendlyError(msg)).toMatch(/too complex for a single FFmpeg command \(33855 characters/);
+    expect(friendlyError('spawn ENAMETOOLONG')).toMatch(/too complex for a single FFmpeg command/);
+    expect(friendlyError('assets/base.mp4 belum ada (jalankan Auto Edit dulu)')).toBe('Run Auto Edit first.'); // pemetaan lama tetap
+    expect(friendlyError('lain-lain')).toBe('lain-lain');
+  });
+
+  // ffmpeg nyata: `-/opsi <file>` baru ada di ffmpeg 7.0. Lewati kalau ffmpeg tidak ada / lebih lama.
+  const FFMPEG = process.env.REEL_FFMPEG || 'ffmpeg';
+  const ver = spawnSync(FFMPEG, ['-version'], { encoding: 'utf-8' });
+  const found = !ver.error && ver.status === 0;
+  const major = found ? /ffmpeg version n?(\d+)\./i.exec(ver.stdout)?.[1] : undefined;
+  const ffOk = found && (major === undefined || Number(major) >= 7); // tanpa nomor (build git N-xxxx) dianggap baru
+
+  it.skipIf(!ffOk)('ffmpeg nyata: -/filter_complex dan -/vf dibaca dari file (ukuran PNG keluaran membuktikan)', async () => {
+    const png = (flagArgs: string[], name: string) => {
+      const out = join(tmp, name);
+      const r = spawnSync(FFMPEG, ['-v', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc=s=128x128:r=10:d=1', ...flagArgs, '-frames:v', '1', out], { encoding: 'utf-8' });
+      expect(r.stderr).toBe('');
+      expect(r.status).toBe(0);
+      const b = readFileSync(out); // IHDR: lebar di byte 16, tinggi di byte 20
+      return [b.readUInt32BE(16), b.readUInt32BE(20)];
+    };
+    const fc = await graphToFile(['-filter_complex', '[0:v]scale=64:48[v]', '-map', '[v]'], join(tmp, 'smoke-fc.txt'));
+    expect(fc[0]).toBe('-/filter_complex');
+    expect(png(fc, 'fc.png')).toEqual([64, 48]);
+    const vf = await graphToFile(['-vf', 'scale=32:24'], join(tmp, 'smoke-vf.txt'));
+    expect(png(vf, 'vf.png')).toEqual([32, 24]);
+  });
+
+  it.skipIf(!ffOk)('ffmpeg nyata: graf kamera 60 dtk (puluhan KB) diterima lewat file', async () => {
+    const g = graphOf(compositeArgs(longSpec()));
+    expect(g.length).toBeGreaterThan(LIMIT);
+    const args = await graphToFile(
+      [
+        '-v', 'error', '-y',
+        '-f', 'lavfi', '-i', 'color=c=gray:s=1080x1920:r=30:d=2',
+        '-f', 'lavfi', '-i', 'color=c=black@0:s=1080x1920:r=30:d=2,format=rgba',
+        '-filter_complex', g, '-map', '[v]', '-t', '1', '-f', 'null', '-',
+      ],
+      join(tmp, 'smoke-long.txt'),
+    );
+    expect(commandLineLength(FFMPEG, args)).toBeLessThan(4000);
+    const r = spawnSync(FFMPEG, args, { encoding: 'utf-8' });
+    expect(r.stderr).toBe('');
+    expect(r.status).toBe(0);
   });
 });
 

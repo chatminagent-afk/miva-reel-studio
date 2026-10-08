@@ -17,6 +17,7 @@ import { buildCompositionData, buildCues, layoutCaptions, renderTemplate, type S
 import { mix, type MixReport } from './mix';
 import { externalUrls, toFullTemplate, toOverlayTemplate, VENDOR_DIR } from './overlay';
 import { applySfxOff } from './sfxedit';
+import { graphToFile } from './ffmpeg';
 import { renderOverlay, type RenderRuntime } from './hyperframes';
 import { CancelledError, runProcess } from './proc';
 import type { CaptionsJson, EditJson, TimingJson } from './types';
@@ -229,6 +230,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
   const renders = join(P, 'renders');
   const framesDir = join(renders, '_frames');
   const compositionFile = '_render.html';
+  const graphFile = join(renders, '_graph.txt'); // graf filter gabung: lewat file, bukan argumen (batas baris perintah Windows)
   const vendor = join(P, VENDOR_DIR);
   const timings = { overlay: 0, mix: 0, composite: 0 };
 
@@ -304,7 +306,8 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
       quality: o.quality,
     };
     writingOutput = true;
-    const args = fast ? compositeArgs({ ...common, base, camera: data.camera, origin: data.origin }) : encodeFramesArgs(common);
+    // graf kamera tumbuh ±1,4 KB per langkah: 24 langkah sudah 33 KB > 32.767 di Windows (spawn ENAMETOOLONG)
+    const args = await graphToFile(fast ? compositeArgs({ ...common, base, camera: data.camera, origin: data.origin }) : encodeFramesArgs(common), graphFile);
     await runProcess(o.runtime.ffmpeg, args, {
       signal: o.signal,
       onStdoutLine: (l) => {
@@ -321,6 +324,7 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
     throw e;
   } finally {
     await rm(framesDir, { recursive: true, force: true });
+    await rm(graphFile, { force: true });
     await rm(join(P, compositionFile), { force: true });
     await rm(vendor, { recursive: true, force: true });
   }

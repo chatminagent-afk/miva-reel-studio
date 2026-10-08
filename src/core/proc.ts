@@ -44,6 +44,29 @@ export function killTree(child: ChildProcess, graceMs = 4000): void {
   child.once('close', () => clearTimeout(t));
 }
 
+/**
+ * Batas CreateProcess Windows = 32.767 karakter untuk seluruh baris perintah. Ambang ini sengaja di bawahnya
+ * (selisih cara quoting Node vs perkiraan kita), supaya gagalnya jelas, bukan `spawn ENAMETOOLONG` yang samar.
+ */
+export const WIN_CMDLINE_MAX = 32_000;
+
+/** Perkiraan panjang baris perintah Windows: program dan tiap argumen berspasi/berkutip dibungkus tanda kutip. */
+export function commandLineLength(cmd: string, args: string[]): number {
+  const q = (a: string) => (a === '' || /[\s"]/.test(a) ? `"${a.replace(/"/g, '\\"')}"` : a);
+  return [cmd, ...args].reduce((n, a) => n + q(a).length, 0) + args.length; // + satu spasi per argumen
+}
+
+/** Windows: tolak perintah yang kepanjangan dengan pesan jelas. Platform lain tidak punya batas sekecil ini. */
+export function assertCommandFits(cmd: string, args: string[], platform: NodeJS.Platform = process.platform): void {
+  if (platform !== 'win32') return;
+  const n = commandLineLength(cmd, args);
+  if (n > WIN_CMDLINE_MAX)
+    throw new Error(
+      `Perintah ${cmd.split(/[\\/]/).pop()} terlalu panjang untuk Windows (${n} karakter, batas ${WIN_CMDLINE_MAX}): ` +
+        'proyek ini terlalu kompleks untuk satu perintah. Laporkan sebagai bug.',
+    );
+}
+
 export interface RunOptions {
   env?: NodeJS.ProcessEnv;
   cwd?: string;
@@ -58,6 +81,7 @@ export interface RunOptions {
 export function runProcess(cmd: string, args: string[], opts: RunOptions = {}): Promise<void> {
   if (opts.signal?.aborted) return Promise.reject(new CancelledError());
   return new Promise((resolve, reject) => {
+    assertCommandFits(cmd, args); // throw di executor = reject
     const child = spawn(cmd, args, {
       cwd: opts.cwd,
       env: opts.env,

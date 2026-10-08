@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { writeFile } from 'node:fs/promises';
 
 // Lokasi binary bisa diganti (app membundel ffmpeg; tes memakai ffmpeg sistem).
 let ffmpegBin = process.env.REEL_FFMPEG || 'ffmpeg';
@@ -11,6 +12,24 @@ export function setFfmpegPaths(ffmpeg: string, ffprobe: string): void {
 
 export function ffmpegPath(): string {
   return ffmpegBin;
+}
+
+// Opsi ffmpeg yang nilainya graf filter. Graf kamera/base tumbuh sebanding dengan jumlah langkah/potongan
+// (±1,4 KB per langkah kamera, ±161 karakter per potongan), jadi lewat batas baris perintah Windows (32.767).
+const GRAPH_FLAGS = new Set(['-filter_complex', '-lavfi', '-vf', '-af', '-filter:v', '-filter:a']);
+
+/**
+ * Pindahkan graf filter dari argumen ke file: `-filter_complex <graf>` menjadi `-/filter_complex <file>`
+ * (ffmpeg >= 7.0 membaca nilai opsi dari file; hasilnya identik dengan graf inline). Penelepon yang menghapus `file`.
+ * Tanpa opsi graf, argumen dikembalikan apa adanya. Dua opsi graf dalam satu perintah tidak didukung (satu file).
+ */
+export async function graphToFile(args: string[], file: string): Promise<string[]> {
+  const at = args.flatMap((a, i) => (GRAPH_FLAGS.has(a) && i + 1 < args.length ? [i] : []));
+  if (!at.length) return args;
+  if (at.length > 1) throw new Error(`graphToFile: hanya satu opsi graf per perintah (ada ${at.map((i) => args[i]).join(', ')})`);
+  const i = at[0];
+  await writeFile(file, args[i + 1], 'utf-8');
+  return [...args.slice(0, i), `-/${args[i].slice(1)}`, file, ...args.slice(i + 2)];
 }
 
 export class FfmpegError extends Error {

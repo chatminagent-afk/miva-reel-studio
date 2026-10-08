@@ -4,7 +4,7 @@ import { existsSync, statSync } from 'node:fs';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { buildBaseCommands } from './base';
-import { ffmpegPath } from './ffmpeg';
+import { ffmpegPath, graphToFile } from './ffmpeg';
 import { runProcess } from './proc';
 import type { EditJson } from './types';
 
@@ -34,8 +34,10 @@ export async function ensureBase(proj: string, edit: EditJson, o: { signal?: Abo
   await mkdir(join(proj, 'assets'), { recursive: true });
   const [encode, video, audio] = buildBaseCommands(edit, proj);
   const out = edit.segs.reduce((a, [x, y]) => a + (y - x), 0) / Number(edit.speed ?? 1.25);
+  const graphFile = join(proj, 'assets', '_base-graph.txt'); // graf potong+gabung tumbuh ±161 karakter per potongan
   try {
-    await runProcess(ffmpegPath(), ['-v', 'error', '-y', '-nostats', '-progress', 'pipe:1', ...encode], {
+    const encodeArgs = await graphToFile(['-v', 'error', '-y', '-nostats', '-progress', 'pipe:1', ...encode], graphFile);
+    await runProcess(ffmpegPath(), encodeArgs, {
       signal: o.signal,
       onStdoutLine: (l) => {
         const m = /^out_time_us=(\d+)/.exec(l);
@@ -45,6 +47,7 @@ export async function ensureBase(proj: string, edit: EditJson, o: { signal?: Abo
     await runProcess(ffmpegPath(), ['-v', 'error', '-y', ...video], { signal: o.signal });
     await runProcess(ffmpegPath(), ['-v', 'error', '-y', ...audio], { signal: o.signal });
   } finally {
+    await rm(graphFile, { force: true });
     await rm(join(proj, 'assets', '_base.mov'), { force: true });
   }
   await mkdir(join(proj, '.reel'), { recursive: true });

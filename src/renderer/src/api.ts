@@ -25,5 +25,9 @@ export function friendlyError(message: string, code?: string): string {
   if (code === 'model_missing') return 'Whisper model is not installed. Reinstall the app or run fetch-resources.';
   if (code === 'audio') return 'Could not read the audio of this file.';
   if (/base\.mp4 belum ada/.test(message)) return 'Run Auto Edit first.';
+  // proc.ts menolak baris perintah Windows yang kepanjangan; ENAMETOOLONG = spawn gagal karena sebab yang sama
+  const long = /terlalu panjang untuk Windows \((\d+) karakter/.exec(message);
+  if (long) return `This project is too complex for a single FFmpeg command (${long[1]} characters; Windows allows about 32,000). Please report this bug.`;
+  if (/ENAMETOOLONG/.test(message)) return 'This project is too complex for a single FFmpeg command (over the Windows command-line limit). Please report this bug.';
   return message;
 }
