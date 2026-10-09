@@ -107,17 +107,17 @@ function build(item: ResolvedMotion<'split'>) {
 
 export const split: MotionComponent<'split'> = {
   kind: 'split',
-  title: 'Dua kartu (split)',
-  description: 'Dua kartu berdampingan: kiri daftar baris berikon, kanan kartu bernada berisi bubble; opsional bubble kanan membanjiri kiri.',
+  title: 'Split compare',
+  description: 'Two side-by-side cards: the left a list of icon rows, the right a toned card with bubbles; optionally the right bubbles flood the left card.',
   fields: [
-    { key: 'left.title', label: 'Judul kiri', type: 'text' },
-    { key: 'left.items', label: 'Baris kiri', type: 'lines', hint: 'Satu per baris; ikon bergilir otomatis' },
-    { key: 'left.tone', label: 'Nada kiri', type: 'tone' },
-    { key: 'right.title', label: 'Judul kanan', type: 'text' },
-    { key: 'right.items', label: 'Bubble di kartu kanan', type: 'lines' },
-    { key: 'right.tone', label: 'Nada kanan', type: 'tone' },
-    { key: 'flood', label: 'Banjir ke kartu kiri', type: 'bool' },
-    { key: 'bubbles', label: 'Bubble banjir', type: 'lines', hint: 'Menyebar menutupi kartu kiri' },
+    { key: 'left.title', label: 'Left title', type: 'text' },
+    { key: 'left.items', label: 'Left rows', type: 'lines', hint: 'One per line; icons rotate automatically' },
+    { key: 'left.tone', label: 'Left tone', type: 'tone' },
+    { key: 'right.title', label: 'Right title', type: 'text' },
+    { key: 'right.items', label: 'Bubbles in right card', type: 'lines' },
+    { key: 'right.tone', label: 'Right tone', type: 'tone' },
+    { key: 'flood', label: 'Flood the left card', type: 'bool' },
+    { key: 'bubbles', label: 'Flood bubbles', type: 'lines', hint: 'Spread out to cover the left card' },
   ],
   defaults: (): SplitProps => ({
     left: { title: 'BUSINESS', items: ['Sales', 'Marketing', 'Team'], tone: 'mint' },

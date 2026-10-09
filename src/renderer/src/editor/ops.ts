@@ -208,6 +208,8 @@ export interface MotionPatch {
   props?: Record<string, unknown>;
   label?: string;
   scene?: boolean;
+  /** true = item tanpa SFX; false menghapus kunci `silent` */
+  silent?: boolean;
   /** false = tandai sudah dicek (kunci `review` dihapus) */
   review?: boolean;
   origin?: 'rules' | 'manual';
@@ -224,6 +226,10 @@ export function updateMotion(d: Doc, id: string, patch: MotionPatch): Doc {
     }
     if (patch.label !== undefined) next.label = patch.label;
     if (patch.scene !== undefined) next.scene = patch.scene;
+    if (patch.silent !== undefined) {
+      if (patch.silent) next.silent = true;
+      else delete next.silent;
+    }
     if (patch.review !== undefined) {
       if (patch.review) next.review = true;
       else delete next.review;

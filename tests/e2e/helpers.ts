@@ -1,8 +1,9 @@
 // Bantuan E2E: footage sintetis dengan kata asli tes2, Whisper palsu (sidecar asli + faster_whisper palsu), app terisolasi.
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { _electron as electron, type ElectronApplication, type Page } from 'playwright';
-import { ffmpeg } from '../../src/core/ffmpeg';
+import { ffmpeg, ffmpegPath } from '../../src/core/ffmpeg';
 
 export const ROOT = join(__dirname, '..', '..');
 export const ACUAN = join(ROOT, 'tests', 'fixtures', 'acuan-tes2');
@@ -57,4 +58,42 @@ export async function stubOpenDialog(app: ElectronApplication, path: string): Pr
   await app.evaluate(({ dialog }, p) => {
     dialog.showOpenDialog = (async () => ({ canceled: false, filePaths: [p] })) as typeof dialog.showOpenDialog;
   }, path);
+}
+
+// ---------- piksel frame hasil export (dipakai tes motion) ----------
+export const FRAME_W = 1080;
+export const FRAME_H = 1920;
+
+/** RGB satu frame pada detik t, diskalakan ke 1080x1920 supaya koordinat sama untuk semua resolusi. */
+export function frameRgb(file: string, t: number): Buffer {
+  return execFileSync(ffmpegPath(), ['-v', 'error', '-ss', Math.max(0, t).toFixed(3), '-i', file, '-frames:v', '1', '-vf', `scale=${FRAME_W}:${FRAME_H}`, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], {
+    maxBuffer: 64 << 20,
+  });
+}
+
+/** Jumlah piksel emas kata kunci (#ffd65a) di baris y0..y1. */
+export function goldPixels(rgb: Buffer, y0: number, y1: number): number {
+  let n = 0;
+  for (let y = y0; y < y1; y++)
+    for (let x = 0; x < FRAME_W; x++) {
+      const i = (y * FRAME_W + x) * 3;
+      if (Math.abs(rgb[i] - 0xff) < 30 && Math.abs(rgb[i + 1] - 0xd6) < 30 && Math.abs(rgb[i + 2] - 0x5a) < 40) n++;
+    }
+  return n;
+}
+
+const luma = (rgb: Buffer, i: number) => 0.299 * rgb[i] + 0.587 * rgb[i + 1] + 0.114 * rgb[i + 2];
+
+/** Rata-rata luma (0..255) baris y0..y1. */
+export function meanLuma(rgb: Buffer, y0: number, y1: number): number {
+  let s = 0;
+  for (let y = y0; y < y1; y++) for (let x = 0; x < FRAME_W; x++) s += luma(rgb, (y * FRAME_W + x) * 3);
+  return s / ((y1 - y0) * FRAME_W);
+}
+
+/** Porsi piksel terang (luma > 200): end card terang (#eceff2) hampir seluruhnya terang. */
+export function lightShare(rgb: Buffer): number {
+  let n = 0;
+  for (let i = 0; i < FRAME_W * FRAME_H * 3; i += 3) if (luma(rgb, i) > 200) n++;
+  return n / (FRAME_W * FRAME_H);
 }

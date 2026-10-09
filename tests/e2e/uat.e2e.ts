@@ -8,9 +8,25 @@ import { join } from 'node:path';
 import type { ElectronApplication, Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ffmpeg, ffmpegPath } from '../../src/core/ffmpeg';
-import { launchApp, stubOpenDialog } from './helpers';
+import { frameRgb, goldPixels, launchApp, lightShare, stubOpenDialog } from './helpers';
 
 const SPEECH = process.env.REEL_UAT_SPEECH;
+/** Brief kecil yang cocok dengan teks TTS di CI: satu teks besar (serif emas) dan satu end card. */
+const MOTION_BRIEF = `Hello everyone. Today I want to try a new app called Reel Studio.
+
+[MOTION 01 - HOOK | 2 seconds]
+Tampilkan teks besar: **"Edit reels in one click"**
+
+Then it exports the video in one click.
+
+[MOTION 02 - ENDING | 2 seconds]
+Lalu end card:
+
+**MIVA AI**
+*AI Customer Service*
+
+**Chat nomor di BIO**
+`;
 const ffprobeBin = () => process.env.REEL_FFPROBE ?? 'ffprobe';
 const finalSecs = async (win: Page) => {
   const [m, s] = (await win.textContent('[data-testid="timecode"]'))!.split('/')[1].trim().split(':').map(Number);
@@ -126,5 +142,49 @@ describe.skipIf(!SPEECH || !existsSync(SPEECH))('UAT dengan model Whisper asli',
     expect(await win.$('[data-testid="proxy-error"]')).toBeNull();
     await waitVideo(win);
     expect((await previewVideo(win)).src).not.toBe(before.src);
+  });
+  // Motion di app hasil packaging: bukti installer membawa font (Playfair, Montserrat), Chrome, FFmpeg dan motion jalan offline.
+  // Proyek aktif = footage kedua (uat-raw2), sudah lewat Auto Edit di tes sebelumnya.
+  it('motion: brief kecil, Generate, export: teks besar emas di atas, end card terang di ekor, tanpa request internet', async () => {
+    await win.click('.ltab:has-text("Motion")');
+    await win.fill('[data-testid="motion-brief"]', MOTION_BRIEF);
+    await win.click('[data-testid="motion-generate"]');
+    await win.waitForSelector('[data-testid="motion-report"]');
+    const kinds = await win.$$eval('[data-testid="motion-item"]', (els) => els.map((e) => (e as HTMLElement).dataset.kind));
+    console.log('motion:', kinds.join(' '), '|', await win.textContent('[data-testid="motion-report"]'));
+    expect(kinds).toContain('statement');
+    expect(kinds).toContain('endcard');
+    await expect.poll(async () => Number(await win.inputValue('[data-testid="motion-tail"]')), { timeout: 10_000 }).toBeGreaterThan(0);
+    const tail = Number(await win.inputValue('[data-testid="motion-tail"]'));
+    await win.click('[data-testid="motion-item"][data-kind="statement"]');
+    const t0 = Number(await win.inputValue('[data-testid="motion-start"]'));
+    const t1 = Number(await win.inputValue('[data-testid="motion-end"]'));
+    await win.waitForTimeout(1500); // autosave sebelum export
+
+    await win.click('[data-testid="open-export"]');
+    await win.waitForSelector('[role="dialog"][aria-label="Export"]');
+    if ((await win.getAttribute('[aria-label="Open folder when done"]', 'aria-pressed')) === 'true') await win.click('[aria-label="Open folder when done"]');
+    await win.fill('[aria-label="File name"]', 'uat-motion');
+    await win.click('[data-testid="export-start"]');
+    await win.waitForSelector('[data-testid="export-done"], [data-testid="export-error"]', { timeout: 900_000 });
+    const err = await win.$('[data-testid="export-error"]');
+    if (err) throw new Error(`export gagal: ${await err.textContent()}`);
+    const out = join(work, 'exports', 'uat-motion.mp4');
+    const total = await finalSecs(win); // badan + tail
+    const p = JSON.parse(execFileSync(ffprobeBin(), ['-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height:format=duration', '-of', 'json', out], { encoding: 'utf-8' }));
+    expect([p.streams[0].width, p.streams[0].height]).toEqual([1080, 1920]);
+    expect(Math.abs(Number(p.format.duration) - total)).toBeLessThan(0.15);
+    // teks besar serif emas di area atas (y 300-700); sebelum teks muncul area itu tidak emas
+    const mid = (t0 + t1) / 2;
+    const gMid = goldPixels(frameRgb(out, mid), 300, 700);
+    const gPre = goldPixels(frameRgb(out, Math.max(0, t0 - 0.25)), 300, 700);
+    console.log(`emas y300-700: tengah teks besar (t=${mid.toFixed(2)}) ${gMid}, sebelumnya ${gPre}; total ${total.toFixed(2)} s, tail ${tail} s`);
+    expect(gMid).toBeGreaterThan(1500);
+    expect(gMid).toBeGreaterThan(gPre + 1000);
+    // end card terang memenuhi layar di ekor (freeze frame terakhir)
+    const share = lightShare(frameRgb(out, total - tail * 0.45));
+    console.log(`porsi piksel terang di ekor: ${(share * 100).toFixed(1)}%`);
+    expect(share).toBeGreaterThan(0.6);
+    expect(external).toEqual([]);
   });
 });

@@ -86,11 +86,11 @@ function build(item: ResolvedMotion<'cta'>) {
 
 export const cta: MotionComponent<'cta'> = {
   kind: 'cta',
-  title: 'Ajakan (CTA)',
-  description: 'Tumpukan pill ajakan bertingkat dengan panah (mis. COMMENT, DM, CHAT NOMOR DI BIO); pill terakhir navy, opsional kursor mengetuknya.',
+  title: 'CTA pills',
+  description: 'Stepped stack of call-to-action pills with arrows (e.g. COMMENT, DM, CHAT NOMOR DI BIO); the last pill is navy, optionally with a cursor tapping it.',
   fields: [
-    { key: 'pills', label: 'Pill', type: 'lines', hint: 'Satu per baris, urut dari atas; baris terakhir = pill utama (navy)' },
-    { key: 'tap', label: 'Kursor mengetuk pill terakhir', type: 'bool' },
+    { key: 'pills', label: 'Pills', type: 'lines', hint: 'One per line, top to bottom; the last line = main pill (navy)' },
+    { key: 'tap', label: 'Cursor taps the last pill', type: 'bool' },
   ],
   defaults: (): CtaProps => ({ pills: ['COMMENT', 'DM', 'CHAT NOMOR DI BIO'], tap: true }),
   minDur: 1.5,

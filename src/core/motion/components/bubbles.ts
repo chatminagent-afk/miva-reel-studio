@@ -133,11 +133,11 @@ function build(item: ResolvedMotion<'bubbles'>) {
 
 export const bubbles: MotionComponent<'bubbles'> = {
   kind: 'bubbles',
-  title: 'Kluster bubble',
-  description: 'Bubble chat: tumpuk satu-satu, loop bergulir tanpa akhir, ditarik ke tengah, atau membanjir.',
+  title: 'Chat bubbles',
+  description: 'Chat bubbles: stacked one by one, an endless scrolling loop, pulled to the center, or flooding in.',
   fields: [
     { key: 'mode', label: 'Mode', type: 'select', options: ['stack', 'loop', 'gather', 'flood'] },
-    { key: 'items', label: 'Isi bubble', type: 'lines', hint: 'Satu per baris. Loop: daftar diulang sampai 12 supaya terasa tanpa akhir' },
+    { key: 'items', label: 'Bubble texts', type: 'lines', hint: 'One per line. Loop: the list repeats up to 12 so it feels endless' },
   ],
   defaults: (): BubblesProps => ({ items: ['Harga berapa?', 'Buka jam berapa?', 'Bisa booking?'], mode: 'loop' }),
   minDur: 1.5,

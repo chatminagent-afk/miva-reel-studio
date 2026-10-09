@@ -11,6 +11,8 @@ import { api, fmtTime } from '../api';
 import { useDerived } from './derived';
 import { Details } from './Details';
 import { ExportDialog } from './ExportDialog';
+import { MotionPanel } from './MotionPanel';
+import { motionRows, type Axis } from './motionView';
 import * as ops from './ops';
 import { Preview, type PlayerHandle } from './Preview';
 import { previewHtml } from './previewHtml';
@@ -48,7 +50,7 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
   const [sel, setSel] = useState<Sel>(null);
   const [splits, setSplits] = useState<number[]>([]);
   const [layout, setLayout] = useState<Layout>('default');
-  const [leftTab, setLeftTab] = useState<'media' | 'audio' | 'captions'>(initialSummary ? 'captions' : 'captions');
+  const [leftTab, setLeftTab] = useState<'media' | 'audio' | 'captions' | 'motion'>(initialSummary ? 'captions' : 'captions');
   const [zoom, setZoom] = useState(1.2);
   const [summary, setSummary] = useState(initialSummary);
   const [saved, setSaved] = useState<string>(opened.doc.state.updated);
@@ -130,9 +132,15 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
   const select = useCallback(
     (s: Sel, seekTo?: number) => {
       setSel(s);
+      if (s?.kind === 'motion') {
+        // motion: pemain lompat ke awalnya (detik hasil edit). Item yang baru ditambah belum bertanggal: playhead sudah di sana
+        const r = d.motion.resolved.find((x) => x.id === s.id);
+        if (r) player.current?.seekEdited(r.t0);
+        return;
+      }
       if (seekTo !== undefined) seek(seekTo);
     },
-    [seek],
+    [seek, d.motion.resolved],
   );
   const onTime = useCallback((t: number, isPlaying: boolean, tail?: number) => {
     setTime(t);
@@ -149,6 +157,9 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
     } else if (sel.kind === 'gap') {
       const g = d.gaps.find((x) => x.after === sel.after);
       if (g && !g.cut) apply('Cut silence', (x) => ops.setGap(x, g, false));
+    } else if (sel.kind === 'motion') {
+      apply('Delete motion', (x) => ops.removeMotion(x, sel.id));
+      setSel(null);
     } else if (sel.kind === 'sfx') {
       if (sel.manual >= 0) {
         apply('Delete sound', (x) => ops.removeSfx(x, sel.manual));
@@ -216,6 +227,10 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
     const next = doc.edit.segs.find(([a]) => a > src);
     return next ? srcToEdited(doc.edit.segs, speed, next[0])! : d.finalDuration;
   };
+  /** playhead dalam detik hasil edit (di ekor: badan + posisi ekor; di bagian terbuang: awal bagian berikutnya) */
+  const playheadEdited = te ?? editedAt(time);
+  const axis = useMemo<Axis>(() => ({ segs: doc.edit.segs, speed, body: d.bodyDuration, raw: opened.doc.state.duration }), [doc.edit.segs, speed, d.bodyDuration, opened.doc.state.duration]);
+  const motionList = useMemo(() => motionRows(d.motion.resolved), [d.motion.resolved]);
   const selWords = useMemo(() => new Set(sel?.kind === 'word' ? [sel.i] : []), [sel]);
   const inserts = (doc.edit.inserts ?? []).map((x) => ({ src: editedToSrc(doc.edit.segs, speed, x.t).src, len: x.dur * speed, name: x.src.split(/[\\/]/).pop() ?? x.src }));
   const sfxGroups = useMemo(() => {
@@ -284,6 +299,7 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
                   ['media', 'Media'],
                   ['audio', 'Audio'],
                   ['captions', 'Captions'],
+                  ['motion', 'Motion'],
                 ] as const
               ).map(([k, l]) => (
                 <button key={k} type="button" className={`ltab${leftTab === k ? ' on' : ''}`} onClick={() => setLeftTab(k)}>
@@ -336,6 +352,7 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
                 ))}
               </div>
             )}
+            {leftTab === 'motion' && <MotionPanel doc={doc} d={d} sel={sel} apply={apply} playheadEdited={playheadEdited} onSelectMotion={(id) => select({ kind: 'motion', id })} />}
             {leftTab === 'captions' && (
               <Transcript doc={doc} d={d} sel={sel} time={time} summary={summary} onHideSummary={() => setSummary(null)} onSelect={select} onResuggest={() => apply('Re-suggest keywords', (x) => ops.resuggest(x, []))} />
             )}
@@ -436,6 +453,14 @@ export function Editor({ opened, summary: initialSummary, onHome, onSwitch }: Pr
             const shift = m.align && f ? f.peak_at * f.dur : 0;
             apply('Move sound', (x) => ops.updateSfx(x, j, { t: Math.round((editedAt(src) + shift) * 1000) / 1000 }));
           }}
+          motion={motionList}
+          scenes={d.scenes}
+          axis={axis}
+          tail={d.tail}
+          tailT={tailT}
+          total={d.finalDuration}
+          onMotionTimes={(id, t0, t1) => apply('Motion timing', (x) => ops.setMotionTimes(x, id, t0, t1))}
+          onSeekEdited={(t) => player.current?.seekEdited(t)}
         />
       </section>
 

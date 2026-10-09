@@ -1,9 +1,12 @@
 // Timeline (mockup Main.dc.html): sumbu = waktu footage mentah, jadi bagian yang dipotong tetap terlihat (arsir) dan
-// bisa dipulihkan. Track: Captions, Overlay, Main (potongan + gelombang suara), SFX. Trim = tarik tepi klip terpilih.
+// bisa dipulihkan. Track: Captions, Motion, Overlay (hanya bila ada gambar/video sisipan), Main (potongan + gelombang suara),
+// SFX. Trim = tarik tepi klip terpilih. Motion = satu blok per item (geser badan, tarik tepi), dan ekor (end card hold)
+// digambar di ujung kanan sesudah footage mentah.
 import { useEffect, useRef, useState } from 'react';
 import type { Seg } from '../../../core/types';
 import { fmtShort } from '../api';
 import type { ChunkView, SfxView } from './derived';
+import { assignLanes, dragAxis, dragToTimes, editedToAxis, type Axis, type DragMode, type MotionRow } from './motionView';
 
 export type Sel =
   | { kind: 'word'; i: number }
@@ -11,6 +14,7 @@ export type Sel =
   | { kind: 'clip'; a: number; b: number }
   | { kind: 'cut'; a: number; b: number }
   | { kind: 'sfx'; t: number; kat: string; manual: number }
+  | { kind: 'motion'; id: string }
   | null;
 
 interface Props {
@@ -31,6 +35,21 @@ interface Props {
   onTrim: (seg: number, edge: 'start' | 'end', t: number) => void;
   /** SFX manual digeser (waktu footage mentah) */
   onSfxMove: (manual: number, src: number) => void;
+  /** motion bertanggal (detik hasil edit), urut waktu mulai */
+  motion: MotionRow[];
+  /** rentang adegan motion (detik hasil edit) */
+  scenes: { s: number; e: number }[];
+  /** pemetaan hasil edit <-> sumbu (segs, speed, durasi badan, durasi footage mentah) */
+  axis: Axis;
+  /** edit.tail (dtk) dan posisi playhead di dalam ekor (null = di badan video) */
+  tail: number;
+  tailT: number | null;
+  /** durasi hasil edit termasuk ekor */
+  total: number;
+  /** blok motion digeser/diubah ukurannya (detik hasil edit) */
+  onMotionTimes: (id: string, t0: number, t1: number) => void;
+  /** klik ruler di ekor: lompat ke detik hasil edit */
+  onSeekEdited: (te: number) => void;
 }
 
 interface Piece {
@@ -54,16 +73,35 @@ export function pieces(segs: Seg[], splits: number[], duration: number): Piece[]
   return out;
 }
 
-const TRACK_LABELS = ['Captions', 'Overlay', 'Main', 'SFX'];
+const LANE_H = 20;
+const LANE_GAP = 3;
+/** jarak snapping (piksel layar) ke playhead, batas kata, dan tepi motion lain */
+const SNAP_PX = 6;
 
 export function Timeline(p: Props) {
   const K = 80 * p.zoom;
-  const width = Math.max(1, p.duration * K + 40);
+  const speed = p.axis.speed;
+  /** panjang sumbu: footage mentah + ekor (end card hold) */
+  const axisLen = p.duration + p.tail * speed;
+  const width = Math.max(1, axisLen * K + 40);
   const scroller = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [drag, setDrag] = useState<{ seg: number; edge: 'start' | 'end'; t: number } | null>(null);
   const list = pieces(p.segs, p.splits, p.duration);
-  const mainH = Math.max(58, p.height - 38 - 24 - 30 - 30 - 30 - 6);
+  const { lanes, count: laneCount } = assignLanes(p.motion);
+  const motionH = Math.max(30, laneCount * (LANE_H + LANE_GAP) + LANE_GAP);
+  const overlayH = p.inserts.length ? 30 : 0;
+  const mainH = Math.max(58, p.height - 38 - 24 - 30 - motionH - overlayH - 30 - 6);
+  const tracks = [
+    { l: 'Captions', h: 30 },
+    { l: 'Motion', h: motionH },
+    ...(overlayH ? [{ l: 'Overlay', h: overlayH }] : []),
+    { l: 'Main', h: mainH },
+    { l: 'SFX', h: 30 },
+  ];
+  const axisOf = (te: number) => editedToAxis(p.axis, te);
+  /** playhead: di ekor ikut posisi ekor, selain itu waktu footage */
+  const playAxis = p.tailT !== null ? p.duration + p.tailT * speed : p.time;
 
   // gelombang suara (canvas, sekali per zoom/data)
   useEffect(() => {
@@ -90,9 +128,9 @@ export function Timeline(p: Props) {
   useEffect(() => {
     const s = scroller.current;
     if (!s) return;
-    const x = p.time * K;
+    const x = playAxis * K;
     if (x < s.scrollLeft + 20 || x > s.scrollLeft + s.clientWidth - 60) s.scrollLeft = Math.max(0, x - s.clientWidth / 3);
-  }, [p.time, K]);
+  }, [playAxis, K]);
 
   const tFromEvent = (e: { clientX: number }, el: HTMLElement) => {
     const r = el.getBoundingClientRect();
@@ -133,18 +171,50 @@ export function Timeline(p: Props) {
     window.addEventListener('pointerup', up);
   };
 
+  // ---- motion: seret badan = geser (durasi tetap), seret tepi = ubah ukuran; diterapkan saat pointer dilepas ----
+  const [mdrag, setMdrag] = useState<{ id: string; a0: number; a1: number } | null>(null);
+  const startMotionDrag = (e: React.PointerEvent, r: MotionRow, mode: DragMode) => {
+    if (e.button !== 0) return;
+    e.stopPropagation();
+    p.onSelect({ kind: 'motion', id: r.id });
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    const x0 = e.clientX;
+    const A0 = axisOf(r.t0);
+    const A1 = axisOf(r.t1);
+    // titik snap: playhead, batas kata yang dipakai, tepi motion lain
+    const cands = [playAxis, ...p.chunks.flatMap((c) => [c.start, c.end]), ...p.motion.filter((m) => m.id !== r.id).flatMap((m) => [axisOf(m.t0), axisOf(m.t1)])];
+    let moved = false;
+    let edges = { a0: A0, a1: A1 };
+    const move = (ev: PointerEvent) => {
+      if (!moved && Math.abs(ev.clientX - x0) < 3) return;
+      moved = true;
+      edges = dragAxis(mode, A0, A1, (ev.clientX - x0) / K, cands, SNAP_PX / K);
+      setMdrag({ id: r.id, ...edges });
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      setMdrag(null);
+      if (!moved) return;
+      const t = dragToTimes(mode, p.axis, p.total, { t0: r.t0, t1: r.t1 }, edges);
+      if (Math.abs(t.t0 - r.t0) > 0.004 || Math.abs(t.t1 - r.t1) > 0.004) p.onMotionTimes(r.id, t.t0, t.t1);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
   const tickEvery = K >= 60 ? 1 : K >= 25 ? 2 : 5;
   const ticks: number[] = [];
-  for (let s = 0; s <= p.duration; s += tickEvery) ticks.push(s);
+  for (let s = 0; s <= axisLen; s += tickEvery) ticks.push(s);
   const isSel = (pc: Piece) => p.sel && (p.sel.kind === 'clip' || p.sel.kind === 'cut') && Math.abs(p.sel.a - pc.a) < 0.001 && Math.abs(p.sel.b - pc.b) < 0.001;
 
   return (
     <div style={{ flex: '1 1 auto', display: 'flex', minHeight: 0 }}>
       <div style={{ flex: '0 0 92px', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--line)' }}>
         <div style={{ height: 24, borderBottom: '1px solid var(--line)' }} />
-        {TRACK_LABELS.map((l) => (
-          <div key={l} className="thead" style={{ height: l === 'Main' ? mainH : 30, borderTop: l === 'SFX' ? '1px solid var(--line)' : undefined }}>
-            <span>{l}</span>
+        {tracks.map((t) => (
+          <div key={t.l} className="thead" style={{ height: t.h, borderTop: t.l === 'SFX' ? '1px solid var(--line)' : undefined }}>
+            <span>{t.l}</span>
           </div>
         ))}
       </div>
@@ -156,7 +226,12 @@ export function Timeline(p: Props) {
             aria-valuenow={p.time}
             tabIndex={0}
             data-testid="ruler"
-            onPointerDown={(e) => p.onSeek(tFromEvent(e, e.currentTarget))}
+            onPointerDown={(e) => {
+              // klik di ekor (sesudah footage mentah) = lompat ke posisi di ekor
+              const x = (e.clientX - e.currentTarget.getBoundingClientRect().left) / K;
+              if (p.tail > 0 && x > p.duration) p.onSeekEdited(p.axis.body + Math.min(p.tail, (x - p.duration) / speed));
+              else p.onSeek(tFromEvent(e, e.currentTarget));
+            }}
             style={{ position: 'relative', height: 24, flex: '0 0 auto', borderBottom: '1px solid var(--line)', cursor: 'pointer' }}
           >
             {ticks.map((s) => (
@@ -181,18 +256,52 @@ export function Timeline(p: Props) {
             ))}
           </div>
 
-          <div className="trk" style={{ height: 30 }}>
-            {p.inserts.length === 0 && (
+          <div className="trk" data-track="motion" data-testid="motion-track" style={{ height: motionH }}>
+            {p.scenes.map((sc, n) => {
+              const a = axisOf(sc.s);
+              return <span key={n} className="scene-shade" style={{ left: a * K, width: Math.max(2, (axisOf(sc.e) - a) * K) }} title="Scene: dark scrim and blurred footage" />;
+            })}
+            {p.motion.length === 0 && (
               <span className="muted" style={{ position: 'absolute', left: 8, top: 8, fontSize: 11 }}>
-                B-roll and images (coming soon)
+                Motion graphics (generate them in the Motion tab)
               </span>
             )}
-            {p.inserts.map((o, n) => (
-              <span key={n} className="ovl" style={{ left: o.src * K, width: o.len * K }}>
-                {o.name}
-              </span>
-            ))}
+            {p.motion.map((r) => {
+              const live = mdrag && mdrag.id === r.id ? mdrag : null;
+              const a0 = live ? live.a0 : axisOf(r.t0);
+              const a1 = live ? live.a1 : axisOf(r.t1);
+              const sel = p.sel?.kind === 'motion' && p.sel.id === r.id;
+              return (
+                <div
+                  key={r.id}
+                  role="button"
+                  tabIndex={0}
+                  className={`mblk mk-${r.kind}${r.review ? ' review' : ''}${sel ? ' sel' : ''}${live ? ' drag' : ''}`}
+                  style={{ left: a0 * K, width: Math.max(8, (a1 - a0) * K - 1), top: LANE_GAP + (lanes.get(r.id) ?? 0) * (LANE_H + LANE_GAP), height: LANE_H }}
+                  title={`${r.name} · ${(r.t1 - r.t0).toFixed(1)} s${r.review ? ' · needs review' : ''}`}
+                  data-testid="motion-block"
+                  data-id={r.id}
+                  data-kind={r.kind}
+                  onPointerDown={(e) => startMotionDrag(e, r, 'move')}
+                  onKeyDown={(e) => e.key === 'Enter' && p.onSelect({ kind: 'motion', id: r.id })}
+                >
+                  <span className="mh l" data-testid="motion-handle-l" onPointerDown={(e) => startMotionDrag(e, r, 'left')} />
+                  <span className="mlabel">{r.name}</span>
+                  <span className="mh r" data-testid="motion-handle-r" onPointerDown={(e) => startMotionDrag(e, r, 'right')} />
+                </div>
+              );
+            })}
           </div>
+
+          {overlayH > 0 && (
+            <div className="trk" style={{ height: overlayH }}>
+              {p.inserts.map((o, n) => (
+                <span key={n} className="ovl" style={{ left: o.src * K, width: o.len * K }}>
+                  {o.name}
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="trk" data-track="main" style={{ height: mainH, margin: '0 0 4px' }} onPointerDown={(e) => e.target === e.currentTarget && p.onSeek(tFromEvent(e, e.currentTarget))}>
             <canvas ref={canvas} style={{ position: 'absolute', left: 0, bottom: 2, height: 18, width: Math.min(32000, Math.ceil(p.duration * K)), pointerEvents: 'none', zIndex: 1, opacity: 0.85 }} />
@@ -248,7 +357,13 @@ export function Timeline(p: Props) {
             })}
           </div>
 
-          <div style={{ position: 'absolute', top: 0, bottom: 0, left: p.time * K, width: 2, background: '#fff', pointerEvents: 'none' }} data-testid="playhead">
+          {p.tail > 0 && (
+            <div className="tailzone" data-testid="tail-region" style={{ left: p.duration * K, width: p.tail * speed * K, top: 24 }}>
+              <span>End card hold · {p.tail.toFixed(1)} s</span>
+            </div>
+          )}
+
+          <div style={{ position: 'absolute', top: 0, bottom: 0, left: playAxis * K, width: 2, background: '#fff', pointerEvents: 'none' }} data-testid="playhead">
             <div style={{ position: 'absolute', top: 0, left: -5, width: 12, height: 10, background: '#fff', borderRadius: 2 }} />
           </div>
         </div>

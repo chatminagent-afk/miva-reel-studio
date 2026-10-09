@@ -25,13 +25,24 @@
      putih untuk trim. **Ctrl+B** = split di playhead, lalu **Delete** untuk membuang potongan itu.
    - Tab **Audio**: pustaka SFX; **+ Add** menaruh bunyi di playhead. Klik marker di track SFX: ganti bunyi,
      volume, hapus (manual) atau **Mute** (otomatis). Marker manual bisa digeser.
+   - Tab **Motion** (motion graphic gaya MIVA, offline):
+     - Tempel brief di **Motion brief**, formatnya sama dengan yang biasa dikirim ke `/reel-edit`: naskah diselingi blok
+       `[MOTION 01 - HOOK | 2 detik]` + deskripsi visualnya (format `[0-3s]` + `Motion:` dan `### BAGIAN` juga terbaca).
+     - **Generate from brief**: tiap blok jadi motion dari 13 komponen (notifikasi, counter, split, bubble chat, HP,
+       teks besar, rantai alur, logo, jendela chat + chip, end card, toggle, CTA) dan otomatis ditaruh di kata yang
+       kamu ucapkan. Ringkasan menyebut jumlah blok, motion, yang perlu dicek (**Review**, oranye) dan waktu yang ditebak.
+       Generate ulang mengganti motion hasil brief; motion manual atau yang diberi **Keep when regenerating** tetap.
+     - **+ Add motion** menaruh komponen di playhead. **End card hold** = detik freeze frame terakhir untuk end card.
+     - Klik motion (daftar atau track **Motion** di timeline) untuk mengedit di panel kanan: teks/isi, **Start/End**,
+       **Scene** (latar digelapkan + footage blur), **Silent** (tanpa SFX). Di timeline: geser blok, tarik tepinya.
+       Motion menempel ke kata, jadi ikut bergeser kalau kamu memotong kalimat sebelumnya.
    - Panel kanan tanpa pilihan: kamera otomatis (on/off + kekuatan), kecepatan, grade, info audio.
    - **Spasi** = play/pause, **Ctrl+Z / Ctrl+Shift+Z** = undo/redo, **Ctrl+S** = simpan.
    - Semua tersimpan otomatis. **Save vN** menyimpan versi; pilihan versi di header membuka versi lama
      (keadaan sekarang disimpan dulu sebagai versi baru, jadi tidak ada yang hilang).
 4. **Export**: nama file, folder (Browse, bisa jadi default), 1080p/2K/4K, 30/60 fps, H.264/HEVC, kualitas,
    **Cover JPG** (judul: `kecil|*BESAR*|kecil`), **salinan WhatsApp**, buka folder setelah selesai.
-   Encode memakai NVENC (GPU) kalau tersedia.
+   Encode memakai NVENC (GPU) kalau tersedia; kalau GPU gagal di tengah export, otomatis diulang dengan CPU.
 
 ## Settings
 
@@ -40,7 +51,7 @@ diprioritaskan jadi kata kunci, transkripsi GPU/CPU, dan diagnostik (versi Whisp
 
 ## Belum ada di versi ini
 
-Motion graphic (pustaka komponen), b-roll/gambar di track Overlay, teks bebas/judul, fitur Pro (transform +
+B-roll/gambar di track Overlay, teks bebas/judul, fitur Pro (transform +
 keyframe, Remove BG, stabilize, audio pro), saran kata kunci Local LLM/Claude, kirim WA via Kirimi, editor cover
 visual, deteksi awal kamera goyang. SFX masih pustaka **sintetis** sampai pustaka aslimu ditaruh di
 `resources/sfx/` repo (lihat README di sana).
@@ -66,3 +77,5 @@ Tandai Lulus/Gagal. Kalau gagal: kirim nomor + langkah + screenshot.
 | 13 | Export 4K 60 fps HEVC; putar di HP | |
 | 14 | Cancel export di tengah: tidak ada file setengah jadi | |
 | 15 | Rasa: gaya subtitle, kata kunci, kamera, SFX dibanding render skill (`tes2-acuan.mp4`) | |
+| 16 | Proyek `3.MP4`: tab Motion, tempel brief miva-3, Generate; bandingkan hasil export dengan `miva_3-v1.mp4` (skill) | |
+| 17 | Edit satu motion (teks + geser di timeline), export ulang | |

@@ -153,17 +153,17 @@ function build(item: ResolvedMotion<'chat'>) {
 
 export const chat: MotionComponent<'chat'> = {
   kind: 'chat',
-  title: 'Jendela chat',
-  description: 'Jendela chat WhatsApp: bubble customer, balasan bot diketik (titik mengetik dulu), balasan admin, chip status, dan clear untuk kasus berikutnya.',
+  title: 'Chat window',
+  description: 'WhatsApp chat window: customer bubbles, typed bot replies (typing dots first), admin replies, status chips, and clear for the next case.',
   fields: [
-    { key: 'title', label: 'Nama di header', type: 'text' },
-    { key: 'status', label: 'Status', type: 'text', hint: 'Mis. online' },
-    { key: 'logo', label: 'Tile logo MIVA di header', type: 'bool' },
+    { key: 'title', label: 'Header name', type: 'text' },
+    { key: 'status', label: 'Status', type: 'text', hint: 'E.g. online' },
+    { key: 'logo', label: 'MIVA logo tile in header', type: 'bool' },
     {
       key: 'steps',
-      label: 'Langkah',
+      label: 'Steps',
       type: 'json',
-      hint: "[{from: cus|bot|human|chip|clear, text?, sub?, tone?}]; satu langkah = satu beat; maks ~5 bubble per kasus (pakai clear)",
+      hint: "[{from: cus|bot|human|chip|clear, text?, sub?, tone?}]; one step = one beat; max ~5 bubbles per case (use clear)",
     },
   ],
   defaults: (): ChatProps => ({

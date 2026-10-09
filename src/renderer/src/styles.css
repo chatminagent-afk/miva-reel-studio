@@ -130,3 +130,53 @@ textarea.field { height: auto; padding: 6px 8px; font-family: 'IBM Plex Mono', u
 .thumb { position: relative; width: 100%; aspect-ratio: 9 / 16; border-radius: 6px; background: #2a2a30; overflow: hidden; }
 .banner { border-radius: 8px; padding: 10px 12px; background: #1f1b10; border: 1px solid #3f3518; display: flex; flex-direction: column; gap: 8px; }
 .details { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
+
+/* Motion (tab Motion, Details, track timeline). Warna per jenis lewat --kc. */
+.mk-statement { --kc: #ffd65a; }
+.mk-chat { --kc: #2fbf7a; }
+.mk-chain { --kc: #22d6ee; }
+.mk-chips { --kc: #3fb8a0; }
+.mk-counter { --kc: #ff7a6b; }
+.mk-toasts { --kc: #ff8fb1; }
+.mk-phone { --kc: #a08bff; }
+.mk-split { --kc: #5b9bff; }
+.mk-bubbles { --kc: #7ec8ff; }
+.mk-logo { --kc: #bbe1d4; }
+.mk-endcard { --kc: #e6e9ee; }
+.mk-toggle { --kc: #ffb547; }
+.mk-cta { --kc: #c58bff; }
+.field.bad { border-color: #8a3a40; }
+select.field { padding: 0 6px; }
+.ferr { color: var(--bad); font-size: 11px; line-height: 1.4; }
+.mfield { display: flex; flex-direction: column; gap: 6px; }
+.mnote { margin: 0; padding: 8px 10px; border-radius: 6px; background: #121214; border: 1px solid #26262b; color: #b9b9c2; font: 11px/1.5 'IBM Plex Mono', ui-monospace, monospace; white-space: pre-wrap; max-height: 120px; overflow: auto; }
+.mreport { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mstat { display: flex; align-items: baseline; gap: 8px; padding: 7px 10px; border-radius: 8px; background: #17181b; border: 1px solid #232529; font-size: 11px; color: var(--muted); }
+.mstat b { font-size: 18px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.mstat.warn { border-color: #6b4b12; background: #241a08; }
+.mstat.warn b { color: #ffb547; }
+.mnotes { grid-column: 1 / -1; margin: 2px 0 0; padding: 0 0 0 16px; font-size: 11px; line-height: 1.5; color: #d6cfb8; }
+.mrow { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; background: transparent; text-align: left; cursor: pointer; }
+.mrow:hover { background: #1f1f23; }
+.mrow.sel { background: #1c2535; border-color: var(--sel); }
+.mkind { flex: 0 0 68px; text-align: center; white-space: nowrap; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 6px; border-radius: 4px; color: var(--kc); background: color-mix(in srgb, var(--kc) 14%, #17181b); border: 1px solid color-mix(in srgb, var(--kc) 38%, transparent); }
+.mname { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.mtitle { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mtime { font-size: 10px; }
+.mbadges { flex: 0 1 auto; display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; max-width: 112px; }
+.mbadge { font-size: 9px; line-height: 1; padding: 3px 6px; border-radius: 999px; border: 1px solid #34343a; color: var(--muted); white-space: nowrap; }
+.mbadge.review { color: #ffb547; border-color: #6b4b12; background: #241a08; font-weight: 600; }
+.mblk { position: absolute; display: flex; align-items: center; padding: 0 9px; border-radius: 5px; font-size: 11px; overflow: hidden; cursor: grab; user-select: none; touch-action: none; color: var(--text); background: color-mix(in srgb, var(--kc) 26%, #1a1b1f); border-left: 3px solid var(--kc); }
+.mblk:hover { background: color-mix(in srgb, var(--kc) 36%, #1a1b1f); }
+.mblk.review { box-shadow: inset 0 0 0 1.5px #ffb547; }
+.mblk.sel { outline: 2px solid var(--sel); z-index: 2; }
+.mblk.drag { cursor: grabbing; opacity: 0.92; z-index: 3; }
+.mblk:focus-visible { outline: 2px solid var(--sel); }
+.mh { position: absolute; top: 0; bottom: 0; width: 7px; cursor: ew-resize; z-index: 2; }
+.mh.l { left: 0; }
+.mh.r { right: 0; }
+.mblk.sel .mh, .mblk:hover .mh { background: rgba(255, 255, 255, 0.5); }
+.mlabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.scene-shade { position: absolute; top: 0; bottom: 0; background: rgba(110, 130, 150, 0.14); border-left: 1px solid rgba(150, 170, 190, 0.28); border-right: 1px solid rgba(150, 170, 190, 0.28); pointer-events: none; }
+.tailzone { position: absolute; bottom: 0; pointer-events: none; background: repeating-linear-gradient(135deg, rgba(236, 239, 242, 0.07) 0 6px, transparent 6px 12px); border-left: 1px dashed #6a6a74; }
+.tailzone span { position: absolute; top: 6px; left: 8px; font-size: 10px; color: var(--muted); white-space: nowrap; }

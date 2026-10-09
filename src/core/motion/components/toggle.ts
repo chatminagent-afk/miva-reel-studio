@@ -67,11 +67,11 @@ function build(item: ResolvedMotion<'toggle'>) {
 
 export const toggle: MotionComponent<'toggle'> = {
   kind: 'toggle',
-  title: 'Ganti A jadi B',
-  description: 'Kartu A dicoret merah dengan X, lalu kartu B bercentang masuk (mis. "Balas manual" jadi "Dibalas otomatis").',
+  title: 'Toggle (before/after)',
+  description: 'Card A is struck through in red with an X, then card B enters with a checkmark (e.g. "Balas manual" becomes "Dibalas otomatis").',
   fields: [
-    { key: 'from', label: 'Teks lama (dicoret)', type: 'text' },
-    { key: 'to', label: 'Teks baru (bercentang)', type: 'text' },
+    { key: 'from', label: 'Old text (struck through)', type: 'text' },
+    { key: 'to', label: 'New text (checked)', type: 'text' },
   ],
   defaults: (): ToggleProps => ({ from: 'Balas manual', to: 'Dibalas otomatis' }),
   minDur: 2,

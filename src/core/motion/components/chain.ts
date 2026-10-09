@@ -167,14 +167,14 @@ function build(item: ResolvedMotion<'chain'>) {
 
 export const chain: MotionComponent<'chain'> = {
   kind: 'chain',
-  title: 'Rantai alur',
-  description: 'Rantai node ikon + label (CUSTOMER > YOU > YOU); node bisa memerah lalu morph jadi rantai kedua (CUSTOMER > MIVA > DONE) + pill kalimat.',
+  title: 'Flow chain',
+  description: 'Chain of icon + label nodes (CUSTOMER > YOU > YOU); nodes can turn red, then morph into a second chain (CUSTOMER > MIVA > DONE) + a sentence pill.',
   fields: [
-    { key: 'nodes', label: 'Node', type: 'json', hint: "[{label, icon, tone?}]; icon 'bubble' tanpa label = bubble pemisah" },
-    { key: 'alert', label: 'Node memerah (indeks)', type: 'numbers', hint: 'Indeks di nodes; bergetar sebelum morph' },
-    { key: 'morph', label: 'Rantai kedua (morph)', type: 'json', hint: 'Sama seperti nodes; kosong = tanpa morph' },
-    { key: 'caption', label: 'Kalimat bawah', type: 'text' },
-    { key: 'captionAccent', label: 'Kata disorot di kalimat', type: 'lines' },
+    { key: 'nodes', label: 'Nodes', type: 'json', hint: "[{label, icon, tone?}]; icon 'bubble' with no label = divider bubble" },
+    { key: 'alert', label: 'Red nodes (indexes)', type: 'numbers', hint: 'Indexes into nodes; they shake before the morph' },
+    { key: 'morph', label: 'Second chain (morph)', type: 'json', hint: 'Same as nodes; empty = no morph' },
+    { key: 'caption', label: 'Bottom sentence', type: 'text' },
+    { key: 'captionAccent', label: 'Highlighted words in the sentence', type: 'lines' },
   ],
   defaults: (): ChainProps => ({
     nodes: [

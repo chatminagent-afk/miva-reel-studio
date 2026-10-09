@@ -50,9 +50,9 @@ function build(item: ResolvedMotion<'chips'>) {
 
 export const chips: MotionComponent<'chips'> = {
   kind: 'chips',
-  title: 'Chip status',
-  description: 'Tumpukan chip status bernada (centang / peringatan / stop) yang muncul satu per satu, mis. LEAD Saved, FOLLOW-UP Scheduled.',
-  fields: [{ key: 'items', label: 'Chip', type: 'json', hint: '[{label, sub?, icon: check|warn|stop, tone}]' }],
+  title: 'Status chips',
+  description: 'Stack of toned status chips (check / warning / stop) that appear one by one, e.g. LEAD Saved, FOLLOW-UP Scheduled.',
+  fields: [{ key: 'items', label: 'Chips', type: 'json', hint: '[{label, sub?, icon: check|warn|stop, tone}]' }],
   defaults: (): ChipsProps => ({
     items: [
       { label: 'LEAD', sub: 'Saved', icon: 'check', tone: 'green' },

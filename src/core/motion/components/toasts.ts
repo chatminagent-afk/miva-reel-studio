@@ -71,12 +71,12 @@ function build(item: ResolvedMotion<'toasts'>) {
 
 export const toasts: MotionComponent<'toasts'> = {
   kind: 'toasts',
-  title: 'Notifikasi bertubi',
-  description: 'Pill notifikasi putih muncul bergantian kiri/kanan di sekitar kepala (mis. NEW MESSAGE x6).',
+  title: 'Notifications',
+  description: 'White notification pills appear alternating left/right around the head (e.g. NEW MESSAGE x6).',
   fields: [
-    { key: 'items', label: 'Isi notifikasi', type: 'lines', hint: 'Satu per baris. "Nama | pesan" = nama tebal + pesan' },
-    { key: 'icon', label: 'Ikon', type: 'icon' },
-    { key: 'shake', label: 'Ikon bergetar saat masuk', type: 'bool' },
+    { key: 'items', label: 'Notification texts', type: 'lines', hint: 'One per line. "Name | message" = bold name + message' },
+    { key: 'icon', label: 'Icon', type: 'icon' },
+    { key: 'shake', label: 'Icon shakes on entry', type: 'bool' },
   ],
   defaults: (): ToastsProps => ({ items: Array.from({ length: 6 }, () => 'NEW MESSAGE'), icon: 'bubble', shake: true }),
   minDur: 1.5,

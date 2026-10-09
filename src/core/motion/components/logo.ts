@@ -68,12 +68,12 @@ function build(item: ResolvedMotion<'logo'>) {
 
 export const logo: MotionComponent<'logo'> = {
   kind: 'logo',
-  title: 'Kartu logo MIVA',
-  description: 'Kartu logo MIVA gelap (tanda gradien + wordmark + sub) dengan pill tagline; opsional bubble ditarik ke tengah dulu.',
+  title: 'Logo card',
+  description: 'Dark MIVA logo card (gradient mark + wordmark + sub) with a tagline pill; optionally bubbles are pulled to the center first.',
   fields: [
-    { key: 'sub', label: 'Sub wordmark', type: 'text', hint: 'Mis. AI AUTOMATION' },
-    { key: 'tagline', label: 'Tagline', type: 'text', hint: 'Pill bergaris cyan di bawah kartu (opsional)' },
-    { key: 'gather', label: 'Bubble ditarik ke tengah dulu', type: 'bool' },
+    { key: 'sub', label: 'Wordmark sub', type: 'text', hint: 'E.g. AI AUTOMATION' },
+    { key: 'tagline', label: 'Tagline', type: 'text', hint: 'Cyan-outlined pill below the card (optional)' },
+    { key: 'gather', label: 'Bubbles pulled to the center first', type: 'bool' },
   ],
   defaults: (): LogoProps => ({ sub: 'AI AUTOMATION', tagline: 'AI CUSTOMER SERVICE', gather: false }),
   minDur: 1.2,

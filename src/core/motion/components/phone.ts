@@ -112,13 +112,13 @@ function build(item: ResolvedMotion<'phone'>) {
 
 export const phone: MotionComponent<'phone'> = {
   kind: 'phone',
-  title: 'HP lock-screen',
-  description: 'Mockup HP: jam berganti (siang ke malam), notifikasi WhatsApp menumpuk dan HP bergetar, pill status di bawah. Cocok sebagai adegan.',
+  title: 'Phone lock screen',
+  description: 'Phone mockup: the clock advances (day to night), WhatsApp notifications stack up and the phone vibrates, status pill at the bottom. Works well as a scene.',
   fields: [
-    { key: 'clocks', label: 'Jam', type: 'lines', hint: 'Satu per baris, mis. 08:12; berganti di beat' },
-    { key: 'notifs', label: 'Notifikasi', type: 'json', hint: '[{app, text}]; masuk satu per beat, maks 4 terlihat' },
-    { key: 'status', label: 'Status bawah', type: 'text', hint: 'Mis. Still replying (tiga titik melompat); kosong = tanpa pill' },
-    { key: 'dayNight', label: 'Latar siang ke malam', type: 'bool' },
+    { key: 'clocks', label: 'Clocks', type: 'lines', hint: 'One per line, e.g. 08:12; changes on beats' },
+    { key: 'notifs', label: 'Notifications', type: 'json', hint: '[{app, text}]; one enters per beat, max 4 visible' },
+    { key: 'status', label: 'Bottom status', type: 'text', hint: 'E.g. Still replying (three bouncing dots); empty = no pill' },
+    { key: 'dayNight', label: 'Day-to-night background', type: 'bool' },
   ],
   defaults: (): PhoneProps => ({
     clocks: ['08:12', '12:47', '18:36', '22:51'],

@@ -94,15 +94,15 @@ function build(item: ResolvedMotion<'statement'>) {
 
 export const statement: MotionComponent<'statement'> = {
   kind: 'statement',
-  title: 'Kalimat besar',
-  description: 'Baris kecil sans + baris besar serif italic emas (atau pill satu kalimat). Kata bisa disorot atau dicoret merah.',
+  title: 'Statement',
+  description: 'A small sans line + a large gold italic serif line (or a one-sentence pill). Words can be highlighted or struck through in red.',
   fields: [
-    { key: 'style', label: 'Gaya', type: 'select', options: ['serif', 'pill'] },
-    { key: 'line1', label: 'Baris kecil', type: 'text', hint: 'Sans putih di atas baris besar (opsional)' },
-    { key: 'line2', label: 'Baris besar', type: 'text', hint: 'Serif italic emas (gaya serif) atau isi pill' },
-    { key: 'accent', label: 'Kata disorot', type: 'lines', hint: 'Satu frasa per baris' },
-    { key: 'strike', label: 'Kata dicoret', type: 'lines', hint: 'Satu frasa per baris; dicoret merah di beat' },
-    { key: 'flash', label: 'Kilat putih saat masuk', type: 'bool' },
+    { key: 'style', label: 'Style', type: 'select', options: ['serif', 'pill'] },
+    { key: 'line1', label: 'Small line', type: 'text', hint: 'White sans above the large line (optional)' },
+    { key: 'line2', label: 'Large line', type: 'text', hint: 'Gold italic serif (serif style) or the pill content' },
+    { key: 'accent', label: 'Highlighted words', type: 'lines', hint: 'One phrase per line' },
+    { key: 'strike', label: 'Struck-through words', type: 'lines', hint: 'One phrase per line; struck through in red on a beat' },
+    { key: 'flash', label: 'White flash on entry', type: 'bool' },
   ],
   defaults: (): StatementProps => ({ line1: 'Mungkin bukan', line2: 'customer-nya.', style: 'serif' }),
   minDur: 1.2,

@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { buildBaseCommands } from '../../src/core/base';
 import { autoCamera, renderTemplate } from '../../src/core/compose';
-import { compositeArgs, encodeFramesArgs, encoderArgs, SIZES, type CompositeSpec } from '../../src/core/export';
+import { compositeArgs, encodeFramesArgs, encodeWithFallback, encoderArgs, SIZES, softwareEncoder, type CompositeSpec } from '../../src/core/export';
 import { graphToFile } from '../../src/core/ffmpeg';
 import { hfRenderArgs, hyperframesEnv, parseHfLine, type RenderRuntime } from '../../src/core/hyperframes';
 import { externalUrls, toFullTemplate, toOverlayTemplate } from '../../src/core/overlay';
@@ -332,5 +332,40 @@ describe.skipIf(process.platform === 'win32')('pembatalan proses', () => {
 
   it('error berisi baris terakhir output', async () => {
     await expect(runProcess('sh', ['-c', 'echo satu; echo dua >&2; exit 3'])).rejects.toMatchObject({ code: 3, tail: 'satu\ndua' });
+  });
+});
+
+describe('fallback encoder GPU ke CPU', () => {
+  it('pasangan encoder CPU', () => {
+    expect(softwareEncoder('h264_nvenc')).toBe('libx264');
+    expect(softwareEncoder('hevc_nvenc')).toBe('libx265');
+    expect(softwareEncoder('libx264')).toBeNull();
+  });
+
+  it('NVENC gagal di tengah export: diulang sekali dengan libx264', async () => {
+    const tried: string[] = [];
+    const fell: string[] = [];
+    const used = await encodeWithFallback(
+      'h264_nvenc',
+      async (enc) => {
+        tried.push(enc);
+        if (enc === 'h264_nvenc') throw new Error('No CUDA-capable device is detected');
+      },
+      (from, to) => fell.push(`${from}>${to}`),
+    );
+    expect(used).toBe('libx264');
+    expect(tried).toEqual(['h264_nvenc', 'libx264']);
+    expect(fell).toEqual(['h264_nvenc>libx264']);
+  });
+
+  it('dibatalkan atau sudah CPU: tidak diulang', async () => {
+    const tried: string[] = [];
+    const cancel = async (enc: string) => {
+      tried.push(enc);
+      throw new CancelledError();
+    };
+    await expect(encodeWithFallback('hevc_nvenc', cancel)).rejects.toBeInstanceOf(CancelledError);
+    await expect(encodeWithFallback('libx264', async () => Promise.reject(new Error('disk penuh')))).rejects.toThrow('disk penuh');
+    expect(tried).toEqual(['hevc_nvenc']);
   });
 });

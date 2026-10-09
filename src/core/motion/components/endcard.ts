@@ -67,12 +67,12 @@ function build(item: ResolvedMotion<'endcard'>) {
 export const endcard: MotionComponent<'endcard'> = {
   kind: 'endcard',
   title: 'End card',
-  description: 'Kartu penutup layar penuh terang: tanda logo, wordmark, sub, tagline italic, pill CTA. Menyembunyikan subtitle dan kata kunci.',
+  description: 'Bright full-screen closing card: logo mark, wordmark, sub, italic tagline, CTA pill. Hides subtitles and keywords.',
   fields: [
-    { key: 'title', label: 'Wordmark', type: 'text', hint: 'Mis. MIVA' },
-    { key: 'sub', label: 'Sub', type: 'text', hint: 'Mis. AI AUTOMATION' },
-    { key: 'tagline', label: 'Tagline', type: 'text', hint: 'Italic, mis. AI Customer Service' },
-    { key: 'cta', label: 'Pill CTA', type: 'text', hint: 'Mis. Chat nomor di BIO' },
+    { key: 'title', label: 'Wordmark', type: 'text', hint: 'E.g. MIVA' },
+    { key: 'sub', label: 'Sub', type: 'text', hint: 'E.g. AI AUTOMATION' },
+    { key: 'tagline', label: 'Tagline', type: 'text', hint: 'Italic, e.g. AI Customer Service' },
+    { key: 'cta', label: 'CTA pill', type: 'text', hint: 'E.g. Chat nomor di BIO' },
   ],
   defaults: (): EndcardProps => ({ title: 'MIVA', sub: 'AI AUTOMATION', tagline: 'AI Customer Service', cta: 'Chat nomor di BIO' }),
   minDur: 1.8,

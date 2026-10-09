@@ -1,10 +1,12 @@
-// Panel kanan (Details): isi tergantung pilihan — kata (Caption), jeda (Silence), bagian terbuang (Removed),
+// Panel kanan (Details): isi tergantung pilihan: kata (Caption), jeda (Silence), bagian terbuang (Removed), SFX, motion,
 // atau klip/tanpa pilihan (Video, Speed, Adjust, Audio). Hanya kontrol yang benar-benar berfungsi yang ditampilkan.
 import { useEffect, useState, type ReactElement } from 'react';
 import type { SfxLibrary } from '../../../core/compose';
 import type { KeywordMark } from '../../../core/suggest';
 import { fmtTime } from '../api';
 import type { Derived } from './derived';
+import { Switch } from './fields';
+import { MotionDetails } from './MotionDetails';
 import * as ops from './ops';
 import type { Doc } from './ops';
 import type { Sel } from './Timeline';
@@ -101,14 +103,6 @@ function Segs<T extends string | number>({ value, options, onPick, label }: { va
   );
 }
 
-function Switch({ on, onToggle, label }: { on: boolean; onToggle: () => void; label: string }) {
-  return (
-    <button type="button" className={`sw${on ? ' on' : ''}`} aria-label={label} aria-pressed={on} onClick={onToggle}>
-      <span className="knob" />
-    </button>
-  );
-}
-
 function WordPanel({ doc, d, i, apply }: { doc: Doc; d: Derived; i: number; apply: Props['apply'] }) {
   const w = doc.state.words[i];
   const fix = doc.edit.fix ?? {};
@@ -184,7 +178,10 @@ export function Details(p: Props) {
 
   let body: ReactElement;
   let tabs: { k: string; l: string }[] = [];
-  if (sel?.kind === 'sfx') {
+  if (sel?.kind === 'motion') {
+    tabs = [{ k: 'motion', l: 'Motion' }];
+    body = <MotionDetails key={sel.id} doc={doc} d={d} id={sel.id} apply={apply} onClearSel={p.onClearSel} />;
+  } else if (sel?.kind === 'sfx') {
     tabs = [{ k: 'sfx', l: 'Sound' }];
     body = <SfxPanel {...p} sel={sel} />;
   } else if (sel?.kind === 'word') {

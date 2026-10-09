@@ -72,6 +72,8 @@ export interface ExportResult {
   height: number;
   fps: number;
   encoder: string;
+  /** encoder GPU yang gagal di tengah export lalu diganti encoder CPU (kosong = tidak ada fallback) */
+  encoderFallback?: string;
   mix: MixReport;
   /** Koneksi jaringan yang diblokir saat render (harus kosong). */
   blocked: string[];
@@ -128,6 +130,33 @@ export async function encoderWorks(ffmpeg: string, encoder: string): Promise<boo
 export async function pickEncoder(ffmpeg: string, codec: Codec): Promise<string> {
   const [hw, sw] = codec === 'hevc' ? ['hevc_nvenc', 'libx265'] : ['h264_nvenc', 'libx264'];
   return (await encoderWorks(ffmpeg, hw)) ? hw : sw;
+}
+
+/** Encoder CPU pengganti encoder GPU; null kalau sudah encoder CPU. */
+export function softwareEncoder(encoder: string): string | null {
+  return encoder === 'h264_nvenc' ? 'libx264' : encoder === 'hevc_nvenc' ? 'libx265' : null;
+}
+
+/**
+ * Jalankan encode; kalau encoder GPU gagal di tengah jalan (bukan dibatalkan), ulangi sekali dengan encoder CPU.
+ * Kasus nyata 09/10 di laptop Steven: GPU NVIDIA hilang dari Windows saat export, ffmpeg NVENC mati di akhir progress.
+ * Mengembalikan encoder yang akhirnya dipakai.
+ */
+export async function encodeWithFallback(
+  encoder: string,
+  run: (enc: string) => Promise<void>,
+  onFallback?: (from: string, to: string, err: unknown) => void,
+): Promise<string> {
+  try {
+    await run(encoder);
+    return encoder;
+  } catch (e) {
+    const sw = softwareEncoder(encoder);
+    if (!sw || e instanceof CancelledError) throw e;
+    onFallback?.(encoder, sw, e);
+    await run(sw);
+    return sw;
+  }
 }
 
 export interface CompositeSpec {
@@ -355,19 +384,31 @@ export async function exportReel(o: ExportOptions): Promise<ExportResult> {
     };
     const motion = mo ? { items: mo.resolved.length, scenes: scenes.length, sfx: mo.overlay.sfx.length, errors: mo.errors.map((e) => `${e.id}: ${e.message}`) } : undefined;
     writingOutput = true;
-    // graf kamera tumbuh ±1,4 KB per langkah: 24 langkah sudah 33 KB > 32.767 di Windows (spawn ENAMETOOLONG)
-    const args = await graphToFile(fast ? compositeArgs({ ...common, base, camera: data.camera, origin: data.origin, scenes }) : encodeFramesArgs(common), graphFile);
-    await runProcess(o.runtime.ffmpeg, args, {
-      signal: o.signal,
-      onStdoutLine: (l) => {
-        const m = /^out_time_us=(\d+)/.exec(l);
-        if (m) report('composite', Number(m[1]) / 1e6 / duration, `${fast ? 'Compositing video' : 'Encoding video'} (${encoder})`);
-      },
-    });
+    const encodeOnce = async (enc: string) => {
+      const spec = { ...common, encoder: enc };
+      // graf kamera tumbuh ±1,4 KB per langkah: 24 langkah sudah 33 KB > 32.767 di Windows (spawn ENAMETOOLONG)
+      const args = await graphToFile(fast ? compositeArgs({ ...spec, base, camera: data.camera, origin: data.origin, scenes }) : encodeFramesArgs(spec), graphFile);
+      await runProcess(o.runtime.ffmpeg, args, {
+        signal: o.signal,
+        onStdoutLine: (l) => {
+          const m = /^out_time_us=(\d+)/.exec(l);
+          if (m) report('composite', Number(m[1]) / 1e6 / duration, `${fast ? 'Compositing video' : 'Encoding video'} (${enc})`);
+        },
+      });
+    };
+    let encoderFallback: string | undefined;
+    // fallback hanya kalau encoder dipilih otomatis; encoder yang diminta eksplisit (tes) dibiarkan gagal apa adanya
+    const used = o.encoder
+      ? (await encodeOnce(encoder), encoder)
+      : await encodeWithFallback(encoder, encodeOnce, (from, to) => {
+          encoderFallback = from;
+          encoderCache.set(`${o.runtime.ffmpeg}\0${from}`, false); // export berikutnya langsung pakai CPU
+          report('composite', 0, `GPU encoder (${from}) failed, retrying on CPU (${to})`);
+        });
     timings.composite = Date.now() - t0;
     o.onProgress?.({ stage: 'done', progress: 1, message: 'Done' });
     const mode = fast ? 'fast' : 'full';
-    return { output: o.output, mode, duration, width: size.w, height: size.h, fps: o.fps, encoder, mix: mixReport, blocked, timings, motion };
+    return { output: o.output, mode, duration, width: size.w, height: size.h, fps: o.fps, encoder: used, encoderFallback, mix: mixReport, blocked, timings, motion };
   } catch (e) {
     if (writingOutput) await rm(o.output, { force: true }); // tidak meninggalkan file setengah jadi (UAT 15)
     throw e;

@@ -79,13 +79,13 @@ function build(item: ResolvedMotion<'counter'>) {
 
 export const counter: MotionComponent<'counter'> = {
   kind: 'counter',
-  title: 'Counter angka',
-  description: 'Pill angka berjalan (mis. 12 -> 27 -> 43 UNREAD MESSAGES); tiap nilai berganti di beat berikutnya dengan hitung-naik singkat.',
+  title: 'Counter',
+  description: 'Running-number pill (e.g. 12 -> 27 -> 43 UNREAD MESSAGES); each value changes on the next beat with a short count-up.',
   fields: [
-    { key: 'label', label: 'Label', type: 'text', hint: 'Mis. UNREAD MESSAGES' },
-    { key: 'icon', label: 'Ikon', type: 'icon' },
-    { key: 'tone', label: 'Nada', type: 'tone' },
-    { key: 'values', label: 'Nilai', type: 'numbers', hint: 'Urut; nilai pertama tampil saat masuk, sisanya di beat' },
+    { key: 'label', label: 'Label', type: 'text', hint: 'E.g. UNREAD MESSAGES' },
+    { key: 'icon', label: 'Icon', type: 'icon' },
+    { key: 'tone', label: 'Tone', type: 'tone' },
+    { key: 'values', label: 'Values', type: 'numbers', hint: 'In order; the first value shows on entry, the rest on beats' },
   ],
   defaults: (): CounterProps => ({ label: 'UNREAD MESSAGES', icon: 'phone', tone: 'red', values: [12, 27, 43] }),
   minDur: 1.5,
