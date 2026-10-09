@@ -99,6 +99,8 @@ Whisper dan model lokal lain jalan di GPU (CUDA); encode MP4 pakai NVENC. Whispe
 | Mode Claude (API/CLI) untuk menerjemahkan brief motion | Interpretasi brief jauh lebih pintar, mendekati skill. Biaya API per generate Opus 5.5 ±$0,11-0,19 / Sonnet 5.5 ±$0,06-0,10 (±$2-6/bln untuk 30 reel), butuh internet | Rules offline saja (pilihan 08/10): blok yang tidak dikenali jatuh ke komponen terdekat + tanda review |
 | Kode motion custom dari Claude (di luar pustaka) | Paling mirip skill | Tidak bisa diedit lewat field, risiko render; komponen terdekat dipakai |
 | Kamera: rantai `if()` FFmpeg gagal parse di ±90-100 langkah (reel ±3 menit) | Ubah jadi pohon seimbang | Reels < 90 dtk aman |
+| Verifikasi jalur GPU (Whisper CUDA + NVENC) di build.10 | Perlu GPU NVIDIA aktif lagi: 09/10 RTX 4060 berstatus "Unknown" di Windows (driver kehilangan GPU di tengah UAT, biasanya pulih setelah restart) | UAT build.10 jalan di CPU (Whisper int8, libx264); export tetap aman karena fallback NVENC ke CPU |
+| Install manual lewat PowerShell `Start-Process` | Argumen `/DIR` berspasi WAJIB dikutip: `'/DIR="D:\MIVA Reel Studio"'`. Tanpa kutip, installer memasang ke `D:\MIVA` (kejadian 09/10, sudah di-uninstall dan dipasang ulang benar) | - |
 | Teks & stiker manual + preset gaya subtitle lain | Menambah tools, UI lebih ramai | Hanya gaya subtitle MIVA |
 
 ## Risiko teknis yang sudah diketahui
